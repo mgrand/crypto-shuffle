@@ -6,22 +6,43 @@
 
   <groupId>com.markgrand</groupId>
   <artifactId>crypto-shuffle</artifactId>
-  <packaging>jar</packaging>
   <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
 
-  <name>Crypto Shuffle Symmetric Encryption</name>
+  <name>crypto-shuffle</name>
+  <description>Crypto Shuffle Symmetric Encryption</description>
 
   <properties>
+    <bouncycastle.version>1.56</bouncycastle.version>
+    <java.version>1.8</java.version>
+    <junit-version>4.12</junit-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
 
+  <licenses>
+    <license>
+      <name>Apache License 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
+      <distribution>manual</distribution>
+    </license>
+  </licenses>
+
+  <inceptionYear>2017</inceptionYear>
+
   <dependencies>
+    <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on -->
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcprov-jdk15on</artifactId>
+      <version>${bouncycastle.version}</version>
+    </dependency>
+
     <!-- https://mvnrepository.com/artifact/junit/junit -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.12</version>
+      <version>${junit-version}</version>
     </dependency>
   </dependencies>
 
@@ -34,8 +55,29 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.5.1</version>
         <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.19.1</version>
+        <configuration>
+          <argLine>
+            -javaagent:"${settings.localRepository}"/org/jmockit/jmockit/${jmockit.version}/jmockit-${jmockit.version}.jar=coverage
+            <!-- coverage properties -->
+          </argLine>
+          <systemPropertyVariables>
+            <!-- At least one of the following needs to be set: -->
+            <coverage-output>html</coverage-output>     <!-- or: html-nocp, serial, serial-append -->
+            <coverage-metrics>all</coverage-metrics>    <!-- or: line, path, data -->
+            <!--<coverage-classes>loaded</coverage-classes> -->
+
+            <!-- Other properties, if needed: -->
+            <coverage-excludes>some.package.*</coverage-excludes> <!-- default: empty -->
+            <!--<coverage-check>80</coverage-check>-->
+          </systemPropertyVariables>
         </configuration>
       </plugin>
     </plugins>
