@@ -3,6 +3,8 @@ package com.markgrand.cryptoShuffle;
 import org.bouncycastle.crypto.digests.SHA3Digest;
 import org.bouncycastle.crypto.prng.DigestRandomGenerator;
 
+import java.util.Random;
+
 /**
  * <p>Implements a highly secure algorithm with the following properties:</p>
  * <ul>
@@ -60,9 +62,13 @@ import org.bouncycastle.crypto.prng.DigestRandomGenerator;
  * plaintext is equal.</p></li>
  * <li>Perform a shuffle of the plaintext based on pseudo-random numbers.</li>
  * </ol>
+ *
+ * @author Mark Grand
  */
 @SuppressWarnings("unused")
 public class CryptoShuffle {
+    private static final byte VERSION_ONE = 0x01;
+
     /**
      * Encrypt the given plaintext using the given key.
      *
@@ -72,8 +78,51 @@ public class CryptoShuffle {
      */
     public static byte[] encrypt(final byte[] plaintext, final byte[] key) {
         final EncryptionValues ev = new EncryptionValues(plaintext, key);
+        final byte[] encrypted = new byte[ev.encryptedLength + 1];
+        encrypted[0] = VERSION_ONE;
+        System.arraycopy(plaintext, 0, encrypted, 1, plaintext.length);
+        storeLength(encrypted, plaintext.length, ev.lengthLength);
+        encrypted[plaintext.length + ev.lengthLength] = (byte) (ev.lengthLength + ev.lengthOffset);
+        final Random r = new Random();
+        final int paddingOffset = plaintext.length + ev.lengthLength+1;
+        generateRandomPaddingBytes(encrypted, paddingOffset, ev.padLength, r);
+        balanceOnesAndZeros(encrypted, paddingOffset, ev.padLength, r);
+        return encrypted;
+    }
 
-        return new byte[0];
+    private static void balanceOnesAndZeros(final byte[] encrypted,
+                                            final int paddingOffset,
+                                            final int padLength,
+                                            final Random r) {
+        int onesCount = ByteUtil.countOnes(encrypted, 1, encrypted.length - 1);
+
+    }
+
+    private static void generateRandomPaddingBytes(final byte[] encrypted,
+                                                   final int offset,
+                                                   final int padLength,
+                                                   final Random r) {
+        final byte[] buffer = new byte[padLength];
+        r.nextBytes(buffer);
+        System.arraycopy(buffer, 0, encrypted, offset, padLength);
+    }
+
+    private static void storeLength(final byte[] encrypted, final int length, final int lengthLength) {
+        assert lengthLength <= 4 && lengthLength >= 1;
+        int offset = length + 1;
+        switch (lengthLength) {
+            case 4:
+                encrypted[offset] = (byte) (length >>> 24);
+                offset += 1;
+            case 3:
+                encrypted[offset] = (byte) (length >>> 16);
+                offset += 1;
+            case 2:
+                encrypted[offset] = (byte) (length >>> 8);
+                offset += 1;
+            case 1:
+                encrypted[offset] = (byte) length;
+        }
     }
 
     /**
@@ -119,8 +168,8 @@ public class CryptoShuffle {
             long maxIndex = encryptedLength * 8 - 1;
             for (long i = 0; i < maxIndex; i++) {
                 if (randomLong(digestRandomGenerator) % encryptedLength > i) {
-                    long temp = targetIndices[(int)(i%8)][(int)(i/8)];
-                    targetIndices[(int)(i%8)][(int)(i/8)] = targetIndices[7][encryptedLength - 1];
+                    long temp = targetIndices[(int) (i % 8)][(int) (i / 8)];
+                    targetIndices[(int) (i % 8)][(int) (i / 8)] = targetIndices[7][encryptedLength - 1];
                     targetIndices[7][encryptedLength - 1] = temp;
                 }
             }
