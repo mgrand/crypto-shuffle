@@ -273,7 +273,7 @@ class ByteUtil {
      * @return The number of ones in b.
      */
     static int countOnes(final byte b) {
-        return ones[b];
+        return ones[b & 0xff];
     }
 
     @SuppressWarnings("SameParameterValue")
