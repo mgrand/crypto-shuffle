@@ -280,7 +280,7 @@ class ByteUtil {
     static int countOnes(final byte[] b, final int offset, final int length) {
         int count = 0;
         for (int i = offset; i < length + offset; i++) {
-            count += ones[b[i]];
+            count += ones[b[i] & 0xff];
         }
         return count;
     }
