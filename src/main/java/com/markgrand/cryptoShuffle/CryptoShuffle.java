@@ -84,7 +84,7 @@ public class CryptoShuffle {
         storeLength(encrypted, plaintext.length, ev.lengthLength);
         encrypted[plaintext.length + ev.lengthLength] = (byte) (ev.lengthLength + ev.lengthOffset);
         final Random r = new Random();
-        final int paddingOffset = plaintext.length + ev.lengthLength+1;
+        final int paddingOffset = plaintext.length + ev.lengthLength + 1;
         generateRandomPaddingBytes(encrypted, paddingOffset, ev.padLength, r);
         balanceOnesAndZeros(encrypted, paddingOffset, ev.padLength, r);
         return encrypted;
@@ -94,8 +94,17 @@ public class CryptoShuffle {
                                             final int paddingOffset,
                                             final int padLength,
                                             final Random r) {
-        int onesCount = ByteUtil.countOnes(encrypted, 1, encrypted.length - 1);
-
+        final int onesCount = ByteUtil.countOnes(encrypted, 1, encrypted.length - 1);
+        final int zerosCount = (encrypted.length - 1) * 8 - onesCount;
+        int difference = onesCount - zerosCount;
+        int bitTarget = (difference >0) ? 0 : 1;
+        while (difference != 0) {
+            int index = (int) (r.nextLong() % padLength) + paddingOffset;
+            int bit = r.nextInt() & 7;
+            if (((encrypted[index]>>bit) & 1) == bitTarget) {
+                //===========
+            }
+        }
     }
 
     private static void generateRandomPaddingBytes(final byte[] encrypted,
