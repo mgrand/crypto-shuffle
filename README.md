@@ -1,13 +1,13 @@
 # crypto-shuffle
 
 The symmetric encryption algorithm used for applications like protecting
-the secricy of blockchain contents needs to be very strong. The
+the secrecy of blockchain contents needs to be very strong. The
 symmetric encryption algorithm should have these properties:
 
 
 * Longer encrypted texts should require more effort to crack than shorter texts.
 * It should be necessary to decrypt the entire text at once, rather than
-  being possible to decrypt in pieces as with a block chypher.
+  being possible to decrypt in pieces as with a block cypher.
 * There should be no upper limit on the key length.
 * One of the challenges of cracking the encryption should be that there
   will be multiple possible solutions that look reasonable and no clue
