@@ -10,7 +10,7 @@ import java.util.Random;
  * <ul>
  * <li>Longer encrypted texts should require more effort to crack than shorter texts.</li>
  * <li>It should be necessary to decrypt the entire text at once, rather than  being possible to decrypt in pieces
- * as with a block chypher.</li>
+ * as with a block cypher.</li>
  * <li>There should be no upper limit on the key length.</li>
  * <li>One of the challenges of cracking the encryption should be that there
  * will be multiple possible solutions that look reasonable and no clue
@@ -65,7 +65,7 @@ import java.util.Random;
  *
  * @author Mark Grand
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "WeakerAccess"})
 public class CryptoShuffle {
     private static final byte VERSION_ONE = 0x01;
 
@@ -78,15 +78,15 @@ public class CryptoShuffle {
      */
     public static byte[] encrypt(final byte[] plaintext, final byte[] key) {
         final EncryptionValues ev = new EncryptionValues(plaintext, key);
-        final byte[] encrypted = new byte[ev.encryptedLength + 1];
+        final byte[] encrypted = new byte[ev.getEncryptedLength() + 1];
         encrypted[0] = VERSION_ONE;
         System.arraycopy(plaintext, 0, encrypted, 1, plaintext.length);
-        storeLength(encrypted, plaintext.length, ev.lengthLength);
-        encrypted[plaintext.length + ev.lengthLength] = (byte) (ev.lengthLength + ev.lengthOffset);
+        storeLength(encrypted, plaintext.length, ev.getLengthLength());
+        encrypted[plaintext.length + ev.getLengthLength()] = (byte) (ev.getLengthLength() + ev.getLengthBias());
         final Random r = new Random();
-        final int paddingOffset = plaintext.length + ev.lengthLength + 1;
-        generateRandomPaddingBytes(encrypted, paddingOffset, ev.padLength, r);
-        balanceOnesAndZeros(encrypted, paddingOffset, ev.padLength, r);
+        final int paddingOffset = plaintext.length + ev.getLengthLength()+1;
+        generateRandomPaddingBytes(encrypted, paddingOffset, ev.getPadLength(), r);
+        balanceOnesAndZeros(encrypted, paddingOffset, ev.getPadLength(), r);
         return encrypted;
     }
 
@@ -134,77 +134,4 @@ public class CryptoShuffle {
         }
     }
 
-    /**
-     * This generates pseudo-random values used to encrypt and decrypt.
-     */
-    private static class EncryptionValues {
-        private final byte lengthOffset;
-        private final int lengthLength;
-        private final int padLength;
-        private final long[][] targetIndices;
-        private final int encryptedLength;
-
-        /**
-         * Constructor
-         *
-         * @param plaintext The plain text to be encrypted.
-         * @param key       The encryption key.
-         */
-        private EncryptionValues(final byte[] plaintext, final byte[] key) {
-            DigestRandomGenerator digestRandomGenerator = new DigestRandomGenerator(new SHA3Digest(512));
-            digestRandomGenerator.addSeedMaterial(key);
-            lengthOffset = randomByte(digestRandomGenerator);
-            lengthLength = significantBytes(plaintext.length);
-            final int baseLength = plaintext.length + lengthLength;
-            padLength = (int) (randomLong(digestRandomGenerator) % baseLength) + baseLength;
-            encryptedLength = plaintext.length + padLength + lengthLength + 1;
-            targetIndices = new long[encryptedLength][8];
-            computeShuffleIndices(digestRandomGenerator);
-        }
-
-        private void computeShuffleIndices(DigestRandomGenerator digestRandomGenerator) {
-            for (long i = 0; i < targetIndices.length; i += 8) {
-                int b = (int) (i / 8);
-                targetIndices[0][b] = i;
-                targetIndices[1][b] = i + 1;
-                targetIndices[2][b] = i + 2;
-                targetIndices[3][b] = i + 3;
-                targetIndices[4][b] = i + 4;
-                targetIndices[5][b] = i + 5;
-                targetIndices[6][b] = i + 6;
-                targetIndices[7][b] = i + 7;
-            }
-            long maxIndex = encryptedLength * 8 - 1;
-            for (long i = 0; i < maxIndex; i++) {
-                if (randomLong(digestRandomGenerator) % encryptedLength > i) {
-                    long temp = targetIndices[(int) (i % 8)][(int) (i / 8)];
-                    targetIndices[(int) (i % 8)][(int) (i / 8)] = targetIndices[7][encryptedLength - 1];
-                    targetIndices[7][encryptedLength - 1] = temp;
-                }
-            }
-        }
-
-        private int significantBytes(int n) {
-            if ((n & 0xff000000) != 0)
-                return 4;
-            if (n > 0xffff)
-                return 3;
-            if (n > 0xff)
-                return 2;
-            return 1;
-        }
-
-        private byte randomByte(DigestRandomGenerator digestRandomGenerator) {
-            byte[] b = new byte[1];
-            digestRandomGenerator.nextBytes(b);
-            return b[0];
-        }
-
-        private long randomLong(DigestRandomGenerator digestRandomGenerator) {
-            byte[] b = new byte[8];
-            digestRandomGenerator.nextBytes(b);
-            return ((long) (b[0] & 0x7f) << 56) + ((long) b[1] << 48) + ((long) b[2] << 40) + ((long) b[3] << 32)
-                           + ((long) b[4] << 24) + ((long) b[5] << 16) + ((long) b[6] << 8) + ((long) b[7]);
-        }
-    }
 }
