@@ -86,6 +86,10 @@ public class CryptoShuffle {
         return shuffle(workingStorage, ev);
     }
 
+    public static byte[] decrypt(final byte[] encrypted, final byte[] key) {
+        return null;
+    }
+
     private static byte[] shuffle(byte[] workingStorage, EncryptionValues ev) {
         byte[] encrypted = new byte[workingStorage.length +1];
         long[][] indices = ev.getTargetIndices();
