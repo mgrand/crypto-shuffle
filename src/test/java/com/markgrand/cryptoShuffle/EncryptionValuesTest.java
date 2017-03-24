@@ -3,6 +3,7 @@ package com.markgrand.cryptoShuffle;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.BitSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -27,11 +28,14 @@ public class EncryptionValuesTest {
         assertEquals(ev1.getEncryptedLength(), ev1.getTargetIndices()[2].length);
         assertEquals(ev1.getEncryptedLength(), plaintext1.length + ev1.getLengthLength() + 1 + ev1.getPadLength());
         String targetIndicesAsString = "";
-        for (int i = 0; i < 8; i++) {
-            targetIndicesAsString += "[" + i + "]=" + Arrays.toString(ev1.getTargetIndices()[i]) + "\n";
+
+        BitSet bits = new BitSet(ev1.getEncryptedLength());
+        for (int b = 0; b < 8; b++) {
+            for (int i = 0; i < ev1.getEncryptedLength(); i++) {
+                bits.set((int)ev1.getTargetIndices()[b][i]);
+            }
         }
-        for (int i = 0; i < ev1.getEncryptedLength() * 8; i++) {
-            assertEquals(targetIndicesAsString, i, ev1.getTargetIndices()[i % 8][i / 8]);
-        }
+        assertTrue(bits.get(0)
+                && (bits.nextClearBit(0) < 0 || bits.nextClearBit(0)>= ev1.getEncryptedLength()));
     }
 }
