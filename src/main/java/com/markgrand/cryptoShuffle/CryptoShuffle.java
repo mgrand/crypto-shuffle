@@ -1,8 +1,5 @@
 package com.markgrand.cryptoShuffle;
 
-import org.bouncycastle.crypto.digests.SHA3Digest;
-import org.bouncycastle.crypto.prng.DigestRandomGenerator;
-
 import java.util.Random;
 
 /**
@@ -78,59 +75,79 @@ public class CryptoShuffle {
      */
     public static byte[] encrypt(final byte[] plaintext, final byte[] key) {
         final EncryptionValues ev = new EncryptionValues(plaintext, key);
-        final byte[] encrypted = new byte[ev.getEncryptedLength() + 1];
-        encrypted[0] = VERSION_ONE;
-        System.arraycopy(plaintext, 0, encrypted, 1, plaintext.length);
-        storeLength(encrypted, plaintext.length, ev.getLengthLength());
-        encrypted[plaintext.length + ev.getLengthLength()] = (byte) (ev.getLengthLength() + ev.getLengthBias());
+        final byte[] workingStorage = new byte[ev.getEncryptedLength()];
+        System.arraycopy(plaintext, 0, workingStorage, 0, plaintext.length);
+        storeLength(workingStorage, plaintext.length, ev.getLengthLength());
+        workingStorage[plaintext.length + ev.getLengthLength()] = (byte) (ev.getLengthLength() + ev.getLengthBias());
         final Random r = new Random();
-        final int paddingOffset = plaintext.length + ev.getLengthLength()+1;
-        generateRandomPaddingBytes(encrypted, paddingOffset, ev.getPadLength(), r);
-        balanceOnesAndZeros(encrypted, paddingOffset, ev.getPadLength(), r);
+        final int paddingOffset = plaintext.length + ev.getLengthLength();
+        generateRandomPaddingBytes(workingStorage, paddingOffset, ev.getPadLength(), r);
+        balanceOnesAndZeros(workingStorage, paddingOffset, ev.getPadLength(), r);
+        return shuffle(workingStorage, ev);
+    }
+
+    private static byte[] shuffle(byte[] workingStorage, EncryptionValues ev) {
+        byte[] encrypted = new byte[workingStorage.length +1];
+        long[][] indices = ev.getTargetIndices();
+        encrypted[0] = VERSION_ONE;
+        for (int i = 0; i < workingStorage.length; i++) {
+            for (int b = 0; b < 8; b++) {
+                long compoundIndex = indices[b][i];
+                int index = (int) (compoundIndex / 8);
+                int bit = (int) (compoundIndex % 8);
+                int mask = 1 << bit;
+                encrypted[index] |= (workingStorage[i] & mask);
+            }
+        }
         return encrypted;
     }
 
-    private static void balanceOnesAndZeros(final byte[] encrypted,
+    private static void balanceOnesAndZeros(final byte[] workingStorage,
                                             final int paddingOffset,
                                             final int padLength,
                                             final Random r) {
-        final int onesCount = ByteUtil.countOnes(encrypted, 1, encrypted.length - 1);
-        final int zerosCount = (encrypted.length - 1) * 8 - onesCount;
+        final int onesCount = ByteUtil.countOnes(workingStorage, 0, workingStorage.length);
+        final int zerosCount = (workingStorage.length - 1) * 8 - onesCount;
         int difference = onesCount - zerosCount;
         int bitTarget = (difference >0) ? 0 : 1;
         while (difference != 0) {
             int index = (int) (r.nextLong() % padLength) + paddingOffset;
             int bit = r.nextInt() & 7;
-            if (((encrypted[index]>>bit) & 1) == bitTarget) {
-                //===========
+            if (((workingStorage[index]>>bit) & 1) == bitTarget) {
+                int mask = 1 << bit;
+                if (bitTarget == 1) {
+                    workingStorage[index] &= ~mask;
+                } else {
+                    workingStorage[index] |= mask;
+                }
             }
         }
     }
 
-    private static void generateRandomPaddingBytes(final byte[] encrypted,
+    private static void generateRandomPaddingBytes(final byte[] workingStorage,
                                                    final int offset,
                                                    final int padLength,
                                                    final Random r) {
         final byte[] buffer = new byte[padLength];
         r.nextBytes(buffer);
-        System.arraycopy(buffer, 0, encrypted, offset, padLength);
+        System.arraycopy(buffer, 0, workingStorage, offset, padLength);
     }
 
-    private static void storeLength(final byte[] encrypted, final int length, final int lengthLength) {
+    private static void storeLength(final byte[] workingStorage, final int length, final int lengthLength) {
         assert lengthLength <= 4 && lengthLength >= 1;
         int offset = length + 1;
         switch (lengthLength) {
             case 4:
-                encrypted[offset] = (byte) (length >>> 24);
+                workingStorage[offset] = (byte) (length >>> 24);
                 offset += 1;
             case 3:
-                encrypted[offset] = (byte) (length >>> 16);
+                workingStorage[offset] = (byte) (length >>> 16);
                 offset += 1;
             case 2:
-                encrypted[offset] = (byte) (length >>> 8);
+                workingStorage[offset] = (byte) (length >>> 8);
                 offset += 1;
             case 1:
-                encrypted[offset] = (byte) length;
+                workingStorage[offset] = (byte) length;
         }
     }
 
