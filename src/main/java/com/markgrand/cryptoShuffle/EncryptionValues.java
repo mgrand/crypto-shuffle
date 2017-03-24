@@ -32,23 +32,23 @@ class EncryptionValues {
     }
 
     private void computeShuffleIndices(DigestRandomGenerator digestRandomGenerator) {
-        for (long i = 0; i < targetIndices.length; i += 8) {
-            int b = (int) (i / 8);
-            targetIndices[0][b] = i;
-            targetIndices[1][b] = i + 1;
-            targetIndices[2][b] = i + 2;
-            targetIndices[3][b] = i + 3;
-            targetIndices[4][b] = i + 4;
-            targetIndices[5][b] = i + 5;
-            targetIndices[6][b] = i + 6;
-            targetIndices[7][b] = i + 7;
+        for (int i = 0; i < targetIndices[0].length; i += 1) {
+            targetIndices[0][i] = i * 8;
+            targetIndices[1][i] = i * 8 + 1;
+            targetIndices[2][i] = i * 8 + 2;
+            targetIndices[3][i] = i * 8 + 3;
+            targetIndices[4][i] = i * 8 + 4;
+            targetIndices[5][i] = i * 8 + 5;
+            targetIndices[6][i] = i * 8 + 6;
+            targetIndices[7][i] = i * 8 + 7;
         }
         long maxIndex = encryptedLength * 8 - 1;
         for (long i = 0; i < maxIndex; i++) {
-            if (randomLong(digestRandomGenerator) % encryptedLength > i) {
+            long randomIndex = randomLong(digestRandomGenerator) % (maxIndex+1);
+            if (randomIndex > i) {
                 long temp = targetIndices[(int) (i % 8)][(int) (i / 8)];
-                targetIndices[(int) (i % 8)][(int) (i / 8)] = targetIndices[7][encryptedLength - 1];
-                targetIndices[7][encryptedLength - 1] = temp;
+                targetIndices[(int) (i % 8)][(int) (i / 8)] = targetIndices[(int)(randomIndex%8)][(int)(randomIndex/8)];
+                targetIndices[(int)(randomIndex%8)][(int)(randomIndex/8)] = temp;
             }
         }
     }
