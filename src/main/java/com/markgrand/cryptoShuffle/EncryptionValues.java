@@ -26,7 +26,7 @@ class EncryptionValues {
         lengthLength = significantBytes(plaintext.length);
         final int baseLength = plaintext.length + lengthLength;
         padLength = (int) (randomLong(digestRandomGenerator) % baseLength) + baseLength;
-        encryptedLength = plaintext.length + padLength + lengthLength + 1;
+        encryptedLength = plaintext.length + lengthLength + 1 + padLength;
         targetIndices = new long[8][encryptedLength];
         computeShuffleIndices(digestRandomGenerator);
     }
