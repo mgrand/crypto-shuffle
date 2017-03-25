@@ -77,16 +77,23 @@ public class CryptoShuffle {
         final EncryptionValues ev = new EncryptionValues(plaintext, key);
         final byte[] workingStorage = new byte[ev.getEncryptedLength()];
         System.arraycopy(plaintext, 0, workingStorage, 0, plaintext.length);
-        storeLength(workingStorage, plaintext.length, ev.getLengthLength());
-        workingStorage[plaintext.length + ev.getLengthLength()] = (byte) (ev.getLengthLength() + ev.getLengthBias());
         final Random r = new Random();
-        final int paddingOffset = plaintext.length + ev.getLengthLength();
+        final int paddingOffset = plaintext.length;
         generateRandomPaddingBytes(workingStorage, paddingOffset, ev.getPadLength(), r);
-        balanceOnesAndZeros(workingStorage, paddingOffset, ev.getPadLength(), r);
         return shuffle(workingStorage, ev);
     }
 
     public static byte[] decrypt(final byte[] encrypted, final byte[] key) {
+        switch (encrypted[0]) {
+            case VERSION_ONE:
+                return decryptV1(encrypted, key);
+        }
+        String msg = "Encrypted bytes were encrypted with an unsupported version:";
+        throw new IllegalArgumentException(msg + (int)encrypted[0]);
+    }
+
+    public static byte[] decryptV1(final byte[] encrypted, final byte[] key) {
+//        byte[] workingStorage = reverseShuffle(encrypted, )
         return null;
     }
 
@@ -106,26 +113,20 @@ public class CryptoShuffle {
         return encrypted;
     }
 
-    private static void balanceOnesAndZeros(final byte[] workingStorage,
-                                            final int paddingOffset,
-                                            final int padLength,
-                                            final Random r) {
-        final int onesCount = ByteUtil.countOnes(workingStorage, 0, workingStorage.length);
-        final int zerosCount = (workingStorage.length - 1) * 8 - onesCount;
-        int difference = onesCount - zerosCount;
-        int bitTarget = (difference >0) ? 0 : 1;
-        while (difference != 0) {
-            int index = (int) (r.nextLong() % padLength) + paddingOffset;
-            int bit = r.nextInt() & 7;
-            if (((workingStorage[index]>>bit) & 1) == bitTarget) {
-                int mask = 1 << bit;
-                if (bitTarget == 1) {
-                    workingStorage[index] &= ~mask;
-                } else {
-                    workingStorage[index] |= mask;
-                }
-            }
-        }
+    private static byte[] reverseShuffle(byte[] workingStorage, EncryptionValues ev) {
+//        byte[] encrypted = new byte[workingStorage.length +1];
+//        long[][] indices = ev.getTargetIndices();
+//        for (int i = 0; i < workingStorage.length; i++) {
+//            for (int b = 0; b < 8; b++) {
+//                long compoundIndex = indices[b][i];
+//                int index = (int) (compoundIndex / 8);
+//                int bit = (int) (compoundIndex % 8);
+//                int mask = 1 << bit;
+//                encrypted[index] |= (workingStorage[i] & mask);
+//            }
+//        }
+//        return encrypted;
+        return null;
     }
 
     private static void generateRandomPaddingBytes(final byte[] workingStorage,
@@ -136,23 +137,4 @@ public class CryptoShuffle {
         r.nextBytes(buffer);
         System.arraycopy(buffer, 0, workingStorage, offset, padLength);
     }
-
-    private static void storeLength(final byte[] workingStorage, final int length, final int lengthLength) {
-        assert lengthLength <= 4 && lengthLength >= 1;
-        int offset = length + 1;
-        switch (lengthLength) {
-            case 4:
-                workingStorage[offset] = (byte) (length >>> 24);
-                offset += 1;
-            case 3:
-                workingStorage[offset] = (byte) (length >>> 16);
-                offset += 1;
-            case 2:
-                workingStorage[offset] = (byte) (length >>> 8);
-                offset += 1;
-            case 1:
-                workingStorage[offset] = (byte) length;
-        }
-    }
-
 }
