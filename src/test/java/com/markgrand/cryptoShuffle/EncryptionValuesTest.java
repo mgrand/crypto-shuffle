@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.BitSet;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -57,5 +58,12 @@ public class EncryptionValuesTest {
         }
         assertTrue(bits.get(0)
                            && (bits.nextClearBit(0) < 0 || bits.nextClearBit(0) >= ev1.getEncryptedLength()));
+    }
+
+    @Test
+    public void consistencyTest() {
+        EncryptionValues ev1 = EncryptionValues.forEncryption(plaintext1, key);
+        EncryptionValues ev2 = EncryptionValues.forDecryption(encrypted1, key);
+        assertArrayEquals(ev1.getTargetIndices(), ev2.getTargetIndices());
     }
 }
