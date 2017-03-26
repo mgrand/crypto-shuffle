@@ -13,28 +13,53 @@ class EncryptionValues {
     @SuppressWarnings("WeakerAccess")
     public static final int MAX_LENGTH = Integer.MAX_VALUE / 2;
 
-    private final int padLength;
-    private final long[][] targetIndices;
-    private final int encryptedLength;
+    private int padLength;
+    private long[][] targetIndices;
+    private int encryptedLength;
 
     /**
-     * Constructor
+     * Compute values needed to encrypt.
      *
      * @param plaintext The plain text to be encrypted.
      * @param key       The encryption key.
      * @throws IllegalArgumentException if the length of plaintext is greater than {@value MAX_LENGTH}.
      */
-    EncryptionValues(final byte[] plaintext, final byte[] key) {
+    static EncryptionValues forEncryption(final byte[] plaintext, final byte[] key) {
         if (plaintext.length > MAX_LENGTH) {
             throw new IllegalArgumentException("Plaintext is longer than maximum supported length of " + MAX_LENGTH);
         }
+        EncryptionValues ev = new EncryptionValues();
+        ev.padLength = plaintext.length;
+        ev.encryptedLength = plaintext.length + ev.padLength;
+        ev.targetIndices = new long[8][ev.encryptedLength];
+        DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator(key);
+        ev.computeShuffleIndices(digestRandomGenerator);
+        return ev;
+    }
+
+    private static DigestRandomGenerator createDigestRandomGenerator(byte[] key) {
         DigestRandomGenerator digestRandomGenerator = new DigestRandomGenerator(new SHA3Digest(512));
         digestRandomGenerator.addSeedMaterial(key);
-        padLength = plaintext.length;
-        encryptedLength = plaintext.length + padLength;
-        targetIndices = new long[8][encryptedLength];
-        computeShuffleIndices(digestRandomGenerator);
+        return digestRandomGenerator;
     }
+
+    /**
+     * Compute values needed to decrypt.
+     *
+     * @param encrypted The encrypted text to be decrypted.
+     * @param key       The encryption key.
+     */
+    static EncryptionValues forDecryption(final byte[] encrypted, final byte[] key) {
+        EncryptionValues ev = new EncryptionValues();
+        ev.encryptedLength = encrypted.length - 1;
+        ev.padLength = encrypted.length / 2;
+        ev.targetIndices = new long[8][ev.encryptedLength];
+        DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator(key);
+        ev.computeShuffleIndices(digestRandomGenerator);
+        return ev;
+    }
+
+    private EncryptionValues() {}
 
     private void computeShuffleIndices(DigestRandomGenerator digestRandomGenerator) {
         long maxIndex = encryptedLength * 8 - 1;

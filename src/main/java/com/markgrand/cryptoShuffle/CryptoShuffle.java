@@ -74,7 +74,7 @@ public class CryptoShuffle {
      * @return The encrypted version of the plaintext.
      */
     public static byte[] encrypt(final byte[] plaintext, final byte[] key) {
-        final EncryptionValues ev = new EncryptionValues(plaintext, key);
+        final EncryptionValues ev = EncryptionValues.forEncryption(plaintext, key);
         final byte[] workingStorage = new byte[ev.getEncryptedLength()];
         System.arraycopy(plaintext, 0, workingStorage, 0, plaintext.length);
         final Random r = new Random();
