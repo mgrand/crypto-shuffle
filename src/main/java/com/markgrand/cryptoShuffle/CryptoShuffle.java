@@ -108,8 +108,10 @@ public class CryptoShuffle {
                 long compoundIndex = indices[b][i];
                 int index = (int) (compoundIndex / 8);
                 int bit = (int) (compoundIndex % 8);
-                int mask = 1 << bit;
-                encrypted[index + VERSION_OFFSET] |= (workingStorage[i] & mask);
+                int bitValue = (workingStorage[i] & (1 << b));
+                if (bitValue != 0) {
+                    encrypted[index + VERSION_OFFSET] |= 1 << bit;
+                }
             }
         }
         return encrypted;
@@ -125,8 +127,10 @@ public class CryptoShuffle {
                 int index = (int) (compoundIndex / 8);
                 if (index < plaintextLength) {
                     int bit = (int) (compoundIndex % 8);
-                    int mask = 1 << bit;
-                    plaintext[i] |= (byte) (encrypted[index + VERSION_OFFSET] & mask);
+                    int bitValue = (encrypted[index + VERSION_OFFSET] & (1 << bit));
+                    if (bitValue != 0) {
+                        plaintext[i] |= 1 << b;
+                    }
                 }
             }
         }

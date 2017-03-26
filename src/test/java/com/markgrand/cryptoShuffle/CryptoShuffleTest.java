@@ -22,6 +22,7 @@ public class CryptoShuffleTest {
         byte[] encrypted = CryptoShuffle.encrypt(plaintext1, key);
         assertEquals(1, encrypted[0]);
         assertEquals(plaintext1.length * 2 + 1, encrypted.length);
-        assertArrayEquals(plaintext1, CryptoShuffle.decrypt(encrypted, key));
+        byte[] computedPlaintext = CryptoShuffle.decrypt(encrypted, key);
+        assertArrayEquals(plaintext1, computedPlaintext);
     }
 }
