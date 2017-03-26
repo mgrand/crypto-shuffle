@@ -3,6 +3,8 @@ package com.markgrand.cryptoShuffle;
 import org.bouncycastle.crypto.digests.SHA3Digest;
 import org.bouncycastle.crypto.prng.DigestRandomGenerator;
 
+import java.util.Arrays;
+
 /**
  * This generates pseudo-random values used to encrypt and decrypt.
  */
@@ -96,5 +98,17 @@ class EncryptionValues {
 
     int getEncryptedLength() {
         return encryptedLength;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+        builder.append("EncryptionValues{padLength=").append(padLength)
+                .append(", encryptedLength=").append(encryptedLength).append(", targetIndices=");
+        for (int b=0; b< targetIndices.length; b++) {
+            builder.append("\n[").append(b).append(']').append(Arrays.toString(targetIndices[b]));
+        }
+        builder.append('}');
+        return builder.toString();
     }
 }
