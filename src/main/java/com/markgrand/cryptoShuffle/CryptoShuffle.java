@@ -65,7 +65,10 @@ import java.util.Random;
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class CryptoShuffle {
     private static final byte VERSION_ONE = 0x01;
-    private static int VERSION_OFFSET = 1;
+    /** A constant to indicate the number of initial bytes in the encrypted array that contain the version number
+     * of this class.
+     */
+    public static int VERSION_OFFSET = 1;
 
     /**
      * Encrypt the given plaintext using the given key.
@@ -100,7 +103,16 @@ public class CryptoShuffle {
         return reverseShuffle(encrypted, ev);
     }
 
-    private static byte[] shuffle(byte[] workingStorage, EncryptionValues ev) {
+    /**
+     * Create an Array that contains the bits from {@code workingStorage} shuffled into the order specified by
+     * the {@code ev} object's {@link EncryptionValues#getTargetIndices()} method.
+     *
+     * @param workingStorage  The array of bits to be shuffled.
+     * @param ev An object that specifies the shuffle order.
+     * @return An array where the first {@link #VERSION_OFFSET} bytes contain the version number of this class and the
+     * following bytes contsin the shuffled bits.
+     */
+    static byte[] shuffle(byte[] workingStorage, EncryptionValues ev) {
         byte[] encrypted = new byte[workingStorage.length + VERSION_OFFSET];
         long[][] indices = ev.getTargetIndices();
         for (int i = 0; i < workingStorage.length; i++) {
