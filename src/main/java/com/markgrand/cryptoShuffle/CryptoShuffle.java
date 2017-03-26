@@ -65,6 +65,7 @@ import java.util.Random;
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class CryptoShuffle {
     private static final byte VERSION_ONE = 0x01;
+    private static int VERSION_OFFSET = 1;
 
     /**
      * Encrypt the given plaintext using the given key.
@@ -80,7 +81,9 @@ public class CryptoShuffle {
         final Random r = new Random();
         final int paddingOffset = plaintext.length;
         generateRandomPaddingBytes(workingStorage, paddingOffset, ev.getPadLength(), r);
-        return shuffle(workingStorage, ev);
+        final byte[] encrypted = shuffle(workingStorage, ev);
+        encrypted[0] = VERSION_ONE;
+        return encrypted;
     }
 
     public static byte[] decrypt(final byte[] encrypted, final byte[] key) {
@@ -89,44 +92,45 @@ public class CryptoShuffle {
                 return decryptV1(encrypted, key);
         }
         String msg = "Encrypted bytes were encrypted with an unsupported version:";
-        throw new IllegalArgumentException(msg + (int)encrypted[0]);
+        throw new IllegalArgumentException(msg + (int) encrypted[0]);
     }
 
-    public static byte[] decryptV1(final byte[] encrypted, final byte[] key) {
-//        byte[] workingStorage = reverseShuffle(encrypted, )
-        return null;
+    private static byte[] decryptV1(final byte[] encrypted, final byte[] key) {
+        EncryptionValues ev = EncryptionValues.forDecryption(encrypted, key);
+        return reverseShuffle(encrypted, ev);
     }
 
     private static byte[] shuffle(byte[] workingStorage, EncryptionValues ev) {
-        byte[] encrypted = new byte[workingStorage.length +1];
+        byte[] encrypted = new byte[workingStorage.length + VERSION_OFFSET];
         long[][] indices = ev.getTargetIndices();
-        encrypted[0] = VERSION_ONE;
         for (int i = 0; i < workingStorage.length; i++) {
             for (int b = 0; b < 8; b++) {
                 long compoundIndex = indices[b][i];
                 int index = (int) (compoundIndex / 8);
                 int bit = (int) (compoundIndex % 8);
                 int mask = 1 << bit;
-                encrypted[index] |= (workingStorage[i] & mask);
+                encrypted[index + VERSION_OFFSET] |= (workingStorage[i] & mask);
             }
         }
         return encrypted;
     }
 
-    private static byte[] reverseShuffle(byte[] workingStorage, EncryptionValues ev) {
-//        byte[] encrypted = new byte[workingStorage.length +1];
-//        long[][] indices = ev.getTargetIndices();
-//        for (int i = 0; i < workingStorage.length; i++) {
-//            for (int b = 0; b < 8; b++) {
-//                long compoundIndex = indices[b][i];
-//                int index = (int) (compoundIndex / 8);
-//                int bit = (int) (compoundIndex % 8);
-//                int mask = 1 << bit;
-//                encrypted[index] |= (workingStorage[i] & mask);
-//            }
-//        }
-//        return encrypted;
-        return null;
+    private static byte[] reverseShuffle(final byte[] encrypted, final EncryptionValues ev) {
+        final int plaintextLength = (encrypted.length - VERSION_OFFSET) / 2;
+        final byte[] plaintext = new byte[plaintextLength];
+        final long[][] indices = ev.getTargetIndices();
+        for (int i = 0; i < plaintextLength; i++) {
+            for (int b = 0; b < 8; b++) {
+                long compoundIndex = indices[b][i];
+                int index = (int) (compoundIndex / 8);
+                if (index < plaintextLength) {
+                    int bit = (int) (compoundIndex % 8);
+                    int mask = 1 << bit;
+                    plaintext[i] |= (byte) (encrypted[index + VERSION_OFFSET] & mask);
+                }
+            }
+        }
+        return plaintext;
     }
 
     private static void generateRandomPaddingBytes(final byte[] workingStorage,
