@@ -3,6 +3,9 @@ package com.markgrand.cryptoShuffle;
 import org.junit.Test;
 
 import java.util.BitSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 import static org.junit.Assert.*;
 
@@ -14,7 +17,7 @@ import static org.junit.Assert.*;
 @SuppressWarnings("unused")
 public class EncryptionValuesTest {
     private final byte[] key = {0x39, (byte) 0xe4, 0x32, (byte) 0xa3, (byte) 0x89, 0x00, 0x24, (byte) 0x97};
-    private final byte[] plaintext2 = {0x6c, (byte)0x95};
+    private final byte[] plaintext2 = {0x6c, (byte) 0x95};
     private final byte[] plaintext16 = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
             0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
     private final byte[] encrypted1 = {0x01, 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
@@ -37,16 +40,18 @@ public class EncryptionValuesTest {
         assertEquals(8, ev1.getTargetIndices().length);
         assertEquals(ev1.getEncryptedLength(), ev1.getTargetIndices()[2].length);
         assertEquals(ev1.getEncryptedLength(), plaintext16.length + ev1.getPadLength());
-        StringBuilder builder = new StringBuilder();
 
-        BitSet bits = new BitSet(ev1.getEncryptedLength());
+        Set<Long> unusedIndices = LongStream.range(0, ev1.getEncryptedLength() * 8).boxed().collect(Collectors.toSet());
         for (int b = 0; b < 8; b++) {
             for (int i = 0; i < ev1.getEncryptedLength(); i++) {
-                bits.set((int) ev1.getTargetIndices()[b][i]);
+                Long index = ev1.getTargetIndices()[b][i];
+                assertTrue("unusedIndices should contain " + index + " but does contain " + unusedIndices
+                                + "\nev is " + ev1,
+                        unusedIndices.contains(index));
+                unusedIndices.remove(ev1.getTargetIndices()[b][i]);
             }
         }
-        assertTrue(bits.get(0)
-                           && (bits.nextClearBit(0) < 0 || bits.nextClearBit(0) >= ev1.getEncryptedLength()));
+        assertTrue(unusedIndices.isEmpty());
     }
 
     @Test
@@ -65,7 +70,7 @@ public class EncryptionValuesTest {
             }
         }
         assertTrue(bits.get(0)
-                           && (bits.nextClearBit(0) < 0 || bits.nextClearBit(0) >= ev1.getEncryptedLength()));
+                && (bits.nextClearBit(0) < 0 || bits.nextClearBit(0) >= ev1.getEncryptedLength()));
     }
 
     @Test

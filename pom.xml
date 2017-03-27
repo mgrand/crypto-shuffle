@@ -15,6 +15,7 @@
   <properties>
     <bouncycastle.version>1.56</bouncycastle.version>
     <java.version>1.8</java.version>
+    <jmockit.version>1.30</jmockit.version>
     <junit-version>4.12</junit-version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -36,6 +37,19 @@
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk15on</artifactId>
       <version>${bouncycastle.version}</version>
+    </dependency>
+
+
+    <!-- test dependencies -->
+    <!--==================================================================
+        == The jmockit dependency MUST come before the junit dependency ==
+        == so that jmockit will be first in the classpath              ==
+        ==================================================================-->
+    <dependency>
+      <groupId>org.jmockit</groupId>
+      <artifactId>jmockit</artifactId>
+      <version>${jmockit.version}</version>
+      <scope>test</scope>
     </dependency>
 
     <!-- https://mvnrepository.com/artifact/junit/junit -->

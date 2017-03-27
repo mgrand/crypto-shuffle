@@ -64,7 +64,7 @@ class EncryptionValues {
     private EncryptionValues() {}
 
     private void computeShuffleIndices(DigestRandomGenerator digestRandomGenerator) {
-        long maxIndex = encryptedLength * 8 - 1;
+        long maxIndex = encryptedLength * 8;
         for (long i = 0; i < maxIndex; i++) {
             long randomIndex = randomPositiveLong(digestRandomGenerator) % (i + 1);
             if (randomIndex != i) {
