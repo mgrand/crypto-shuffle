@@ -10,19 +10,12 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Unit test for EcryptionsValues
+ * Unit test for EncryptionValues
  *
  * @author Mark Grand
  */
 @SuppressWarnings("unused")
-public class CryptoShuffleTest {
-    private final byte[] key = {0x39, (byte) 0xe4, 0x32, (byte) 0xa3, (byte) 0x89, 0x00, 0x24, (byte) 0x97, (byte) 0xf1};
-    private final byte[] plaintext16 = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-            0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x40, (byte) 0xe1, 0x02, (byte) 0xa3, (byte) 0x94,
-            (byte) 0xb5, 0x06, 0x07, 0x08, (byte) 0xf9, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f};
-
-    // {01101100, 10010101}
-    private final byte[] plaintext2 = {0x6c, (byte) 0x95};
+public class CryptoShuffleTest extends AbstractCryptoTest {
 
     @Test
     public void shuffleTest2(@Mocked EncryptionValues ev) {
@@ -51,7 +44,7 @@ public class CryptoShuffleTest {
         byte[] workingStorage = new byte[ev.getEncryptedLength()];
         System.arraycopy(plaintext2, 0, workingStorage, 0, plaintext2.length);
         byte[] encrypted = CryptoShuffle.shuffle(workingStorage, ev);
-        byte[] expectedEncrypted = {0, 0x06, 0x51, (byte)0xa0, 0x20};
+        byte[] expectedEncrypted = {0, 0x06, 0x51, (byte) 0xa0, 0x20};
         assertArrayEquals(expectedEncrypted, encrypted);
         for (int b = 0; b < 8; b++) {
             for (int i = 0; i < plaintext2.length; i++) {
@@ -82,7 +75,7 @@ public class CryptoShuffleTest {
         assertArrayEquals("encrypt modified the plaintext!", plainCopy, plaintext2);
         byte[] computedPlaintext = CryptoShuffle.decrypt(encrypted, key);
         assertEquals(Arrays.toString(computedPlaintext), ByteUtil.countOnes(plaintext2, 0, plaintext2.length),
-                ByteUtil.countOnes(computedPlaintext, 1, computedPlaintext.length -1));
+                ByteUtil.countOnes(computedPlaintext, 1, computedPlaintext.length - 1));
         assertArrayEquals("countOnes modified the plaintext!", plainCopy, plaintext2);
         assertArrayEquals(Arrays.toString(computedPlaintext), plaintext2, computedPlaintext);
     }

@@ -69,7 +69,7 @@ public class CryptoShuffle {
      * A constant to indicate the number of initial bytes in the encrypted array that contain the version number
      * of this class.
      */
-    public static int VERSION_OFFSET = 1;
+    public static final int VERSION_OFFSET = 1;
 
     /**
      * Encrypt the given plaintext using the given key.

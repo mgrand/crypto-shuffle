@@ -28,7 +28,7 @@ Here is a high-level description of the encryption algorithm:
    appear to be a reasonable solution.
 
    Using a separate random number that is in no way dependent on the key
-   we are using, append random bytes to the plaintext to doulble the
+   we are using, append random bytes to the plaintext to double the
    length of the plaintext.
 3. Use the hash as the seed for a pseudo-random sequence of numbers. The
    following steps will be based on this sequence. The decryption
