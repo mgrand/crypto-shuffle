@@ -6,7 +6,7 @@
 
   <groupId>com.markgrand</groupId>
   <artifactId>crypto-shuffle</artifactId>
-  <version>0.2</version>
+  <version>0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>crypto-shuffle</name>
