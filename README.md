@@ -5,7 +5,8 @@ the secrecy of blockchain contents needs to be very strong. The
 symmetric encryption algorithm should have these properties:
 
 
-* Longer encrypted texts should require more effort to crack than shorter texts.
+* Longer encrypted texts should require more effort to crack than
+  shorter texts.
 * It should be necessary to decrypt the entire text at once, rather than
   being possible to decrypt in pieces as with a block cypher.
 * There should be no upper limit on the key length.
@@ -21,7 +22,7 @@ Here is a high-level description of the encryption algorithm:
 
 1. Inputs to the algorithm are a plaintext message that is a sequence of
    bytes and a key that is an arbitrary sequence of bytes.
-2. Compute a SHA2-512 hash of the key.
+2. Compute a SHA512 hash of the key.
 3. The purpose of this step is to add random extraneous bits to ensure
    that a brute force attempt to decrypt the encrypted text will result
    in multiple candidates for the plaintext that will be wrong but
@@ -42,6 +43,30 @@ Here is a high-level description of the encryption algorithm:
    pseudo-random number generator at
    https://www.hgi.rub.de/media/nds/veroeffentlichungen/2013/03/25/paper_2.pdf.
 5. Perform a shuffle of the plaintext based on pseudo-random numbers.
+
+There is a wrinkle to the algorithm that is not mentioned above. The
+pseudo-random numbers are generated from a SHA512 has of the key. This
+is a 512 bit hash value. If we use the entire key to compute the the
+hash value and then compute the pseudo-random numbers, then no matter
+how long the given encryption key is, the effective length of the key is
+limited 512 bits.
+
+While 512 bits is a respectable key size, limiting the effective key
+length to 512 bits is a problem. The problem is that it weakens the goal
+of this algorithm being harder to crack for longer texts.
+
+The number of possible shuffles of the bits in a long plaintext is
+limited by the effective key length. If it were the case that the
+effective key length was limited to 512 bits, then there would be
+shuffles of longer plaintexts that could be ruled out as not being
+possible to generate from an 512 bit key. For this reason, the way that
+we use the key is modified for long keys with long plaintexts, so that
+the effective length of the key is as unlimited as the given keys.
+
+If the key and the plaintext are both longer than 127 bytes then the
+algorithm uses the key in a more elaborate way.
+
+
 
 As mentioned above, the encryption algorithm is implemented using the
 Bouncycastle library. This implementation of Crypto-Shuffle is written
