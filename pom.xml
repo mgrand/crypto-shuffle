@@ -5,12 +5,24 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.markgrand</groupId>
-  <artifactId>crypto-shuffle</artifactId>
+  <artifactId>cryptoshuffle</artifactId>
   <version>0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>crypto-shuffle</name>
   <description>Crypto Shuffle Symmetric Encryption</description>
+
+  <scm>
+    <url>https://github.com/mgrand/crypto-shuffle</url>
+  </scm>
+
+  <licenses>
+    <license>
+      <name>Apache License 2.0</name>
+      <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
+      <distribution>manual</distribution>
+    </license>
+  </licenses>
 
   <properties>
     <bouncycastle.version>1.56</bouncycastle.version>
@@ -20,14 +32,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
-
-  <licenses>
-    <license>
-      <name>Apache License 2.0</name>
-      <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
-      <distribution>manual</distribution>
-    </license>
-  </licenses>
 
   <inceptionYear>2017</inceptionYear>
 

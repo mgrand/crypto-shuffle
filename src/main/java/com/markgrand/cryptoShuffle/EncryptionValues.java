@@ -1,6 +1,6 @@
 package com.markgrand.cryptoShuffle;
 
-import org.bouncycastle.crypto.digests.SHA3Digest;
+import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.prng.DigestRandomGenerator;
 
 import java.util.Arrays;
@@ -40,7 +40,7 @@ class EncryptionValues {
     }
 
     private static DigestRandomGenerator createDigestRandomGenerator(byte[] key) {
-        DigestRandomGenerator digestRandomGenerator = new DigestRandomGenerator(new SHA3Digest(512));
+        DigestRandomGenerator digestRandomGenerator = new DigestRandomGenerator(new SHA512Digest());
         digestRandomGenerator.addSeedMaterial(key);
         return digestRandomGenerator;
     }
@@ -61,12 +61,15 @@ class EncryptionValues {
         return ev;
     }
 
-    private EncryptionValues() {}
+    private EncryptionValues() {
+    }
 
     private void computeShuffleIndices(DigestRandomGenerator digestRandomGenerator) {
-        long maxIndex = encryptedLength * 8;
+        final int maxIndex = encryptedLength * 8;
+        final byte[] randomByteBuffer = new byte[8 * 8];
         for (long i = 0; i < maxIndex; i++) {
-            long randomIndex = randomPositiveLong(digestRandomGenerator) % (i + 1);
+            digestRandomGenerator.nextBytes(randomByteBuffer);
+            long randomIndex = bytesToLong(randomByteBuffer, (int)(i % 8)) % (i + 1);
             if (randomIndex != i) {
                 targetIndices[(int) (i % 8)][(int) (i / 8)] = targetIndices[(int) (randomIndex % 8)][(int) (randomIndex / 8)];
             }
@@ -74,17 +77,16 @@ class EncryptionValues {
         }
     }
 
-    private long randomPositiveLong(DigestRandomGenerator digestRandomGenerator) {
-        byte[] b = new byte[8];
-        digestRandomGenerator.nextBytes(b);
-        return ((long) (b[0] & 0x7f) << 56)
-                       | ((long) (b[1] & 0xff) << 48)
-                       | ((long) (b[2] & 0xff) << 40)
-                       | ((long) (b[3] & 0xff) << 32)
-                       | ((long) (b[4] & 0xff) << 24)
-                       | ((long) (b[5] & 0xff) << 16)
-                       | ((long) (b[6] & 0xff) << 8)
-                       | ((long) (b[7] & 0xff));
+    private long bytesToLong(byte[] bytes, int offset) {
+        int j = offset * 8;
+        return ((long) (bytes[j] & 0x7f) << 56)
+                           | ((long) (bytes[j + 1] & 0xff) << 48)
+                           | ((long) (bytes[j + 2] & 0xff) << 40)
+                           | ((long) (bytes[j + 3] & 0xff) << 32)
+                           | ((long) (bytes[j + 4] & 0xff) << 24)
+                           | ((long) (bytes[j + 5] & 0xff) << 16)
+                           | ((long) (bytes[j + 6] & 0xff) << 8)
+                           | ((long) (bytes[j + 7] & 0xff));
     }
 
 
@@ -105,7 +107,7 @@ class EncryptionValues {
         final StringBuilder builder = new StringBuilder();
         builder.append("EncryptionValues{padLength=").append(padLength)
                 .append(", encryptedLength=").append(encryptedLength).append(", targetIndices=");
-        for (int b=0; b< targetIndices.length; b++) {
+        for (int b = 0; b < targetIndices.length; b++) {
             builder.append("\n[").append(b).append(']').append(Arrays.toString(targetIndices[b]));
         }
         builder.append('}');
