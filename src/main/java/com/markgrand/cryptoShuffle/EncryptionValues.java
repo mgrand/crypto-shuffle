@@ -35,6 +35,7 @@ class EncryptionValues {
         ev.encryptedLength = plaintext.length + ev.padLength;
         ev.targetIndices = new long[8][ev.encryptedLength];
         DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator(key);
+        int keyConsumptionIncrement = computeKeyConsumptionIncrement(key, plaintext);
         ev.computeShuffleIndices(digestRandomGenerator);
         return ev;
     }
@@ -64,12 +65,56 @@ class EncryptionValues {
     private EncryptionValues() {
     }
 
+    /**
+     * If the key is longer than 256 bytes and the plaintext is longer than 128
+     * bytes then the algorithm uses the key in a more elaborate way.
+     * <p/>
+     * The plaintext is divided into groups of 64 bytes with the possibility of
+     * the last group being less than 64 bytes. The key is divided into groups
+     * of 128 bytes with the possibility of the last group being less than 128
+     * bytes.
+     * <p/>
+     * If this yields an equal number of key and plaintext groups, then this is
+     * how the key is used: The SHA512 hash for the first key group is computed
+     * and then used as the seed to generate pseudo-random numbers that determine
+     * the shuffle destination of the bits in the first plaintext group. The
+     * second key group is then combined with the current seed value to produce
+     * a new SHA512 hash. This new hash is used as the seed to generate
+     * pseudo-random numbers that determine the shuffle destination of the bits
+     * in the second plaintext group. This procedure continues to the end of
+     * the groups.
+     * <p/>
+     * If there are fewer key groups than plaintext groups, then after the last
+     * key group has been incorporated into the seed value that seed is used to
+     * generate pseudo-random numbers for the rest of the groups in the plaintext.
+     * If there are more key groups than plaintext groups, then the size of the
+     * key groups is increased so that the number of key groups will be equal
+     * to the number of plaintext groups.
+     *
+     * @param key       The key
+     * @param plainText The plain text
+     * @return the number of bytes of the key that should be used to seed the {@link DigestRandomGenerator} when
+     * computing shuffle indices for each group of 64 bytes of the plain text. This may be a value that causes the key
+     * to be exhausted before all of the shuffle indices are computed.
+     */
+    private static int computeKeyConsumptionIncrement(final byte[] key, final byte[] plainText) {
+        if (key.length <= 256 || plainText.length <= 128) {
+            return key.length;
+        }
+        final int plainTextGroupCount = (int)(((long)plainText.length+63L)/64);
+        int keyConsumptionIncrement = key.length / plainTextGroupCount;
+        if (keyConsumptionIncrement * plainTextGroupCount < key.length) {
+            keyConsumptionIncrement += 1;
+        }
+        return keyConsumptionIncrement;
+    }
+
     private void computeShuffleIndices(DigestRandomGenerator digestRandomGenerator) {
         final int maxIndex = encryptedLength * 8;
         final byte[] randomByteBuffer = new byte[8 * 8];
         for (long i = 0; i < maxIndex; i++) {
             digestRandomGenerator.nextBytes(randomByteBuffer);
-            long randomIndex = bytesToLong(randomByteBuffer, (int)(i % 8)) % (i + 1);
+            long randomIndex = bytesToLong(randomByteBuffer, (int) (i % 8)) % (i + 1);
             if (randomIndex != i) {
                 targetIndices[(int) (i % 8)][(int) (i / 8)] = targetIndices[(int) (randomIndex % 8)][(int) (randomIndex / 8)];
             }
@@ -80,13 +125,13 @@ class EncryptionValues {
     private long bytesToLong(byte[] bytes, int offset) {
         int j = offset * 8;
         return ((long) (bytes[j] & 0x7f) << 56)
-                           | ((long) (bytes[j + 1] & 0xff) << 48)
-                           | ((long) (bytes[j + 2] & 0xff) << 40)
-                           | ((long) (bytes[j + 3] & 0xff) << 32)
-                           | ((long) (bytes[j + 4] & 0xff) << 24)
-                           | ((long) (bytes[j + 5] & 0xff) << 16)
-                           | ((long) (bytes[j + 6] & 0xff) << 8)
-                           | ((long) (bytes[j + 7] & 0xff));
+                       | ((long) (bytes[j + 1] & 0xff) << 48)
+                       | ((long) (bytes[j + 2] & 0xff) << 40)
+                       | ((long) (bytes[j + 3] & 0xff) << 32)
+                       | ((long) (bytes[j + 4] & 0xff) << 24)
+                       | ((long) (bytes[j + 5] & 0xff) << 16)
+                       | ((long) (bytes[j + 6] & 0xff) << 8)
+                       | ((long) (bytes[j + 7] & 0xff));
     }
 
 
