@@ -116,13 +116,13 @@ class EncryptionValues {
                                        final byte[] key) {
         int keyBytesConsumed = 0;
         final int maxIndex = encryptedLength * 8;
-        final byte[] randomByteBuffer = new byte[8 * 8];
+        final byte[] randomByteBuffer = new byte[8];
         for (long i = 0; i < maxIndex; i++) {
             if (0 == i % keyConsumptionIncrement) {
                 keyBytesConsumed = consumeKeyBytes(digestRandomGenerator, keyBytesConsumed, keyConsumptionIncrement, key);
             }
             digestRandomGenerator.nextBytes(randomByteBuffer);
-            long randomIndex = bytesToLong(randomByteBuffer, (int) (i % 8)) % (i + 1);
+            long randomIndex = bytesToLong(randomByteBuffer) % (i + 1);
             if (randomIndex != i) {
                 targetIndices[(int) (i % 8)][(int) (i / 8)] = targetIndices[(int) (randomIndex % 8)][(int) (randomIndex / 8)];
             }
@@ -143,16 +143,15 @@ class EncryptionValues {
         return keyBytesConsumed;
     }
 
-    private long bytesToLong(byte[] bytes, int offset) {
-        int j = offset * 8;
-        return ((long) (bytes[j] & 0x7f) << 56)
-                       | ((long) (bytes[j + 1] & 0xff) << 48)
-                       | ((long) (bytes[j + 2] & 0xff) << 40)
-                       | ((long) (bytes[j + 3] & 0xff) << 32)
-                       | ((long) (bytes[j + 4] & 0xff) << 24)
-                       | ((long) (bytes[j + 5] & 0xff) << 16)
-                       | ((long) (bytes[j + 6] & 0xff) << 8)
-                       | ((long) (bytes[j + 7] & 0xff));
+    private long bytesToLong(byte[] bytes) {
+        return ((long) (bytes[0] & 0x7f) << 56)
+                       | ((long) (bytes[1] & 0xff) << 48)
+                       | ((long) (bytes[2] & 0xff) << 40)
+                       | ((long) (bytes[3] & 0xff) << 32)
+                       | ((long) (bytes[4] & 0xff) << 24)
+                       | ((long) (bytes[5] & 0xff) << 16)
+                       | ((long) (bytes[6] & 0xff) << 8)
+                       | ((long) (bytes[7] & 0xff));
     }
 
 
