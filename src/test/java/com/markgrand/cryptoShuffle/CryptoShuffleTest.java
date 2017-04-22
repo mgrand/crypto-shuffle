@@ -79,4 +79,13 @@ public class CryptoShuffleTest extends AbstractCryptoTest {
         assertArrayEquals("countOnes modified the plaintext!", plainCopy, plaintext2);
         assertArrayEquals(Arrays.toString(computedPlaintext), plaintext2, computedPlaintext);
     }
+
+    @Test
+    public void test0() {
+        byte[] plainText0 = {};
+        byte[] encrypted = CryptoShuffle.encrypt(plainText0, key);
+        assertEquals(1, encrypted.length);
+        byte[] decrypted = CryptoShuffle.decrypt(encrypted, key);
+        assertEquals(0, decrypted.length);
+    }
 }
