@@ -34,16 +34,14 @@ class EncryptionValues {
         ev.padLength = plaintext.length;
         ev.encryptedLength = plaintext.length + ev.padLength;
         ev.targetIndices = new long[8][ev.encryptedLength];
-        DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator(key);
+        DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator();
         int keyConsumptionIncrement = computeKeyConsumptionIncrement(key.length, plaintext.length);
-        ev.computeShuffleIndices(digestRandomGenerator, keyConsumptionIncrement);
+        ev.computeShuffleIndices(digestRandomGenerator, keyConsumptionIncrement, key);
         return ev;
     }
 
-    private static DigestRandomGenerator createDigestRandomGenerator(byte[] key) {
-        DigestRandomGenerator digestRandomGenerator = new DigestRandomGenerator(new SHA512Digest());
-        digestRandomGenerator.addSeedMaterial(key);
-        return digestRandomGenerator;
+    private static DigestRandomGenerator createDigestRandomGenerator() {
+        return new DigestRandomGenerator(new SHA512Digest());
     }
 
     /**
@@ -57,9 +55,9 @@ class EncryptionValues {
         ev.encryptedLength = encrypted.length - 1;
         ev.padLength = encrypted.length / 2;
         ev.targetIndices = new long[8][ev.encryptedLength];
-        DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator(key);
-        int keyConsumptionIncrement = computeKeyConsumptionIncrement(key.length, encrypted.length/2);
-        ev.computeShuffleIndices(digestRandomGenerator, keyConsumptionIncrement);
+        DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator();
+        int keyConsumptionIncrement = computeKeyConsumptionIncrement(key.length, encrypted.length / 2);
+        ev.computeShuffleIndices(digestRandomGenerator, keyConsumptionIncrement, key);
         return ev;
     }
 
@@ -95,7 +93,7 @@ class EncryptionValues {
      * key groups is increased so that the number of key groups will be equal
      * to the number of plaintext groups.
      *
-     * @param keyLength The length of the key in bytes.
+     * @param keyLength       The length of the key in bytes.
      * @param plainTextLength The length of the plain text in bytes.
      * @return the number of bytes of the key that should be used to seed the {@link DigestRandomGenerator} when
      * computing shuffle indices for each group of 64 bytes of the plain text. This may be a value that causes the key
@@ -113,10 +111,16 @@ class EncryptionValues {
         return keyConsumptionIncrement;
     }
 
-    private void computeShuffleIndices(final DigestRandomGenerator digestRandomGenerator, int keyConsumptionIncrement) {
+    private void computeShuffleIndices(final DigestRandomGenerator digestRandomGenerator,
+                                       final int keyConsumptionIncrement,
+                                       final byte[] key) {
+        int keyBytesConsumed = 0;
         final int maxIndex = encryptedLength * 8;
         final byte[] randomByteBuffer = new byte[8 * 8];
         for (long i = 0; i < maxIndex; i++) {
+            if (0 == i % keyConsumptionIncrement) {
+                keyBytesConsumed = consumeKeyBytes(digestRandomGenerator, keyBytesConsumed, keyConsumptionIncrement, key);
+            }
             digestRandomGenerator.nextBytes(randomByteBuffer);
             long randomIndex = bytesToLong(randomByteBuffer, (int) (i % 8)) % (i + 1);
             if (randomIndex != i) {
@@ -124,6 +128,19 @@ class EncryptionValues {
             }
             targetIndices[(int) (randomIndex % 8)][(int) (randomIndex / 8)] = i;
         }
+    }
+
+    private int consumeKeyBytes(final DigestRandomGenerator digestRandomGenerator, final int keyBytesConsumed,
+                                final int keyConsumptionIncrement, final byte[] key) {
+        final int keyBytesRemaining = key.length - keyBytesConsumed;
+        if (keyBytesRemaining > 0) {
+            int bytesToConsume = (keyBytesRemaining > keyConsumptionIncrement) ? keyConsumptionIncrement : keyBytesRemaining;
+            byte[] keyBuffer = new byte[bytesToConsume];
+            System.arraycopy(key, keyBytesConsumed, keyBuffer, 0, bytesToConsume);
+            digestRandomGenerator.addSeedMaterial(keyBuffer);
+            return keyBytesConsumed + bytesToConsume;
+        }
+        return keyBytesConsumed;
     }
 
     private long bytesToLong(byte[] bytes, int offset) {
