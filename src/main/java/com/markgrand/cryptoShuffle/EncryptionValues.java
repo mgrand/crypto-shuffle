@@ -35,7 +35,7 @@ class EncryptionValues {
         ev.encryptedLength = plaintext.length + ev.padLength;
         ev.targetIndices = new long[8][ev.encryptedLength];
         DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator(key);
-        int keyConsumptionIncrement = computeKeyConsumptionIncrement(key, plaintext);
+        int keyConsumptionIncrement = computeKeyConsumptionIncrement(key.length, plaintext.length);
         ev.computeShuffleIndices(digestRandomGenerator);
         return ev;
     }
@@ -58,6 +58,7 @@ class EncryptionValues {
         ev.padLength = encrypted.length / 2;
         ev.targetIndices = new long[8][ev.encryptedLength];
         DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator(key);
+        int keyConsumptionIncrement = computeKeyConsumptionIncrement(key.length, encrypted.length/2);
         ev.computeShuffleIndices(digestRandomGenerator);
         return ev;
     }
@@ -91,25 +92,25 @@ class EncryptionValues {
      * key groups is increased so that the number of key groups will be equal
      * to the number of plaintext groups.
      *
-     * @param key       The key
-     * @param plainText The plain text
+     * @param keyLength The length of the key in bytes.
+     * @param plainTextLength The length of the plain text in bytes.
      * @return the number of bytes of the key that should be used to seed the {@link DigestRandomGenerator} when
      * computing shuffle indices for each group of 64 bytes of the plain text. This may be a value that causes the key
      * to be exhausted before all of the shuffle indices are computed.
      */
-    private static int computeKeyConsumptionIncrement(final byte[] key, final byte[] plainText) {
-        if (key.length <= 256 || plainText.length <= 128) {
-            return key.length;
+    private static int computeKeyConsumptionIncrement(final int keyLength, final int plainTextLength) {
+        if (keyLength <= 256 || plainTextLength <= 128) {
+            return keyLength;
         }
-        final int plainTextGroupCount = (int)(((long)plainText.length+63L)/64);
-        int keyConsumptionIncrement = key.length / plainTextGroupCount;
-        if (keyConsumptionIncrement * plainTextGroupCount < key.length) {
+        final int plainTextGroupCount = (int) (((long) plainTextLength + 63L) / 64);
+        int keyConsumptionIncrement = keyLength / plainTextGroupCount;
+        if (keyConsumptionIncrement * plainTextGroupCount < keyLength) {
             keyConsumptionIncrement += 1;
         }
         return keyConsumptionIncrement;
     }
 
-    private void computeShuffleIndices(DigestRandomGenerator digestRandomGenerator) {
+    private void computeShuffleIndices(final DigestRandomGenerator digestRandomGenerator) {
         final int maxIndex = encryptedLength * 8;
         final byte[] randomByteBuffer = new byte[8 * 8];
         for (long i = 0; i < maxIndex; i++) {
