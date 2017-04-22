@@ -36,7 +36,7 @@ class EncryptionValues {
         ev.targetIndices = new long[8][ev.encryptedLength];
         DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator(key);
         int keyConsumptionIncrement = computeKeyConsumptionIncrement(key.length, plaintext.length);
-        ev.computeShuffleIndices(digestRandomGenerator);
+        ev.computeShuffleIndices(digestRandomGenerator, keyConsumptionIncrement);
         return ev;
     }
 
@@ -59,10 +59,13 @@ class EncryptionValues {
         ev.targetIndices = new long[8][ev.encryptedLength];
         DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator(key);
         int keyConsumptionIncrement = computeKeyConsumptionIncrement(key.length, encrypted.length/2);
-        ev.computeShuffleIndices(digestRandomGenerator);
+        ev.computeShuffleIndices(digestRandomGenerator, keyConsumptionIncrement);
         return ev;
     }
 
+    /**
+     * Private constructor to prevent instantiation of this utility class.
+     */
     private EncryptionValues() {
     }
 
@@ -110,7 +113,7 @@ class EncryptionValues {
         return keyConsumptionIncrement;
     }
 
-    private void computeShuffleIndices(final DigestRandomGenerator digestRandomGenerator) {
+    private void computeShuffleIndices(final DigestRandomGenerator digestRandomGenerator, int keyConsumptionIncrement) {
         final int maxIndex = encryptedLength * 8;
         final byte[] randomByteBuffer = new byte[8 * 8];
         for (long i = 0; i < maxIndex; i++) {
