@@ -4,7 +4,7 @@ This is a symmetric encryption algorithm for use in applications like
 protecting the secrecy of blockchain contents where the encryption needs
 to be very strong. The algorithm should has these properties:
 
-* Longer encrypted texts require more effort to crack than shorter
+* Longer encrypted   texts require more effort to crack than shorter
   texts.
 * It is necessary to decrypt the entire text at once, rather than
   decrypt in pieces as with a block cypher.
