@@ -1,18 +1,17 @@
-# crypto-shuffle
+# crypto-shuffle 0.3
 
-The symmetric encryption algorithm used for applications like protecting
-the secrecy of blockchain contents needs to be very strong. The
-symmetric encryption algorithm should have these properties:
+This is a symmetric encryption algorithm for use in applications like
+protecting the secrecy of blockchain contents where the encryption needs
+to be very strong. The algorithm should has these properties:
 
-
-* Longer encrypted texts should require more effort to crack than
-  shorter texts.
-* It should be necessary to decrypt the entire text at once, rather than
-  being possible to decrypt in pieces as with a block cypher.
-* There should be no upper limit on the key length.
-* One of the challenges of cracking the encryption should be that there
-  will be multiple possible solutions that look reasonable and no clue
-  as to which is correct.
+* Longer encrypted texts require more effort to crack than shorter
+  texts.
+* It is necessary to decrypt the entire text at once, rather than
+  decrypt in pieces as with a block cypher.
+* There is no upper limit on the key length.
+* One of the challenges of cracking the encryption is that there will be
+  multiple solutions that look reasonable and no clue as to which is
+  correct.
 
 The algorithm implemented in this package is based on doing a random
 shuffle of the ones and zeros in a plaintext. The actual order of the
