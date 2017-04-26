@@ -6,11 +6,11 @@
 
   <groupId>com.markgrand</groupId>
   <artifactId>cryptoshuffle</artifactId>
-  <version>0.3-SNAPSHOT</version>
+  <version>0.3</version>
   <packaging>jar</packaging>
 
   <name>crypto-shuffle</name>
-  <description>Crypto Shuffle Symmetric Encryption</description>
+  <description>Crypto-Shuffle symmetric encryption library</description>
 
   <scm>
     <url>https://github.com/mgrand/crypto-shuffle</url>
