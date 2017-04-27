@@ -22,12 +22,12 @@ import java.util.Random;
  * the bouncycastle library:</p>
  * <ol>
  * <li>Inputs to the algorithm are a plaintext message that is a sequence of
- * bytes and a key that is an arbitrary sequence of bytes.<br/><br/></li>
- * <li>Compute a SHA512 hash of the key.<br/><br/></li>
+ * bytes and a key that is an arbitrary sequence of bytes.<br><br></li>
+ * <li>Compute a SHA512 hash of the key.<br><br></li>
  * <li>The purpose of this step is to add random extraneous bits to ensure
  * that a brute force attempt to decrypt the encrypted text will result
  * in multiple candidates for the plaintext that will be wrong but
- * appear to be a reasonable solution.<br/><br/></li>
+ * appear to be a reasonable solution.<br><br></li>
  * <li>Using a separate random number that is in no way dependent on the key
  * we are using, append random bytes to the plaintext to double the
  * length of the plaintext.
@@ -40,8 +40,8 @@ import java.util.Random;
  * The DigestRandomGenerator class from the Bouncycastle library is used
  * for this purpose. There is a paper that includes an analysis of this
  * pseudo-random number generator at
- * <a href="https://www.hgi.rub.de/media/nds/veroeffentlichungen/2013/03/25/paper_2.pdf">https://www.hgi.rub.de/media/nds/veroeffentlichungen/2013/03/25/paper_2.pdf</href>.
- * <br/><br/></li>
+ * <a href="https://www.hgi.rub.de/media/nds/veroeffentlichungen/2013/03/25/paper_2.pdf">https://www.hgi.rub.de/media/nds/veroeffentlichungen/2013/03/25/paper_2.pdf</a>.
+ * <br><br></li>
  * <li>Perform a shuffle of the plaintext based on pseudo-random numbers.</li>
  * </ol>
  * There is a wrinkle to the algorithm that is not mentioned above. The

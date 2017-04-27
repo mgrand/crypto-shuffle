@@ -6,7 +6,7 @@
 
   <groupId>com.markgrand</groupId>
   <artifactId>cryptoshuffle</artifactId>
-  <version>0.3</version>
+  <version>0.4</version>
   <packaging>jar</packaging>
 
   <name>crypto-shuffle</name>
@@ -20,9 +20,26 @@
     <license>
       <name>Apache License 2.0</name>
       <url>https://www.apache.org/licenses/LICENSE-2.0.html</url>
-      <distribution>manual</distribution>
+      <distribution>repo</distribution>
     </license>
   </licenses>
+
+  <developers>
+    <developer>
+      <name>Mark Grand</name>
+      <email>mark.grand@hcl.com</email>
+     <organization>HCL</organization>
+      <organizationUrl>https://www.hcltech.com</organizationUrl>
+      <roles>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>America/New_York</timezone>
+      <properties>
+        <linkedIn>https://www.linkedin.com/in/markgrand/</linkedIn>
+      </properties>
+    </developer>
+  </developers>
 
   <properties>
     <bouncycastle.version>1.56</bouncycastle.version>
@@ -115,6 +132,46 @@
           <nexusUrl>https://oss.sonatype.org/</nexusUrl>
           <autoReleaseAfterClose>true</autoReleaseAfterClose>
         </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>2.2.1</version>
+        <executions>
+          <execution>
+            <id>attach-sources</id>
+            <goals>
+              <goal>jar-no-fork</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9.1</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.5</version>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
