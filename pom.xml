@@ -11,6 +11,7 @@
 
   <name>crypto-shuffle</name>
   <description>Crypto-Shuffle symmetric encryption library</description>
+  <url>https://github.com/mgrand/crypto-shuffle</url>
 
   <scm>
     <url>https://github.com/mgrand/crypto-shuffle</url>
