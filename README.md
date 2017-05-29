@@ -1,4 +1,4 @@
-# crypto-shuffle 0.3
+# crypto-shuffle 0.4
 
 This is a symmetric encryption algorithm for use in applications like
 protecting the secrecy of blockchain contents where the encryption needs
