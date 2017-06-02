@@ -96,3 +96,19 @@ As mentioned above, the encryption algorithm is implemented using the
 Bouncycastle library. This implementation of Crypto-Shuffle is written
 in Java. There is a C# implementation of the Bouncycastle library, so
 perhaps there will be a C# implementation of Crypto-Shuffle.
+
+## Key Management
+
+Each plaintext that is encrypted should be encrypted with a different
+key. If it is known that two encryped texts were encrypted with the same
+key, then it becomes easier to guess the key. For this reason, the
+cryptoshuffle library includes a `RandomKeyGenerator` class to generate
+random keys.
+
+The most secure way to share the key to decrypt a message is to keep it
+somewhere different than the encrypted message. If the encrypted message
+is stored on a blockchain, it may be considered convenient to store the
+key on the same blockchain.  In these cases, it is recommended that the
+key be encrypted with multiple public keys using key sharding.
+
+## Key Sharding
