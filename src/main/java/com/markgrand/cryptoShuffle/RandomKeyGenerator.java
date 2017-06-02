@@ -51,7 +51,7 @@ public class RandomKeyGenerator {
     }
 
     /**
-     * Return a random key whose length is random. The key length will be withing the specified range.
+     * Return a random key whose length is random. The key length will be within the specified range.
      *
      * @param minKeyLength The minimum length key that will be returned.
      * @param maxKeyLength The maximum length key that will be returned.
