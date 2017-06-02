@@ -8,9 +8,9 @@ import java.security.SecureRandom;
  * <p>Created by Mark Grand on 5/29/2017.</p>
  */
 public class RandomKeyGenerator {
-    static private ThreadLocal<RandomKeyGenerator> localRandom = ThreadLocal.withInitial(RandomKeyGenerator::new);
+    static private final ThreadLocal<RandomKeyGenerator> localRandom = ThreadLocal.withInitial(RandomKeyGenerator::new);
 
-    private SecureRandom random = new SecureRandom();
+    private final SecureRandom random = new SecureRandom();
 
     /**
      * Constructor.
@@ -51,7 +51,7 @@ public class RandomKeyGenerator {
     }
 
     /**
-     * Return a random key whose length is random. The key length will be withing the specificed range.
+     * Return a random key whose length is random. The key length will be withing the specified range.
      *
      * @param minKeyLength The minimum length key that will be returned.
      * @param maxKeyLength The maximum length key that will be returned.

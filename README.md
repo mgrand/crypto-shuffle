@@ -62,9 +62,9 @@ of this algorithm being harder to crack for longer texts.
 The number of possible shuffles of the bits in a long plaintext is
 limited by the effective key length. If it were the case that the
 effective key length was limited to 512 bits, then there would be
-shuffles of longer plaintexts that could be ruled out as not being
+shuffles of longer plain texts that could be ruled out as not being
 possible to generate from an 512 bit key. For this reason, the way that
-we use the key is modified for long keys with long plaintexts, so that
+we use the key is modified for long keys with long plain texts, so that
 the effective length of the key is as unlimited as the given keys.
 
 If the key is longer than 256 bytes and the plaintext is longer than 128
@@ -100,8 +100,8 @@ perhaps there will be a C# implementation of Crypto-Shuffle.
 ## Key Management
 
 Each plaintext that is encrypted should be encrypted with a different
-key. If it is known that two encryped texts were encrypted with the same
-key, then it becomes easier to guess the key. For this reason, the
+key. If it is known that two encrypted texts were encrypted with the
+same key, then it becomes easier to guess the key. For this reason, the
 cryptoshuffle library includes a `RandomKeyGenerator` class to generate
 random keys.
 

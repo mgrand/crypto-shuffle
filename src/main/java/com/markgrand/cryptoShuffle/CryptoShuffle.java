@@ -58,9 +58,9 @@ import java.util.Random;
  * The number of possible shuffles of the bits in a long plaintext is
  * limited by the effective key length. If it were the case that the
  * effective key length was limited to 512 bits, then there would be
- * shuffles of longer plaintexts that could be ruled out as not being
+ * shuffles of longer plain texts that could be ruled out as not being
  * possible to generate from an 512 bit key. For this reason, the way that
- * we use the key is modified for long keys with long plaintexts, so that
+ * we use the key is modified for long keys with long plain texts, so that
  * the effective length of the key is as unlimited as the given keys.
  * <p>
  * If the key is longer than 256 bytes and the plaintext is longer than 128
