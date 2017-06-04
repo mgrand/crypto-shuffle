@@ -1,11 +1,14 @@
 package com.markgrand.cryptoShuffle;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Utility class for manipulating bytes.
  *
  * @author Mark Grand
  */
 class ByteUtil {
+    @NotNull
     private static final int[] ones = {
             0, // 0x00
             1, // 0x01

@@ -1,5 +1,7 @@
 package com.markgrand.cryptoShuffle;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Random;
 
 /**
@@ -110,29 +112,32 @@ public class CryptoShuffle {
      * @param key       The encryption key.
      * @return The encrypted version of the plaintext.
      */
-    public static byte[] encrypt(final byte[] plaintext, final byte[] key) {
-        final EncryptionValues ev = EncryptionValues.forEncryption(plaintext, key);
-        final byte[] workingStorage = new byte[ev.getEncryptedLength()];
+    @NotNull
+    public static byte[] encrypt(@NotNull final byte[] plaintext, @NotNull final byte[] key) {
+        @NotNull final EncryptionValues ev = EncryptionValues.forEncryption(plaintext, key);
+        @NotNull final byte[] workingStorage = new byte[ev.getEncryptedLength()];
         System.arraycopy(plaintext, 0, workingStorage, 0, plaintext.length);
-        final Random r = new Random();
+        @NotNull final Random r = new Random();
         final int paddingOffset = plaintext.length;
         generateRandomPaddingBytes(workingStorage, paddingOffset, ev.getPadLength(), r);
-        final byte[] encrypted = shuffle(workingStorage, ev);
+        @NotNull final byte[] encrypted = shuffle(workingStorage, ev);
         encrypted[0] = VERSION_ONE;
         return encrypted;
     }
 
-    public static byte[] decrypt(final byte[] encrypted, final byte[] key) {
+    @NotNull
+    public static byte[] decrypt(@NotNull final byte[] encrypted, @NotNull final byte[] key) {
         switch (encrypted[0]) {
             case VERSION_ONE:
                 return decryptV1(encrypted, key);
         }
-        String msg = "Encrypted bytes were encrypted with an unsupported version:";
+        @NotNull String msg = "Encrypted bytes were encrypted with an unsupported version:";
         throw new IllegalArgumentException(msg + (int) encrypted[0]);
     }
 
-    private static byte[] decryptV1(final byte[] encrypted, final byte[] key) {
-        EncryptionValues ev = EncryptionValues.forDecryption(encrypted, key);
+    @NotNull
+    private static byte[] decryptV1(@NotNull final byte[] encrypted, @NotNull final byte[] key) {
+        @NotNull EncryptionValues ev = EncryptionValues.forDecryption(encrypted, key);
         return reverseShuffle(encrypted, ev);
     }
 
@@ -145,8 +150,9 @@ public class CryptoShuffle {
      * @return An array where the first {@link #VERSION_OFFSET} bytes contain the version number of this class and the
      * following bytes contain the shuffled bits.
      */
-    static byte[] shuffle(byte[] workingStorage, EncryptionValues ev) {
-        byte[] encrypted = new byte[workingStorage.length + VERSION_OFFSET];
+    @NotNull
+    static byte[] shuffle(@NotNull byte[] workingStorage, @NotNull EncryptionValues ev) {
+        @NotNull byte[] encrypted = new byte[workingStorage.length + VERSION_OFFSET];
         long[][] indices = ev.getTargetIndices();
         for (int i = 0; i < workingStorage.length; i++) {
             for (int b = 0; b < 8; b++) {
@@ -162,9 +168,10 @@ public class CryptoShuffle {
         return encrypted;
     }
 
-    private static byte[] reverseShuffle(final byte[] encrypted, final EncryptionValues ev) {
+    @NotNull
+    private static byte[] reverseShuffle(@NotNull final byte[] encrypted, @NotNull final EncryptionValues ev) {
         final int plaintextLength = (encrypted.length - VERSION_OFFSET) / 2;
-        final byte[] plaintext = new byte[plaintextLength];
+        @NotNull final byte[] plaintext = new byte[plaintextLength];
         final long[][] indices = ev.getTargetIndices();
         for (int i = 0; i < plaintextLength; i++) {
             for (int b = 0; b < 8; b++) {
@@ -180,11 +187,11 @@ public class CryptoShuffle {
         return plaintext;
     }
 
-    private static void generateRandomPaddingBytes(final byte[] workingStorage,
+    private static void generateRandomPaddingBytes(@NotNull final byte[] workingStorage,
                                                    final int offset,
                                                    final int padLength,
-                                                   final Random r) {
-        final byte[] buffer = new byte[padLength];
+                                                   @NotNull final Random r) {
+        @NotNull final byte[] buffer = new byte[padLength];
         r.nextBytes(buffer);
         System.arraycopy(buffer, 0, workingStorage, offset, padLength);
     }

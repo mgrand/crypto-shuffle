@@ -1,5 +1,7 @@
 package com.markgrand.cryptoShuffle;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.security.SecureRandom;
 
 /**
@@ -8,8 +10,10 @@ import java.security.SecureRandom;
  * <p>Created by Mark Grand on 5/29/2017.</p>
  */
 public class RandomKeyGenerator {
+    @NotNull
     static private final ThreadLocal<RandomKeyGenerator> localRandom = ThreadLocal.withInitial(RandomKeyGenerator::new);
 
+    @NotNull
     private final SecureRandom random = new SecureRandom();
 
     /**
@@ -32,8 +36,9 @@ public class RandomKeyGenerator {
         return localRandom.get();
     }
 
+    @NotNull
     private byte[] generateKey0(final int keyLength) {
-        final byte[] key = new byte[keyLength];
+        @NotNull final byte[] key = new byte[keyLength];
         random.nextBytes(key);
         return key;
     }
@@ -43,6 +48,7 @@ public class RandomKeyGenerator {
      *
      * @param keyLength the length in bytes of the key to be returned. Values less than 8 will be treated as 8.
      */
+    @NotNull
     public synchronized byte[] generateKey(final int keyLength) {
         if (keyLength < 8) {
             return generateKey0(8);
@@ -56,6 +62,7 @@ public class RandomKeyGenerator {
      * @param minKeyLength The minimum length key that will be returned.
      * @param maxKeyLength The maximum length key that will be returned.
      */
+    @NotNull
     public synchronized byte[] generateKey(final int minKeyLength, final int maxKeyLength) {
         if (minKeyLength < 8) {
             return generateKey(8, maxKeyLength);

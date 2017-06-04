@@ -2,6 +2,7 @@ package com.markgrand.cryptoShuffle;
 
 import static org.junit.Assert.*;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 /**
@@ -17,7 +18,7 @@ public class ByteUtilTest {
 
     @Test
     public void countOnesArrayTest() {
-        byte[] b = {0x33, (byte) 0xf0, 0x01};
+        @NotNull byte[] b = {0x33, (byte) 0xf0, 0x01};
         assertEquals(9, ByteUtil.countOnes(b, 0, 3));
     }
 }

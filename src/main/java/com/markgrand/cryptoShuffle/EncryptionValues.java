@@ -2,6 +2,7 @@ package com.markgrand.cryptoShuffle;
 
 import org.bouncycastle.crypto.digests.SHA512Digest;
 import org.bouncycastle.crypto.prng.DigestRandomGenerator;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
@@ -26,15 +27,16 @@ class EncryptionValues {
      * @param key       The encryption key.
      * @throws IllegalArgumentException if the length of plaintext is greater than {@value MAX_LENGTH}.
      */
-    static EncryptionValues forEncryption(final byte[] plaintext, final byte[] key) {
+    @NotNull
+    static EncryptionValues forEncryption(@NotNull final byte[] plaintext, @NotNull final byte[] key) {
         if (plaintext.length > MAX_LENGTH) {
             throw new IllegalArgumentException("Plaintext is longer than maximum supported length of " + MAX_LENGTH);
         }
-        EncryptionValues ev = new EncryptionValues();
+        @NotNull EncryptionValues ev = new EncryptionValues();
         ev.padLength = plaintext.length;
         ev.encryptedLength = plaintext.length + ev.padLength;
         ev.targetIndices = new long[8][ev.encryptedLength];
-        DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator();
+        @NotNull DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator();
         int keyConsumptionIncrement = computeKeyConsumptionIncrement(key.length, plaintext.length);
         ev.computeShuffleIndices(digestRandomGenerator, keyConsumptionIncrement, key);
         return ev;
@@ -50,12 +52,13 @@ class EncryptionValues {
      * @param encrypted The encrypted text to be decrypted.
      * @param key       The encryption key.
      */
-    static EncryptionValues forDecryption(final byte[] encrypted, final byte[] key) {
-        EncryptionValues ev = new EncryptionValues();
+    @NotNull
+    static EncryptionValues forDecryption(@NotNull final byte[] encrypted, @NotNull final byte[] key) {
+        @NotNull EncryptionValues ev = new EncryptionValues();
         ev.encryptedLength = encrypted.length - 1;
         ev.padLength = encrypted.length / 2;
         ev.targetIndices = new long[8][ev.encryptedLength];
-        DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator();
+        @NotNull DigestRandomGenerator digestRandomGenerator = createDigestRandomGenerator();
         int keyConsumptionIncrement = computeKeyConsumptionIncrement(key.length, encrypted.length / 2);
         ev.computeShuffleIndices(digestRandomGenerator, keyConsumptionIncrement, key);
         return ev;
@@ -111,12 +114,12 @@ class EncryptionValues {
         return keyConsumptionIncrement;
     }
 
-    private void computeShuffleIndices(final DigestRandomGenerator digestRandomGenerator,
+    private void computeShuffleIndices(@NotNull final DigestRandomGenerator digestRandomGenerator,
                                        final int keyConsumptionIncrement,
-                                       final byte[] key) {
+                                       @NotNull final byte[] key) {
         int keyBytesConsumed = 0;
         final int maxIndex = encryptedLength * 8;
-        final byte[] randomByteBuffer = new byte[8];
+        @NotNull final byte[] randomByteBuffer = new byte[8];
         for (long i = 0; i < maxIndex; i++) {
             if (0 == i % keyConsumptionIncrement) {
                 keyBytesConsumed = consumeKeyBytes(digestRandomGenerator, keyBytesConsumed, keyConsumptionIncrement, key);
@@ -130,12 +133,12 @@ class EncryptionValues {
         }
     }
 
-    private int consumeKeyBytes(final DigestRandomGenerator digestRandomGenerator, final int keyBytesConsumed,
-                                final int keyConsumptionIncrement, final byte[] key) {
+    private int consumeKeyBytes(@NotNull final DigestRandomGenerator digestRandomGenerator, final int keyBytesConsumed,
+                                final int keyConsumptionIncrement, @NotNull final byte[] key) {
         final int keyBytesRemaining = key.length - keyBytesConsumed;
         if (keyBytesRemaining > 0) {
             int bytesToConsume = (keyBytesRemaining > keyConsumptionIncrement) ? keyConsumptionIncrement : keyBytesRemaining;
-            byte[] keyBuffer = new byte[bytesToConsume];
+            @NotNull byte[] keyBuffer = new byte[bytesToConsume];
             System.arraycopy(key, keyBytesConsumed, keyBuffer, 0, bytesToConsume);
             digestRandomGenerator.addSeedMaterial(keyBuffer);
             return keyBytesConsumed + bytesToConsume;
@@ -167,9 +170,10 @@ class EncryptionValues {
         return encryptedLength;
     }
 
+    @NotNull
     @Override
     public String toString() {
-        final StringBuilder builder = new StringBuilder();
+        @NotNull final StringBuilder builder = new StringBuilder();
         builder.append("EncryptionValues{padLength=").append(padLength)
                 .append(", encryptedLength=").append(encryptedLength).append(", targetIndices=");
         for (int b = 0; b < targetIndices.length; b++) {

@@ -1,5 +1,6 @@
 package com.markgrand.cryptoShuffle;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import java.util.BitSet;
@@ -26,16 +27,16 @@ public class EncryptionValuesTest extends AbstractCryptoTest {
 
     @Test
     public void simpleTest() {
-        final EncryptionValues ev1 = EncryptionValues.forEncryption(plaintext2, key);
+        @NotNull final EncryptionValues ev1 = EncryptionValues.forEncryption(plaintext2, key);
         assertNotNull(ev1);
-        final EncryptionValues ev2 = EncryptionValues.forDecryption(plaintext2, key);
+        @NotNull final EncryptionValues ev2 = EncryptionValues.forDecryption(plaintext2, key);
         assertNotNull(ev2);
         System.out.println(ev1.toString());
     }
 
     @Test
     public void forEncryptionTest() {
-        EncryptionValues ev1 = EncryptionValues.forEncryption(plaintext16, key);
+        @NotNull EncryptionValues ev1 = EncryptionValues.forEncryption(plaintext16, key);
         assertEquals(plaintext16.length, ev1.getPadLength());
         assertEquals(8, ev1.getTargetIndices().length);
         assertEquals(ev1.getEncryptedLength(), ev1.getTargetIndices()[2].length);
@@ -56,14 +57,14 @@ public class EncryptionValuesTest extends AbstractCryptoTest {
 
     @Test
     public void forDecryptionTest() {
-        EncryptionValues ev1 = EncryptionValues.forDecryption(encrypted1, key);
+        @NotNull EncryptionValues ev1 = EncryptionValues.forDecryption(encrypted1, key);
         assertEquals((encrypted1.length - 1) / 2, ev1.getPadLength());
         assertEquals(8, ev1.getTargetIndices().length);
         assertEquals(ev1.getEncryptedLength(), ev1.getTargetIndices()[2].length);
         assertEquals(ev1.getEncryptedLength(), plaintext16.length + ev1.getPadLength());
-        StringBuilder builder = new StringBuilder();
+        @NotNull StringBuilder builder = new StringBuilder();
 
-        BitSet bits = new BitSet(ev1.getEncryptedLength());
+        @NotNull BitSet bits = new BitSet(ev1.getEncryptedLength());
         for (int b = 0; b < 8; b++) {
             for (int i = 0; i < ev1.getEncryptedLength(); i++) {
                 bits.set((int) ev1.getTargetIndices()[b][i]);
@@ -75,8 +76,8 @@ public class EncryptionValuesTest extends AbstractCryptoTest {
 
     @Test
     public void consistencyTest() {
-        EncryptionValues ev1 = EncryptionValues.forEncryption(plaintext16, key);
-        EncryptionValues ev2 = EncryptionValues.forDecryption(encrypted1, key);
+        @NotNull EncryptionValues ev1 = EncryptionValues.forEncryption(plaintext16, key);
+        @NotNull EncryptionValues ev2 = EncryptionValues.forDecryption(encrypted1, key);
         assertArrayEquals(ev1.getTargetIndices(), ev2.getTargetIndices());
     }
 }
