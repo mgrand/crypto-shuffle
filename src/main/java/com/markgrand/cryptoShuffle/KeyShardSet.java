@@ -6,7 +6,6 @@ import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 
 /**
  * <p>
@@ -70,7 +69,7 @@ public class KeyShardSet {
          * @throws IllegalArgumentException If the quorumSize is less than {@value MINIMUM_QUORUM_SIZE} or greater than
          *                                  the number of keys in the group.
          */
-        public KeyShardGroup(final int quorumSize, @NotNull final Set<PublicKey> keys) {
+        private KeyShardGroup(final int quorumSize, @NotNull final Set<PublicKey> keys) {
             if (quorumSize > keys.size()) {
                 @NotNull final String
                         msg = "The quorum size for a group of public keys cannot be greater than the number of keys"
@@ -154,13 +153,6 @@ public class KeyShardSet {
             return new KeyShardSet();
         }
 
-        @NotNull
-        private byte[][] makeShards(@NotNull byte[] cryptoshuffleKey, int requiredNumberOfShards, int shardSize) {
-            final byte[][] shards = new byte[requiredNumberOfShards][];
-            // TODO finish this
-            return shards;
-        }
-
         private void checkForMinimumShardSize(@NotNull byte[] cryptoshuffleKey, int requiredNumberOfShards, int shardSize) {
             if (shardSize < MINIMUM_SHARD_SIZE) {
                 final String msg = "This keyset would contain " + requiredNumberOfShards + " shards."
@@ -178,5 +170,25 @@ public class KeyShardSet {
             }
             return shardTotal;
         }
+    }
+
+    @NotNull
+    static byte[][] makeShards(@NotNull final byte[] cryptoshuffleKey,
+                               final int requiredNumberOfShards, final int shardSize) {
+        final byte[][] shards = new byte[requiredNumberOfShards][];
+        int remainder = cryptoshuffleKey.length - (shardSize * requiredNumberOfShards);
+        int decrement = remainder == 0 ? 0 :((shardSize + (2*remainder) -1) / remainder) - 1;
+        int offset = 0;
+        for (int i = 0; i < requiredNumberOfShards; i++) {
+            int thisShardLength = shardSize;
+            if (remainder > 0) {
+                thisShardLength += decrement;
+                remainder -= decrement;
+            }
+            shards[i] = new byte[thisShardLength];
+            System.arraycopy(cryptoshuffleKey, offset, shards[i], 0, thisShardLength);
+            offset += thisShardLength;
+        }
+        return shards;
     }
 }
