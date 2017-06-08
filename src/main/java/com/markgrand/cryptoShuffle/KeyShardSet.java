@@ -19,7 +19,7 @@ import java.util.function.BiFunction;
  * <p>
  * Key shards have two distinct uses. They can be used to as a form of information escrow, to require the cooperation
  * and agreement of multiple parties to decrypt a piece of information. For example, if a cryptoshuffle key is split
- * into two shards, each encrytped with a different party's public key, then the two parties will need to cooperate to
+ * into two shards, each encrypted with a different party's public key, then the two parties will need to cooperate to
  * reconstruct the full cryptoshuffle key and decrypt the cryptoshuffle encrypted text.
  * </p>
  * <p>
@@ -155,7 +155,7 @@ public class KeyShardSet {
 
         private void checkForMinimumShardSize(@NotNull byte[] cryptoshuffleKey, int requiredNumberOfShards, int shardSize) {
             if (shardSize < MINIMUM_SHARD_SIZE) {
-                final String msg = "This keyset would contain " + requiredNumberOfShards + " shards."
+                final String msg = "This key set would contain " + requiredNumberOfShards + " shards."
                                            + " The length of the key to be sharded is " + cryptoshuffleKey.length
                                            + ". This would result in shards of length " + shardSize
                                            + " which is less than the minimum shard size of " + MINIMUM_SHARD_SIZE;

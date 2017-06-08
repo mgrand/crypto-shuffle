@@ -4,8 +4,6 @@ import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.security.SecureRandom;
-
 /**
  * <p>Unit tests for {@link KeyShardSet}</p>
  * Created by Mark Grand on 6/5/2017.
