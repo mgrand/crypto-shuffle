@@ -4,6 +4,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.security.PublicKey;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 
@@ -39,6 +41,13 @@ public class KeyShardSet {
     private static final int MINIMUM_QUORUM_SIZE = 2;
     private static final int MINIMUM_SHARD_SIZE = 8;
 
+    @NotNull
+    private final ArrayList<KeyShardGroup> groups;
+
+    private KeyShardSet(@NotNull final ArrayList<KeyShardGroup> groups) {
+        this.groups = groups;
+    }
+
     /**
      * Create a new builder for a {@code KeyShardSet}
      *
@@ -57,8 +66,10 @@ public class KeyShardSet {
      */
     private static class KeyShardGroup {
         private final int quorumSize;
+
+        // Map public keys to
         @NotNull
-        private final Set<PublicKey> keys;
+        private final Map<PublicKey, Map<Integer, String>> keyMap;
 
         /**
          * Constructor
@@ -82,7 +93,11 @@ public class KeyShardSet {
                 throw new IllegalArgumentException(msg);
             }
             this.quorumSize = quorumSize;
-            this.keys = keys;
+
+            keyMap = new HashMap<>();
+            for (PublicKey key : keys) {
+                keyMap.put(key, null);
+            }
         }
 
         /**
@@ -98,7 +113,17 @@ public class KeyShardSet {
          */
         @NotNull
         public Set<PublicKey> getKeys() {
-            return keys;
+            return keyMap.keySet();
+        }
+
+        /**
+         * Associate the given mapping of ordnality to encrypted shard with the given public key.
+         *
+         * @param key    the public key
+         * @param shards The map of ordnalities to encrypted shards.
+         */
+        void associateEncryptedShardsWithKey(@NotNull PublicKey key, Map<Integer, String> shards) {
+            keyMap.put(key, shards);
         }
     }
 
@@ -149,8 +174,17 @@ public class KeyShardSet {
             final int shardSize = cryptoshuffleKey.length / requiredNumberOfShards;
             checkForMinimumShardSize(cryptoshuffleKey, requiredNumberOfShards, shardSize);
             @NotNull final byte[][] shards = makeShards(cryptoshuffleKey, requiredNumberOfShards, shardSize);
-            // TODO Finish this
-            return new KeyShardSet();
+            populateGroups(shards);
+            return new KeyShardSet(groups);
+        }
+
+        private void populateGroups(@NotNull byte[][] shards) {
+            int offset = 0;
+            for (KeyShardGroup group : groups) {
+                Map<Integer, String> encryptedShardOrdnalityMapping = new HashMap<>();
+                //TODO
+                offset += group.getKeys().size();
+            }
         }
 
         private void checkForMinimumShardSize(@NotNull byte[] cryptoshuffleKey, int requiredNumberOfShards, int shardSize) {
@@ -177,7 +211,7 @@ public class KeyShardSet {
                                final int requiredNumberOfShards, final int shardSize) {
         final byte[][] shards = new byte[requiredNumberOfShards][];
         int remainder = cryptoshuffleKey.length - (shardSize * requiredNumberOfShards);
-        int decrement = remainder == 0 ? 0 :((shardSize + (2*remainder) -1) / remainder) - 1;
+        int decrement = remainder == 0 ? 0 : ((shardSize + (2 * remainder) - 1) / remainder) - 1;
         int offset = 0;
         for (int i = 0; i < requiredNumberOfShards; i++) {
             int thisShardLength = shardSize;
