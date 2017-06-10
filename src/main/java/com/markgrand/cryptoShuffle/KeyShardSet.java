@@ -69,7 +69,7 @@ public class KeyShardSet {
 
         // Map public keys to
         @NotNull
-        private final Map<PublicKey, Map<Integer, String>> keyMap;
+        private final Map<PublicKey, Map<Integer, byte[]>> keyMap;
 
         /**
          * Constructor
@@ -122,7 +122,7 @@ public class KeyShardSet {
          * @param key    the public key
          * @param shards The map of ordnalities to encrypted shards.
          */
-        void associateEncryptedShardsWithKey(@NotNull PublicKey key, Map<Integer, String> shards) {
+        void associateEncryptedShardsWithKey(@NotNull PublicKey key, Map<Integer, byte[]> shards) {
             keyMap.put(key, shards);
         }
     }
@@ -180,9 +180,19 @@ public class KeyShardSet {
 
         private void populateGroups(@NotNull byte[][] shards) {
             int offset = 0;
-            for (KeyShardGroup group : groups) {
-                Map<Integer, String> encryptedShardOrdnalityMapping = new HashMap<>();
-                //TODO
+            for (final KeyShardGroup group : groups) {
+                final int quorumSize = group.getQuorumSize();
+                int keyIndex = 0;
+                for (final PublicKey key : group.getKeys()) {
+                    final Map<Integer, byte[]> encryptedShardOrdnalityMapping = new HashMap<>();
+                    for (int keyShardIndex = 0; keyShardIndex < quorumSize; keyShardIndex++) {
+                        final int shardIndex = offset + ((keyIndex + keyShardIndex) % quorumSize);
+                        final byte[] encryptedShard = encryptionFunction.apply(key, shards[shardIndex]);
+                        encryptedShardOrdnalityMapping.put(shardIndex, encryptedShard);
+                    }
+                    group.associateEncryptedShardsWithKey(key, encryptedShardOrdnalityMapping);
+                    keyIndex += 1;
+                }
                 offset += group.getKeys().size();
             }
         }
