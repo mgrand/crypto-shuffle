@@ -3,10 +3,7 @@ package com.markgrand.cryptoShuffle;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.PublicKey;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiFunction;
 
 /**
@@ -43,6 +40,8 @@ public class KeyShardSet {
 
     @NotNull
     private final ArrayList<KeyShardGroup> groups;
+    @NotNull
+    private final UUID guid = UUID.randomUUID();
 
     private KeyShardSet(@NotNull final ArrayList<KeyShardGroup> groups) {
         this.groups = groups;
@@ -58,6 +57,34 @@ public class KeyShardSet {
      */
     public static KeyShardingSetBuilder newBuilder(@NotNull final BiFunction<PublicKey, byte[], byte[]> encryptionFunction) {
         return new KeyShardingSetBuilder(encryptionFunction);
+    }
+
+    @NotNull
+    static byte[][] makeShards(@NotNull final byte[] cryptoshuffleKey,
+                               final int requiredNumberOfShards, final int shardSize) {
+        final byte[][] shards = new byte[requiredNumberOfShards][];
+        int remainder = cryptoshuffleKey.length - (shardSize * requiredNumberOfShards);
+        int decrement = remainder == 0 ? 0 : ((shardSize + (2 * remainder) - 1) / remainder) - 1;
+        int offset = 0;
+        for (int i = 0; i < requiredNumberOfShards; i++) {
+            int thisShardLength = shardSize;
+            if (remainder > 0) {
+                thisShardLength += decrement;
+                remainder -= decrement;
+            }
+            shards[i] = new byte[thisShardLength];
+            System.arraycopy(cryptoshuffleKey, offset, shards[i], 0, thisShardLength);
+            offset += thisShardLength;
+        }
+        return shards;
+    }
+
+    /**
+     * Return the UUID of this {@code @link KeyShardSet}
+     */
+    @NotNull
+    public UUID getGuid() {
+        return guid;
     }
 
     /**
@@ -214,25 +241,5 @@ public class KeyShardSet {
             }
             return shardTotal;
         }
-    }
-
-    @NotNull
-    static byte[][] makeShards(@NotNull final byte[] cryptoshuffleKey,
-                               final int requiredNumberOfShards, final int shardSize) {
-        final byte[][] shards = new byte[requiredNumberOfShards][];
-        int remainder = cryptoshuffleKey.length - (shardSize * requiredNumberOfShards);
-        int decrement = remainder == 0 ? 0 : ((shardSize + (2 * remainder) - 1) / remainder) - 1;
-        int offset = 0;
-        for (int i = 0; i < requiredNumberOfShards; i++) {
-            int thisShardLength = shardSize;
-            if (remainder > 0) {
-                thisShardLength += decrement;
-                remainder -= decrement;
-            }
-            shards[i] = new byte[thisShardLength];
-            System.arraycopy(cryptoshuffleKey, offset, shards[i], 0, thisShardLength);
-            offset += thisShardLength;
-        }
-        return shards;
     }
 }
