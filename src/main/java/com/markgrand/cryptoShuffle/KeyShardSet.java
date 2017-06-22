@@ -34,12 +34,14 @@ import java.util.function.BiFunction;
  * </p>
  * <p>Created by Mark Grand on 6/1/2017.</p>
  */
+@SuppressWarnings("WeakerAccess")
 public class KeyShardSet {
     private static final int MINIMUM_QUORUM_SIZE = 2;
     private static final int MINIMUM_SHARD_SIZE = 8;
 
     @NotNull
     private final ArrayList<KeyShardGroup> groups;
+
     @NotNull
     private final UUID guid = UUID.randomUUID();
 
@@ -55,6 +57,8 @@ public class KeyShardSet {
      *                           value should be the encrypted text.
      * @return the new builder.
      */
+    @SuppressWarnings("WeakerAccess")
+    @NotNull
     public static KeyShardingSetBuilder newBuilder(@NotNull final BiFunction<PublicKey, byte[], byte[]> encryptionFunction) {
         return new KeyShardingSetBuilder(encryptionFunction);
     }
@@ -80,8 +84,17 @@ public class KeyShardSet {
     }
 
     /**
+     * Return the keyShartGroups in this {@code KeyShardSet}
+     */
+    @SuppressWarnings("WeakerAccess")
+    public Collection<KeyShardGroup> getGroups() {
+        return groups;
+    }
+
+    /**
      * Return the UUID of this {@code @link KeyShardSet}
      */
+    @SuppressWarnings("WeakerAccess")
     @NotNull
     public UUID getGuid() {
         return guid;
@@ -91,7 +104,8 @@ public class KeyShardSet {
      * Description of a group of keys that enumerates a set of public keys and the how many private keys will be needed
      * to reconstitute the original cryptoshuffle key.
      */
-    private static class KeyShardGroup {
+    @SuppressWarnings("WeakerAccess")
+    public static class KeyShardGroup {
         private final int quorumSize;
 
         // Map public keys to
@@ -131,6 +145,7 @@ public class KeyShardSet {
          * Return the minimum number of private keys that will be needed to reconstitute the full
          * cryptoshuffle key.
          */
+        @SuppressWarnings("WeakerAccess")
         public int getQuorumSize() {
             return quorumSize;
         }
@@ -138,6 +153,7 @@ public class KeyShardSet {
         /**
          * Return the public keys in this group.
          */
+        @SuppressWarnings("WeakerAccess")
         @NotNull
         public Set<PublicKey> getKeys() {
             return keyMap.keySet();
@@ -154,6 +170,7 @@ public class KeyShardSet {
         }
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static class KeyShardingSetBuilder {
         @NotNull
         private final ArrayList<KeyShardGroup> groups = new ArrayList<>();
@@ -180,6 +197,7 @@ public class KeyShardSet {
          * @throws IllegalArgumentException If the quorumSize is less than {@value MINIMUM_QUORUM_SIZE} or greater than
          *                                  the number of keys in the group.
          */
+        @SuppressWarnings("WeakerAccess")
         @NotNull
         public KeyShardingSetBuilder addKeyGroup(final int quorumSize, @NotNull final Set<PublicKey> keys) {
             groups.add(new KeyShardGroup(quorumSize, keys));
@@ -195,6 +213,7 @@ public class KeyShardSet {
          * @throws IllegalStateException if dividing the given key into the required number of shards would results in
          *                               shards smaller than {@value MINIMUM_SHARD_SIZE}.
          */
+        @SuppressWarnings("WeakerAccess")
         @NotNull
         public KeyShardSet build(@NotNull final byte[] cryptoshuffleKey) {
             final int requiredNumberOfShards = computeRequiredNumberOfShards();
