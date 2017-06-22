@@ -100,33 +100,34 @@ public class KeyShardSetTest {
 
     @Test
     public void buildTest() {
-        final Set<KeyPair> keyPairs2 = generateKeyPairs(2);
+        final Set<KeyPair> keyPairs5 = generateKeyPairs(5);
         final Set<KeyPair> keyPairs3 = generateKeyPairs(3);
         final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(trivialEncryption);
-        final Set<PublicKey> publicKeys2 = keyPairs2.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
+        final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
         final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
-        final KeyShardSet keyShardSet = builder.addKeyGroup(1,  publicKeys2).addKeyGroup(2,  publicKeys3).build(key4800);
+        final KeyShardSet keyShardSet = builder.addKeyGroup(2,  publicKeys5).addKeyGroup(3,  publicKeys3).build(key4800);
         assertNotNull(keyShardSet.getGuid());
         final Collection<KeyShardSet.KeyShardGroup> groups = keyShardSet.getGroups();
         assertEquals(2, groups.size());
         final Iterator<KeyShardSet.KeyShardGroup> groupIterator = groups.iterator();
         final KeyShardSet.KeyShardGroup thisGroup = groupIterator.next();
-        final KeyShardSet.KeyShardGroup group2, group3;
+        final KeyShardSet.KeyShardGroup group5, group3;
         switch (thisGroup.getKeys().size()) {
-            case 2:
-                group2 = thisGroup;
+            case 5:
+                group5 = thisGroup;
                 group3 = groupIterator.next();
                 break;
             case 3:
                 group3 = thisGroup;
-                group2 = groupIterator.next();
+                group5 = groupIterator.next();
                 break;
             default:
-                throw new RuntimeException("Group has a size other than 2 or 3!");
+                fail("Group has a size other than 5 or 3!");
+                throw new RuntimeException("Group has a size other than 5 or 3!");
         }
-        assertEquals(publicKeys2, group2.getKeys());
+        assertEquals(publicKeys5, group5.getKeys());
         assertEquals(publicKeys3, group3.getKeys());
-        assertEquals(2, group2.getQuorumSize());
+        assertEquals(2, group5.getQuorumSize());
         assertEquals(3, group3.getQuorumSize());
     }
 
