@@ -84,7 +84,7 @@ public class KeyShardSet {
     }
 
     /**
-     * Return the keyShartGroups in this {@code KeyShardSet}
+     * Return the keyShardGroups in this {@code KeyShardSet}
      */
     @SuppressWarnings("WeakerAccess")
     public Collection<KeyShardGroup> getGroups() {
@@ -125,7 +125,7 @@ public class KeyShardSet {
             if (quorumSize > keys.size()) {
                 @NotNull final String
                         msg = "The quorum size for a group of public keys cannot be greater than the number of keys"
-                                      + " which is " + keys.size();
+                        + " which is " + keys.size();
                 throw new IllegalArgumentException(msg);
             }
             if (quorumSize < MINIMUM_QUORUM_SIZE) {
@@ -160,13 +160,26 @@ public class KeyShardSet {
         }
 
         /**
-         * Associate the given mapping of ordnality to encrypted shard with the given public key.
+         * Associate the given mapping of ordinality to encrypted shard with the given public key.
          *
          * @param key    the public key
-         * @param shards The map of ordnalities to encrypted shards.
+         * @param shards The map of ordinalities to encrypted shards.
          */
         void associateEncryptedShardsWithKey(@NotNull PublicKey key, Map<Integer, byte[]> shards) {
             keyMap.put(key, shards);
+        }
+
+        /**
+         * Return a the shards associated in this group with the specified key.
+         * The shards are returned as an {@link Optional} object containing a
+         * Map whose entries contain the shard's ordinality as the key and the
+         * shard's value as the value. If there are no shards associated with
+         * the given key, an empty map is returned.
+         */
+        @NotNull
+        public Map<Integer, byte[]> getShardsForKey(@NotNull PublicKey key) {
+            //noinspection unchecked
+            return keyMap.getOrDefault(key, Collections.EMPTY_MAP);
         }
     }
 
@@ -230,13 +243,13 @@ public class KeyShardSet {
                 final int quorumSize = group.getQuorumSize();
                 int keyIndex = 0;
                 for (final PublicKey key : group.getKeys()) {
-                    final Map<Integer, byte[]> encryptedShardOrdnalityMapping = new HashMap<>();
+                    final Map<Integer, byte[]> encryptedShardOrdinalityMapping = new HashMap<>();
                     for (int keyShardIndex = 0; keyShardIndex < quorumSize; keyShardIndex++) {
                         final int shardIndex = offset + ((keyIndex + keyShardIndex) % quorumSize);
                         final byte[] encryptedShard = encryptionFunction.apply(key, shards[shardIndex]);
-                        encryptedShardOrdnalityMapping.put(shardIndex, encryptedShard);
+                        encryptedShardOrdinalityMapping.put(shardIndex, encryptedShard);
                     }
-                    group.associateEncryptedShardsWithKey(key, encryptedShardOrdnalityMapping);
+                    group.associateEncryptedShardsWithKey(key, encryptedShardOrdinalityMapping);
                     keyIndex += 1;
                 }
                 offset += group.getKeys().size();
@@ -246,9 +259,9 @@ public class KeyShardSet {
         private void checkForMinimumShardSize(@NotNull byte[] cryptoshuffleKey, int requiredNumberOfShards, int shardSize) {
             if (shardSize < MINIMUM_SHARD_SIZE) {
                 final String msg = "This key set would contain " + requiredNumberOfShards + " shards."
-                                           + " The length of the key to be sharded is " + cryptoshuffleKey.length
-                                           + ". This would result in shards of length " + shardSize
-                                           + " which is less than the minimum shard size of " + MINIMUM_SHARD_SIZE;
+                        + " The length of the key to be sharded is " + cryptoshuffleKey.length
+                        + ". This would result in shards of length " + shardSize
+                        + " which is less than the minimum shard size of " + MINIMUM_SHARD_SIZE;
                 throw new IllegalStateException(msg);
             }
         }

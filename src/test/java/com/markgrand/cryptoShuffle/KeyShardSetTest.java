@@ -89,7 +89,7 @@ public class KeyShardSetTest {
     /**
      * Quick trivial function for encryption. Xor's each bytes of the plain text with the first byte of the public key.
      */
-    private BiFunction<PublicKey, byte[], byte[]> trivialEncryption = (publicKey, plaintext) -> {
+    private final BiFunction<PublicKey, byte[], byte[]> trivialEncryption = (publicKey, plaintext) -> {
         byte[] key = publicKey.getEncoded();
         byte[] result = Arrays.copyOf(plaintext, plaintext.length);
         for (int i = 0; i < result.length; i++) {
@@ -129,6 +129,8 @@ public class KeyShardSetTest {
         assertEquals(publicKeys3, group3.getKeys());
         assertEquals(2, group5.getQuorumSize());
         assertEquals(3, group3.getQuorumSize());
+        group5.getKeys().forEach(key -> assertEquals(2, group5.getShardsForKey(key).size()));
+        group3.getKeys().forEach(key -> assertEquals(3, group3.getShardsForKey(key).size()));
     }
 
     /**

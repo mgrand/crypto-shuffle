@@ -9,6 +9,7 @@ import static org.junit.Assert.assertArrayEquals;
 /**
  * Unit test for CryptoShuffle that does not have the overhead of JMockit.
  */
+@SuppressWarnings("WeakerAccess")
 public class CryptoShuffleUnmocked {
 
     //@Test
