@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$id":"https://github.com/mgrand/crypto-shuffle/keyShardSet",
+  "additionalProperties": false,
+  "definitions": {},
+  "id": "http://example.com/example.json",
+  "properties": {
+    "decryptedShards": {
+      "id": "/properties/decryptedShards",
+      "items": {
+        "description": "Values of shards that have been decrypted.",
+        "id": "/properties/decryptedShards/items",
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "groups": {
+      "additionalItems": false,
+      "id": "/properties/groups",
+      "items": {
+        "id": "/properties/groups/items",
+        "properties": {
+          "keyMap": {
+            "additionalItems": false,
+            "id": "/properties/groups/items/properties/keyMap",
+            "items": {
+              "additionalProperties": false,
+              "id": "/properties/groups/items/properties/keyMap/items",
+              "properties": {
+                "publicKey": {
+                  "additionalItems": false,
+                  "id": "/properties/groups/items/properties/keyMap/items/properties/publicKey",
+                  "items": {
+                    "additionalProperties": false,
+                    "id": "/properties/groups/items/properties/keyMap/items/properties/publicKey/items",
+                    "properties": {
+                      "encryptedShard": {
+                        "id": "/properties/groups/items/properties/keyMap/items/properties/publicKey/items/properties/encryptedShard",
+                        "minLength": 1,
+                        "type": "string"
+                      },
+                      "shardPosition": {
+                        "id": "/properties/groups/items/properties/keyMap/items/properties/publicKey/items/properties/shardPosition",
+                        "minimum": 1,
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "shardPosition",
+                      "encryptedShard"
+                    ],
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              },
+              "required": [
+                "publicKey"
+              ],
+              "type": "object"
+            },
+            "minItems": 1,
+            "type": "array"
+          },
+          "quorumSize": {
+            "default": 1,
+            "id": "/properties/groups/items/properties/quorumSize",
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "quorumSize",
+          "keyMap"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "shardCount": {
+      "id": "/properties/shardCount",
+      "minimum": 1,
+      "type": "integer"
+    },
+    "version": {
+      "default": "1.0",
+      "description": "The schema version that is conformed to.",
+      "id": "/properties/version",
+      "maxLength": 3,
+      "minLength": 3,
+      "pattern": "1.0",
+      "type": "string"
+    }
+  },
+  "required": [
+    "version",
+    "groups",
+    "shardCount"
+  ],
+  "type": "object"
+}
