@@ -1,9 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "$id":"https://github.com/mgrand/crypto-shuffle/keyShardSet",
   "additionalProperties": false,
   "definitions": {},
-  "id": "http://example.com/example.json",
+  "id": "https://github.com/mgrand/crypto-shuffle/keyShardSet",
   "properties": {
     "decryptedShards": {
       "id": "/properties/decryptedShards",
