@@ -69,6 +69,7 @@
           }
         },
         "required": [
+          "uuid",
           "quorumSize",
           "keyMap"
         ],
@@ -80,6 +81,11 @@
       "id": "/properties/shardCount",
       "minimum": 1,
       "type": "integer"
+    },
+    "uuid": {
+      "id": "/properties/uuid",
+      "type":"string",
+      "minLength": 6
     },
     "version": {
       "default": "1.0",
