@@ -34,7 +34,6 @@ import java.util.function.BiFunction;
  * </p>
  * <p>Created by Mark Grand on 6/1/2017.</p>
  */
-@SuppressWarnings("WeakerAccess")
 public class KeyShardSet {
     private static final int MINIMUM_QUORUM_SIZE = 2;
     private static final int MINIMUM_SHARD_SIZE = 8;
