@@ -1,41 +1,21 @@
 package com.markgrand.cryptoShuffle;
 
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.PublicKey;
-import java.util.*;
-import java.util.function.BiFunction;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * <p>Unit tests for {@link KeyShardSet}</p>
  * Created by Mark Grand on 6/5/2017.
  */
-public class KeyShardSetTest {
-    private static byte[] key4800;
-    private static byte[] key24;
-    private KeyPairGenerator keyPairGenerator ;
-
-    @BeforeClass
-    public static void initKeys() {
-        RandomKeyGenerator generator = new RandomKeyGenerator();
-        key4800 = generator.generateKey(4800);
-        key24 = generator.generateKey(24);
-    }
-
-    @Before
-    public void init() throws Exception {
-        keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-    }
-
+public class KeyShardSetTest extends AbstractTest {
     @Test
     public void makeShardsTest2() {
         final byte[][] shards = KeyShardSet.makeShards(key4800, 2, 2400);
@@ -86,18 +66,6 @@ public class KeyShardSetTest {
         assertEquals(key.length, offset);
     }
 
-    /**
-     * Quick trivial function for encryption. Xor's each bytes of the plain text with the first byte of the public key.
-     */
-    private final BiFunction<PublicKey, byte[], byte[]> trivialEncryption = (publicKey, plaintext) -> {
-        byte[] key = publicKey.getEncoded();
-        byte[] result = Arrays.copyOf(plaintext, plaintext.length);
-        for (int i = 0; i < result.length; i++) {
-            result[i] ^= key[0];
-        }
-        return result;
-    };
-
     @Test
     public void buildTest() {
         final Set<KeyPair> keyPairs5 = generateKeyPairs(5);
@@ -133,14 +101,4 @@ public class KeyShardSetTest {
         group3.getKeys().forEach(key -> assertEquals(3, group3.getShardsForKey(key).size()));
     }
 
-    /**
-     * Generate the given quantity of key pairs
-     */
-    private Set<KeyPair> generateKeyPairs(int quantity) {
-        Set<KeyPair> keyPairs = new HashSet<>();
-        for (int i = 0; i < quantity; i++) {
-            keyPairs.add(keyPairGenerator.generateKeyPair());
-        }
-        return keyPairs;
-    }
 }
