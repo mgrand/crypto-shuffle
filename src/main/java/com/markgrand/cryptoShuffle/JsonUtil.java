@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
@@ -12,8 +13,15 @@ import java.io.IOException;
  * <p>Utility class for converting instances of classes in this package to and from JSON.</p>
  * Created by mark.grand on 7/5/2017.
  */
+@SuppressWarnings("WeakerAccess")
 public class JsonUtil {
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private final static ObjectMapper objectMapper = new ObjectMapper();
+
+    static {
+        final SimpleModule module = new SimpleModule("KeyShardSet");
+        module.addSerializer(KeyShardSet.class, new KeyShardSetSerializer());
+        objectMapper.registerModule(module);
+    }
 
     public static JsonNode keyShardSetToJson(final KeyShardSet keyShardSet) {
 
@@ -24,7 +32,6 @@ public class JsonUtil {
         public KeyShardSetSerializer() {
             this(null);
         }
-
         public KeyShardSetSerializer(Class<KeyShardSet> t) {
             super(t);
         }

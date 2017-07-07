@@ -16,12 +16,11 @@ import java.io.File;
  * </p>
  * Created by mark.grand on 7/5/2017.
  */
-public class JsonSchemaChecker {
-    private final static String FILE_PATH = "src/main/resources/KeyShardSet.json";
+public class JsonSchemaChecker implements JsonSchemaConstants {
 
     @Test
     public void checkJsonschema() throws Exception {
-        File file = new File(FILE_PATH);
+        File file = new File(JSON_SCHEMA_FILE_PATH);
         System.out.println("Validating syntax of " + file.getAbsolutePath());
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(file);
