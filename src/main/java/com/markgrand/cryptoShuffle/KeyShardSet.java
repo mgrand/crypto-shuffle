@@ -39,14 +39,17 @@ public class KeyShardSet {
     private static final int MINIMUM_QUORUM_SIZE = 2;
     private static final int MINIMUM_SHARD_SIZE = 8;
 
+    private final int shardCount;
+
     @NotNull
     private final ArrayList<KeyShardGroup> groups;
 
     @NotNull
     private final UUID guid = UUID.randomUUID();
 
-    private KeyShardSet(@NotNull final ArrayList<KeyShardGroup> groups) {
+    private KeyShardSet(@NotNull final ArrayList<KeyShardGroup> groups, final int shardCount) {
         this.groups = groups;
+        this.shardCount = shardCount;
     }
 
     /**
@@ -89,6 +92,10 @@ public class KeyShardSet {
     @SuppressWarnings("WeakerAccess")
     public Collection<KeyShardGroup> getGroups() {
         return groups;
+    }
+
+    public int getShardCount() {
+        return shardCount;
     }
 
     /**
@@ -234,7 +241,7 @@ public class KeyShardSet {
             checkForMinimumShardSize(cryptoshuffleKey, requiredNumberOfShards, shardSize);
             @NotNull final byte[][] shards = makeShards(cryptoshuffleKey, requiredNumberOfShards, shardSize);
             populateGroups(shards);
-            return new KeyShardSet(groups);
+            return new KeyShardSet(groups, requiredNumberOfShards);
         }
 
         private void populateGroups(@NotNull byte[][] shards) {
