@@ -100,7 +100,8 @@
   "required": [
     "version",
     "groups",
-    "shardCount"
+    "shardCount",
+    "uuid"
   ],
   "type": "object"
 }
