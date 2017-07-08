@@ -67,6 +67,8 @@ public class JsonUtil {
                               JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeNumberField("quorumSize", value.getQuorumSize());
+            jsonGenerator.writeArrayFieldStart("keyMap");
+            jsonGenerator.writeEndArray();
             jsonGenerator.writeEndObject();
         }
     }
