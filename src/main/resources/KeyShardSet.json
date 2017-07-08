@@ -3,6 +3,9 @@
   "definitions": {},
   "id": "https://github.com/mgrand/crypto-shuffle/keyShardSet",
   "properties": {
+    "encryptionAlgorithm": {
+      "pattern":"RSA"
+    },
     "decryptedShards": {
       "id": "/properties/decryptedShards",
       "items": {
@@ -11,6 +14,7 @@
         "type": "string"
       },
       "type": "array"
+
     },
     "groups": {
       "id": "/properties/groups",
@@ -83,17 +87,15 @@
       "minLength": 6
     },
     "version": {
-      "default": "1.0",
+      "pattern": "1.0",
       "description": "The schema version that is conformed to.",
       "id": "/properties/version",
-      "maxLength": 3,
-      "minLength": 3,
-      "pattern": "1.0",
       "type": "string"
     }
   },
   "required": [
     "version",
+    "encryptionAlgorithm",
     "groups",
     "shardCount",
     "uuid"
