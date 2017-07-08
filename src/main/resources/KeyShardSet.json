@@ -69,13 +69,13 @@
           }
         },
         "required": [
-          "uuid",
           "quorumSize",
           "keyMap"
         ],
         "type": "object"
       },
-      "type": "array"
+      "type": "array",
+      "minItems":1
     },
     "shardCount": {
       "id": "/properties/shardCount",
