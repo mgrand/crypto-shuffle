@@ -20,6 +20,7 @@ public class JsonUtil {
     static {
         final SimpleModule module = new SimpleModule("KeyShardSet");
         module.addSerializer(KeyShardSet.class, new KeyShardSetSerializer());
+        module.addSerializer(KeyShardSet.KeyShardGroup.class, new KeyShardGroupSerializer());
         objectMapper.registerModule(module);
     }
 
@@ -42,6 +43,30 @@ public class JsonUtil {
             jsonGenerator.writeStringField("version", "1.0");
             jsonGenerator.writeStringField("uuid", value.getGuid().toString());
             jsonGenerator.writeNumberField("shardCount", value.getShardCount());
+            jsonGenerator.writeArrayFieldStart("groups");
+            for (KeyShardSet.KeyShardGroup group: value.getGroups()) {
+                jsonGenerator.writeObject(group);
+            }
+            jsonGenerator.writeEndArray();
+            jsonGenerator.writeEndObject();
+        }
+    }
+
+    private static class KeyShardGroupSerializer extends StdSerializer<KeyShardSet.KeyShardGroup> {
+        public KeyShardGroupSerializer() {
+            this(null);
+        }
+
+        public KeyShardGroupSerializer(Class<KeyShardSet.KeyShardGroup> t) {
+            super(t);
+        }
+
+
+        @Override
+        public void serialize(KeyShardSet.KeyShardGroup value,
+                              JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeNumberField("quorumSize", value.getQuorumSize());
             jsonGenerator.writeEndObject();
         }
     }
