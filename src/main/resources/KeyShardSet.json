@@ -4,7 +4,7 @@
   "id": "https://github.com/mgrand/crypto-shuffle/keyShardSet",
   "properties": {
     "encryptionAlgorithm": {
-      "pattern":"RSA"
+      "pattern":"^RSA$"
     },
     "decryptedShards": {
       "id": "/properties/decryptedShards",
@@ -28,16 +28,21 @@
               "properties": {
                 "publicKey": {
                   "id": "/properties/groups/items/properties/keyMap/items/properties/publicKey",
+                  "description":"base-64 encoded public key",
+                  "type": "string"
+                },
+                "shards": {
                   "items": {
-                    "id": "/properties/groups/items/properties/keyMap/items/properties/publicKey/items",
+                    "id": "/properties/groups/items/properties/keyMap/items/properties/shards/items",
                     "properties": {
                       "encryptedShard": {
-                        "id": "/properties/groups/items/properties/keyMap/items/properties/publicKey/items/properties/encryptedShard",
+                        "id": "/properties/groups/items/properties/keyMap/items/properties/shards/items/properties/encryptedShard",
                         "minLength": 1,
-                        "type": "string"
+                        "type": "string",
+                        "description":"base64 encoded encrypted shard"
                       },
                       "shardPosition": {
-                        "id": "/properties/groups/items/properties/keyMap/items/properties/publicKey/items/properties/shardPosition",
+                        "id": "/properties/groups/items/properties/keyMap/items/properties/shards/items/properties/shardPosition",
                         "minimum": 1,
                         "type": "integer"
                       }
