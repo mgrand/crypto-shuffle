@@ -41,6 +41,6 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
 
         final JsonNode jsonNode = JsonUtil.keyShardSetToJson(keyShardSet);
         System.out.println(jsonSchema.validate(jsonNode, true).toString());
-        Assert.assertTrue(jsonSchema.validInstance(jsonNode));
+        Assert.assertTrue(jsonNode.toString(),jsonSchema.validInstance(jsonNode));
     }
 }
