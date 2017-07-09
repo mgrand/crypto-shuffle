@@ -53,11 +53,13 @@
                     ],
                     "type": "object"
                   },
-                  "type": "array"
+                  "type": "array",
+                  "minItems":1
                 }
               },
               "required": [
-                "publicKey"
+                "publicKey",
+                "shards"
               ],
               "type": "object"
             },
