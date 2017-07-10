@@ -43,7 +43,7 @@
                       },
                       "shardPosition": {
                         "id": "/properties/groups/items/properties/keyMap/items/properties/shards/items/properties/shardPosition",
-                        "minimum": 1,
+                        "minimum": 0,
                         "type": "integer"
                       }
                     },
