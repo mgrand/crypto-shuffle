@@ -88,7 +88,7 @@ public class JsonUtil {
                 final String encodedPublicKey = Base64.getEncoder().encodeToString(publicKey.getEncoded());
                 jsonGenerator.writeStringField("publicKey", encodedPublicKey);
                 jsonGenerator.writeArrayFieldStart("shards");
-                final Map<Integer, byte[]> shards = value.getShardsForKey(publicKey);
+                final Map<Integer, byte[]> shards = value.getEncryptedShardsForKey(publicKey);
                 for (Map.Entry<Integer, byte[]> shard : shards.entrySet()) {
                     jsonGenerator.writeStartObject();
                     jsonGenerator.writeNumberField("shardPosition", shard.getKey());

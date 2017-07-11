@@ -34,6 +34,7 @@ import java.util.function.BiFunction;
  * </p>
  * <p>Created by Mark Grand on 6/1/2017.</p>
  */
+@SuppressWarnings("WeakerAccess")
 public class KeyShardSet {
     private static final int MINIMUM_QUORUM_SIZE = 2;
     private static final int MINIMUM_SHARD_SIZE = 8;
@@ -183,7 +184,7 @@ public class KeyShardSet {
          * the given key, an empty map is returned.
          */
         @NotNull
-        public Map<Integer, byte[]> getShardsForKey(@NotNull PublicKey key) {
+        public Map<Integer, byte[]> getEncryptedShardsForKey(@NotNull PublicKey key) {
             //noinspection unchecked
             return keyMap.getOrDefault(key, Collections.EMPTY_MAP);
         }
@@ -246,12 +247,14 @@ public class KeyShardSet {
         private void populateGroups(@NotNull byte[][] shards) {
             int offset = 0;
             for (final KeyShardGroup group : groups) {
+                final Set<PublicKey> publicKeys = group.getKeys();
                 final int quorumSize = group.getQuorumSize();
+                final int shardsPerKey = (quorumSize-1) * -1 + publicKeys.size();
                 int keyIndex = 0;
-                for (final PublicKey key : group.getKeys()) {
+                for (final PublicKey key : publicKeys) {
                     final Map<Integer, byte[]> encryptedShardOrdinalityMapping = new HashMap<>();
-                    for (int keyShardIndex = 0; keyShardIndex < quorumSize; keyShardIndex++) {
-                        final int shardIndex = offset + ((keyIndex + keyShardIndex) % quorumSize);
+                    for (int keyShardIndex = 0; keyShardIndex < shardsPerKey; keyShardIndex++) {
+                        final int shardIndex = offset + ((keyIndex + keyShardIndex) % shardsPerKey);
                         final byte[] encryptedShard = encryptionFunction.apply(key, shards[shardIndex]);
                         encryptedShardOrdinalityMapping.put(shardIndex, encryptedShard);
                     }

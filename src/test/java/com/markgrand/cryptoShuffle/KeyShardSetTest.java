@@ -4,9 +4,7 @@ import org.junit.Test;
 
 import java.security.KeyPair;
 import java.security.PublicKey;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -73,8 +71,11 @@ public class KeyShardSetTest extends AbstractTest {
         final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(trivialEncryption);
         final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
         final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
-        final KeyShardSet keyShardSet = builder.addKeyGroup(2,  publicKeys5).addKeyGroup(3,  publicKeys3).build(key4800);
+        final KeyShardSet keyShardSet = builder.addKeyGroup(2,  publicKeys5)
+                .addKeyGroup(3,  publicKeys3)
+                .build(key4800);
         assertNotNull(keyShardSet.getGuid());
+        assertEquals(8, keyShardSet.getShardCount());
         final Collection<KeyShardSet.KeyShardGroup> groups = keyShardSet.getGroups();
         assertEquals(2, groups.size());
         final Iterator<KeyShardSet.KeyShardGroup> groupIterator = groups.iterator();
@@ -97,8 +98,37 @@ public class KeyShardSetTest extends AbstractTest {
         assertEquals(publicKeys3, group3.getKeys());
         assertEquals(2, group5.getQuorumSize());
         assertEquals(3, group3.getQuorumSize());
-        group5.getKeys().forEach(key -> assertEquals(2, group5.getShardsForKey(key).size()));
-        group3.getKeys().forEach(key -> assertEquals(3, group3.getShardsForKey(key).size()));
+        checkGroupSize(group5, 4);
+        checkGroupSize(group3, 1);
+        checkGroupCoverage(keyShardSet);
+    }
+
+    private void checkGroupCoverage(KeyShardSet keyShardSet) {
+        final int shardCount = keyShardSet.getShardCount();
+        final int[] coverageFlags = new int[shardCount];
+        int groupNumber = 0;
+        for (final KeyShardSet.KeyShardGroup group: keyShardSet.getGroups()) {
+            int keyNumber = 0;
+            for (final PublicKey key: group.getKeys()) {
+                System.out.print("Group " + groupNumber + " key " + keyNumber + ": ");
+                for (final Map.Entry<Integer, byte[]> shard: group.getEncryptedShardsForKey(key).entrySet()) {
+                    coverageFlags[shard.getKey()] = 1;
+                    System.out.print(shard.getKey() + " ");
+                }
+                System.out.println();
+                keyNumber += 1;
+            }
+            groupNumber += 1;
+        }
+        for (int i = 0; i< shardCount; i++) {
+            if (coverageFlags[i] == 0) {
+                fail("Not all shards covered. " + Arrays.toString(coverageFlags));
+            }
+        }
+    }
+
+    private void checkGroupSize(KeyShardSet.KeyShardGroup group, int expectedSize) {
+        group.getKeys().forEach(key -> assertEquals(expectedSize, group.getEncryptedShardsForKey(key).size()));
     }
 
 }
