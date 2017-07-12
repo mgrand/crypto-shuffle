@@ -249,12 +249,13 @@ public class KeyShardSet {
             for (final KeyShardGroup group : groups) {
                 final Set<PublicKey> publicKeys = group.getKeys();
                 final int quorumSize = group.getQuorumSize();
-                final int shardsPerKey = (quorumSize-1) * -1 + publicKeys.size();
+                final int groupKeyCount = publicKeys.size();
+                final int shardsPerKey = (quorumSize - 1) * -1 + groupKeyCount;
                 int keyIndex = 0;
                 for (final PublicKey key : publicKeys) {
                     final Map<Integer, byte[]> encryptedShardOrdinalityMapping = new HashMap<>();
-                    for (int keyShardIndex = 0; keyShardIndex < shardsPerKey; keyShardIndex++) {
-                        final int shardIndex = offset + ((keyIndex + keyShardIndex) % shardsPerKey);
+                    for (int keyShardIndex = keyIndex; keyShardIndex < shardsPerKey; keyShardIndex++) {
+                        final int shardIndex = offset + (keyShardIndex % groupKeyCount);
                         final byte[] encryptedShard = encryptionFunction.apply(key, shards[shardIndex]);
                         encryptedShardOrdinalityMapping.put(shardIndex, encryptedShard);
                     }
