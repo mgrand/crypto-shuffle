@@ -98,8 +98,8 @@ public class KeyShardSetTest extends AbstractTest {
         assertEquals(publicKeys3, group3.getKeys());
         assertEquals(2, group5.getQuorumSize());
         assertEquals(3, group3.getQuorumSize());
-        checkGroupSize(group5, 4);
-        checkGroupSize(group3, 1);
+        checkGroupShardsPerKey(group5, 4);
+        checkGroupShardsPerKey(group3, 1);
         checkGroupCoverage(keyShardSet);
     }
 
@@ -127,7 +127,7 @@ public class KeyShardSetTest extends AbstractTest {
         }
     }
 
-    private void checkGroupSize(KeyShardSet.KeyShardGroup group, int expectedSize) {
+    private void checkGroupShardsPerKey(KeyShardSet.KeyShardGroup group, int expectedSize) {
         group.getKeys().forEach(key -> assertEquals(expectedSize, group.getEncryptedShardsForKey(key).size()));
     }
 

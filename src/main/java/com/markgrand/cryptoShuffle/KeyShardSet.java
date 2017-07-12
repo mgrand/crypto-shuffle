@@ -254,8 +254,8 @@ public class KeyShardSet {
                 int keyIndex = 0;
                 for (final PublicKey key : publicKeys) {
                     final Map<Integer, byte[]> encryptedShardOrdinalityMapping = new HashMap<>();
-                    for (int keyShardIndex = keyIndex; keyShardIndex < shardsPerKey; keyShardIndex++) {
-                        final int shardIndex = offset + (keyShardIndex % groupKeyCount);
+                    for (int keyShardIndex = 0; keyShardIndex < shardsPerKey; keyShardIndex++) {
+                        final int shardIndex = offset + ((keyShardIndex + keyIndex) % groupKeyCount);
                         final byte[] encryptedShard = encryptionFunction.apply(key, shards[shardIndex]);
                         encryptedShardOrdinalityMapping.put(shardIndex, encryptedShard);
                     }
