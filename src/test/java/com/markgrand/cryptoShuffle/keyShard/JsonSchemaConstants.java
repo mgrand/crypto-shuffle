@@ -1,4 +1,4 @@
-package com.markgrand.cryptoShuffle;
+package com.markgrand.cryptoShuffle.keyShard;
 
 /**
  * <p>Constants related to the JSON Schemas</p>

@@ -1,9 +1,13 @@
-package com.markgrand.cryptoShuffle;
+package com.markgrand.cryptoShuffle.keyShard;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
@@ -23,6 +27,8 @@ import java.util.Map;
 @SuppressWarnings("WeakerAccess")
 public class JsonUtil {
     private final static ObjectMapper objectMapper = new ObjectMapper();
+    public static final String ENCRYPTION_ALGORITHM = "encryptionAlgorithm";
+    public static final String RSA = "RSA";
 
     static {
         final SimpleModule module = new SimpleModule("KeyShardSet");
@@ -31,8 +37,13 @@ public class JsonUtil {
         objectMapper.registerModule(module);
     }
 
+    /**
+     * Convert a {@link KeyShardSet} to a JSON object.
+     *
+     * @param keyShardSet the {@code KeyShardSet} to be converted to JSON
+     * @return a JSON object that represents the given {@link KeyShardSet}
+     */
     public static JsonNode keyShardSetToJson(final KeyShardSet keyShardSet) {
-
         return objectMapper.valueToTree(keyShardSet);
     }
 
@@ -49,8 +60,8 @@ public class JsonUtil {
         public void serialize(KeyShardSet value, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField("version", "1.0");
-            jsonGenerator.writeStringField("encryptionAlgorithm", "RSA");
-            jsonGenerator.writeStringField("uuid", value.getGuid().toString());
+            jsonGenerator.writeStringField(ENCRYPTION_ALGORITHM, RSA);
+            jsonGenerator.writeStringField("uuid", value.getUuid().toString());
             jsonGenerator.writeNumberField("shardCount", value.getShardCount());
             jsonGenerator.writeArrayFieldStart("groups");
             for (KeyShardSet.KeyShardGroup group : value.getGroups()) {
@@ -93,7 +104,7 @@ public class JsonUtil {
                     jsonGenerator.writeStartObject();
                     jsonGenerator.writeNumberField("shardPosition", shard.getKey());
                     final String base64EncodedEncryptedShard = Base64.getEncoder().encodeToString(shard.getValue());
-                    jsonGenerator.writeStringField("encryptedShard", base64EncodedEncryptedShard );
+                    jsonGenerator.writeStringField("encryptedShard", base64EncodedEncryptedShard);
                     jsonGenerator.writeEndObject();
                 }
                 jsonGenerator.writeEndArray();
@@ -102,8 +113,40 @@ public class JsonUtil {
         }
     }
 
-    private PublicKey X509EncodedKeySpecToRsaPublicKey(final byte[] bytes)
+    /**
+     * Create a {@link KeyShardSet} that matches the given JSON.
+     *
+     * @param jsonNode The JSON to use for building the {@link KeyShardSet}.
+     * @return the new {@link KeyShardSet}
+     * @throws JsonProcessingException If there is a problem processing the JSON.
+     */
+    public static KeyShardSet jsonToKeyShardSet(final JsonNode jsonNode) throws JsonProcessingException {
+        return objectMapper.treeToValue(jsonNode, KeyShardSet.class);
+    }
+
+    public static class KeyShardSetDeserializer extends StdDeserializer<KeyShardSet> {
+        public KeyShardSetDeserializer() {
+            this(null);
+        }
+
+        public KeyShardSetDeserializer(Class<?> vc) {
+            super(vc);
+        }
+
+        @Override
+        public KeyShardSet deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+            JsonNode node = jp.getCodec().readTree(jp);
+            if (!RSA.equals(node.get(ENCRYPTION_ALGORITHM).asText())) {
+                throw new IOException(ENCRYPTION_ALGORITHM + " has unsupported value " + node.get(ENCRYPTION_ALGORITHM));
+            }
+            //KeyShardSet.newBuilder();
+            // TODO finish this
+            return null;
+        }
+    }
+
+    private static PublicKey X509EncodedKeySpecToRsaPublicKey(final byte[] bytes)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
-        return KeyFactory.getInstance("RSA").generatePublic(new X509EncodedKeySpec(bytes));
+        return KeyFactory.getInstance(RSA).generatePublic(new X509EncodedKeySpec(bytes));
     }
 }

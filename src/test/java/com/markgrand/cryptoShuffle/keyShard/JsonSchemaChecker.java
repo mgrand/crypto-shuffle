@@ -1,4 +1,4 @@
-package com.markgrand.cryptoShuffle;
+package com.markgrand.cryptoShuffle.keyShard;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

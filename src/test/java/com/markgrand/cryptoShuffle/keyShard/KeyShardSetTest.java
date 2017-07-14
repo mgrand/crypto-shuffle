@@ -1,5 +1,7 @@
-package com.markgrand.cryptoShuffle;
+package com.markgrand.cryptoShuffle.keyShard;
 
+import com.markgrand.cryptoShuffle.AbstractTest;
+import com.markgrand.cryptoShuffle.keyShard.KeyShardSet;
 import org.junit.Test;
 
 import java.security.KeyPair;
@@ -68,13 +70,13 @@ public class KeyShardSetTest extends AbstractTest {
     public void buildTest() {
         final Set<KeyPair> keyPairs5 = generateKeyPairs(5);
         final Set<KeyPair> keyPairs3 = generateKeyPairs(3);
-        final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(trivialEncryption);
+        final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(rsaEncryption);
         final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
         final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
         final KeyShardSet keyShardSet = builder.addKeyGroup(2,  publicKeys5)
                 .addKeyGroup(3,  publicKeys3)
                 .build(key4800);
-        assertNotNull(keyShardSet.getGuid());
+        assertNotNull(keyShardSet.getUuid());
         assertEquals(8, keyShardSet.getShardCount());
         final Collection<KeyShardSet.KeyShardGroup> groups = keyShardSet.getGroups();
         assertEquals(2, groups.size());

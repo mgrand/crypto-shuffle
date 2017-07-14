@@ -1,6 +1,7 @@
-package com.markgrand.cryptoShuffle;
+package com.markgrand.cryptoShuffle.keyShard;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.security.PublicKey;
 import java.util.*;
@@ -45,11 +46,12 @@ public class KeyShardSet {
     private final ArrayList<KeyShardGroup> groups;
 
     @NotNull
-    private final UUID guid = UUID.randomUUID();
+    private final UUID uuid;
 
-    private KeyShardSet(@NotNull final ArrayList<KeyShardGroup> groups, final int shardCount) {
+    private KeyShardSet(@NotNull final ArrayList<KeyShardGroup> groups, final int shardCount, @NotNull final UUID uuid) {
         this.groups = groups;
         this.shardCount = shardCount;
+        this.uuid = uuid;
     }
 
     /**
@@ -103,8 +105,8 @@ public class KeyShardSet {
      */
     @SuppressWarnings("WeakerAccess")
     @NotNull
-    public UUID getGuid() {
-        return guid;
+    public UUID getUuid() {
+        return uuid;
     }
 
     /**
@@ -114,6 +116,23 @@ public class KeyShardSet {
     @SuppressWarnings("WeakerAccess")
     public static class KeyShardGroup {
         private final int quorumSize;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof KeyShardGroup)) return false;
+
+            KeyShardGroup that = (KeyShardGroup) o;
+
+            return quorumSize == that.quorumSize && keyMap.equals(that.keyMap);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = quorumSize;
+            result = 31 * result + keyMap.hashCode();
+            return result;
+        }
 
         // Map public keys to
         @NotNull
@@ -197,6 +216,10 @@ public class KeyShardSet {
         @NotNull
         private final BiFunction<PublicKey, byte[], byte[]> encryptionFunction;
 
+        @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+        @NotNull
+        private Optional<UUID> uuid = Optional.empty();
+
         /**
          * Constructor is private to prevent instantiation with {@code new}.
          *
@@ -217,10 +240,22 @@ public class KeyShardSet {
          * @throws IllegalArgumentException If the quorumSize is less than {@value MINIMUM_QUORUM_SIZE} or greater than
          *                                  the number of keys in the group.
          */
-        @SuppressWarnings("WeakerAccess")
         @NotNull
         public KeyShardingSetBuilder addKeyGroup(final int quorumSize, @NotNull final Set<PublicKey> keys) {
             groups.add(new KeyShardGroup(quorumSize, keys));
+            return this;
+        }
+
+        /**
+         * Set the UUID of the {@link KeyShardSet} being built. This is intended for reconstructing a {@link KeyShardSet}
+         * from a serialized form, not for determining the UUID of a new {@link KeyShardSet}
+         *
+         * @param uuid The UUID for the {@link KeyShardSet} being built
+         * @return this builder.
+         */
+        @NotNull
+        public KeyShardingSetBuilder setUuid(@Nullable final UUID uuid) {
+            this.uuid = Optional.ofNullable(uuid);
             return this;
         }
 
@@ -233,7 +268,6 @@ public class KeyShardSet {
          * @throws IllegalStateException if dividing the given key into the required number of shards would results in
          *                               shards smaller than {@value MINIMUM_SHARD_SIZE}.
          */
-        @SuppressWarnings("WeakerAccess")
         @NotNull
         public KeyShardSet build(@NotNull final byte[] cryptoshuffleKey) {
             final int requiredNumberOfShards = computeRequiredNumberOfShards();
@@ -241,7 +275,7 @@ public class KeyShardSet {
             checkForMinimumShardSize(cryptoshuffleKey, requiredNumberOfShards, shardSize);
             @NotNull final byte[][] shards = makeShards(cryptoshuffleKey, requiredNumberOfShards, shardSize);
             populateGroups(shards);
-            return new KeyShardSet(groups, requiredNumberOfShards);
+            return new KeyShardSet(groups, requiredNumberOfShards, uuid.orElseGet(UUID::randomUUID));
         }
 
         private void populateGroups(@NotNull byte[][] shards) {
@@ -283,5 +317,23 @@ public class KeyShardSet {
             }
             return shardTotal;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof KeyShardSet)) return false;
+
+        KeyShardSet that = (KeyShardSet) o;
+
+        return shardCount == that.shardCount && groups.equals(that.groups) && uuid.equals(that.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = shardCount;
+        result = 31 * result + groups.hashCode();
+        result = 31 * result + uuid.hashCode();
+        return result;
     }
 }
