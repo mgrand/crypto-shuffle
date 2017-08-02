@@ -3,7 +3,9 @@ package com.markgrand.cryptoShuffle.keyShard;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
 import java.security.*;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.function.BiFunction;
 
@@ -58,18 +60,41 @@ class AsymmetricEncryptionFunctions {
                 Cipher aes = Cipher.getInstance("AES");
                 aes.init(Cipher.ENCRYPT_MODE, aesKey);
                 return new EncryptedShard(publicKey.getEncoded(), aes.doFinal(plaintext),
-                        SymmetricEncryptionAlgorithms.AES, rsa.doFinal(aesKey.getEncoded()));
+                                                 SymmetricEncryptionAlgorithm.AES, rsa.doFinal(aesKey.getEncoded()));
             }
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
             throw new RuntimeException("Error occurred while encrypting", e);
         }
     };
+
+    static final DecryptionFunction RSA_DECRYPTION = (privateKey, encryptedShard) -> {
+        final RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) privateKey;
+        final SymmetricEncryptionAlgorithm symmetricEncryptionAlgorithm = encryptedShard.getSymmetricEncryptionAlgorithm();
+        try {
+            if (symmetricEncryptionAlgorithm == null) {
+                return rsaDecrypt(privateKey, encryptedShard.getEncryptedShardValue());
+            } else {
+                byte[] aesKeyText = rsaDecrypt(privateKey, encryptedShard.getEncryptedSymmetricKey());
+                SecretKeySpec aesKey = new SecretKeySpec(aesKeyText, "AES");
+                Cipher aes = Cipher.getInstance("AES");
+                aes.init(Cipher.DECRYPT_MODE, aesKey);
+                return aes.doFinal(encryptedShard.getEncryptedShardValue());
+            }
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+            throw new RuntimeException("Error occurred while decrypting", e);
+        }
+    };
+
+    static byte[] rsaDecrypt(final PrivateKey privateKey, final byte[] encryptedText)
+            throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        Cipher rsa = Cipher.getInstance("RSA");
+        rsa.init(Cipher.DECRYPT_MODE, privateKey);
+        return rsa.doFinal(encryptedText);
+    }
 }
 
 /**
- * An enumeration of supported assymetric encryptionFunction algorithms.
- * <p></p>
- * Created by mark.grand on 7/14/2017.
+ * An enumeration of supported assymetric encryptionFunction algorithms. <p></p> Created by mark.grand on 7/14/2017.
  */
 public enum AsymmetricEncryptionAlgorithms {
     RSA(AsymmetricEncryptionFunctions.RSA_ENCRYPTION);

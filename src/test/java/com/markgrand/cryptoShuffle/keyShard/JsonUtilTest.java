@@ -47,8 +47,8 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
         final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
         keyShardSet = builder.addKeyGroup(2,  publicKeys5).addKeyGroup(3,  publicKeys3).build(key4800);
-        addToKeyDictionary(keyPairs3);
-        addToKeyDictionary(keyPairs5);
+//        addToKeyDictionary(keyPairs3);
+//        addToKeyDictionary(keyPairs5);
     }
 
     private void addToKeyDictionary(Set<KeyPair> keyPairs3) {

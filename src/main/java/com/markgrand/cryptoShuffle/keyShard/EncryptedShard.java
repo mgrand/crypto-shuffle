@@ -8,7 +8,7 @@ package com.markgrand.cryptoShuffle.keyShard;
 public class EncryptedShard {
     private final byte[] encodedPublicKey;
     private final byte[] encryptedShardValue;
-    private final SymmetricEncryptionAlgorithms symmetricEncryptionAlgorithm;
+    private final SymmetricEncryptionAlgorithm symmetricEncryptionAlgorithm;
     private final byte[] encryptedSymmetricKey;
 
     /**
@@ -37,7 +37,7 @@ public class EncryptedShard {
      */
     public EncryptedShard(final byte[] encodedPublicKey,
                           final byte[] encryptedShardValue,
-                          final SymmetricEncryptionAlgorithms symmetricEncryptionAlgorithm,
+                          final SymmetricEncryptionAlgorithm symmetricEncryptionAlgorithm,
                           final byte[] encryptedSymmetricKey) {
         this.encodedPublicKey = encodedPublicKey;
         this.encryptedShardValue = encryptedShardValue;
@@ -63,7 +63,7 @@ public class EncryptedShard {
      * Return the symmetric encryption algorithm that was used to encrypt the
      * shard value or null.
      */
-    public SymmetricEncryptionAlgorithms getSymmetricEncryptionAlgorithm() {
+    public SymmetricEncryptionAlgorithm getSymmetricEncryptionAlgorithm() {
         return symmetricEncryptionAlgorithm;
     }
 
