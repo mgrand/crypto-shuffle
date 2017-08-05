@@ -3,24 +3,25 @@ package com.markgrand.cryptoShuffle.keyShard;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import javax.crypto.*;
-import javax.crypto.spec.SecretKeySpec;
-import java.security.*;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.NoSuchAlgorithmException;
+import java.security.Security;
+import java.security.interfaces.RSAKey;
 import java.util.function.BiFunction;
 
 /**
  * Functional interface for asymmetric encryption.
  */
 @FunctionalInterface
-interface EncryptionFunction extends BiFunction<PublicKey, byte[], EncryptedShard> {
+interface EncryptionFunction extends BiFunction<Key, byte[], EncryptedShard> {
 }
 
 /**
  * Functional interface for asymmetric decryption.
  */
 @FunctionalInterface
-interface DecryptionFunction extends BiFunction<PrivateKey, EncryptedShard, byte[]> {
+interface DecryptionFunction extends BiFunction<Key, EncryptedShard, byte[]> {
 }
 
 /**
@@ -33,33 +34,18 @@ class AsymmetricEncryptionFunctions {
 
     private static final int PADDING_SIZE = 11;
 
-    private static KeyGenerator keyGenerator = null;
-
-    private static synchronized KeyGenerator getKeyGenerator() {
-        if (keyGenerator == null) {
-            try {
-                keyGenerator = KeyGenerator.getInstance("AES");
-                keyGenerator.init(256);
-            } catch (NoSuchAlgorithmException e) {
-                throw new RuntimeException("Unexpected internal error initializing AES encryptionFunction");
-            }
-        }
-        return keyGenerator;
-    }
-
-    static final EncryptionFunction RSA_ENCRYPTION = (publicKey, plaintext) -> {
-        RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
-        final int maxEncryptablePlaintextBytes = rsaPublicKey.getModulus().bitCount() / 8 - PADDING_SIZE;
+    static final EncryptionFunction RSA_ENCRYPTION = (key, plaintext) -> {
+        RSAKey rsaKey = (RSAKey) key;
+        final int maxEncryptablePlaintextBytes = rsaKey.getModulus().bitCount() / 8 - PADDING_SIZE;
         try {
             Cipher rsa = Cipher.getInstance("RSA");
-            rsa.init(Cipher.ENCRYPT_MODE, rsaPublicKey);
+            rsa.init(Cipher.ENCRYPT_MODE, key);
             if (plaintext.length <= maxEncryptablePlaintextBytes) {
-                return new EncryptedShard(publicKey.getEncoded(), rsa.doFinal(plaintext));
+                return new EncryptedShard(key.getEncoded(), rsa.doFinal(plaintext));
             } else {
-                SecretKey aesKey = getKeyGenerator().generateKey();
-                Cipher aes = Cipher.getInstance("AES");
-                aes.init(Cipher.ENCRYPT_MODE, aesKey);
-                return new EncryptedShard(publicKey.getEncoded(), aes.doFinal(plaintext),
+                SecretKey aesKey = SymmetricEncryptionAlgorithm.AES.generateKey();
+                return new EncryptedShard(key.getEncoded(),
+                                                 SymmetricEncryptionAlgorithm.AES.encrypt(aesKey, plaintext),
                                                  SymmetricEncryptionAlgorithm.AES, rsa.doFinal(aesKey.getEncoded()));
             }
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
@@ -67,28 +53,24 @@ class AsymmetricEncryptionFunctions {
         }
     };
 
-    static final DecryptionFunction RSA_DECRYPTION = (privateKey, encryptedShard) -> {
-        final RSAPrivateKey rsaPrivateKey = (RSAPrivateKey) privateKey;
+    static final DecryptionFunction RSA_DECRYPTION = (key, encryptedShard) -> {
         final SymmetricEncryptionAlgorithm symmetricEncryptionAlgorithm = encryptedShard.getSymmetricEncryptionAlgorithm();
         try {
             if (symmetricEncryptionAlgorithm == null) {
-                return rsaDecrypt(privateKey, encryptedShard.getEncryptedShardValue());
+                return rsaDecrypt(key, encryptedShard.getEncryptedShardValue());
             } else {
-                byte[] aesKeyText = rsaDecrypt(privateKey, encryptedShard.getEncryptedSymmetricKey());
-                SecretKeySpec aesKey = new SecretKeySpec(aesKeyText, "AES");
-                Cipher aes = Cipher.getInstance("AES");
-                aes.init(Cipher.DECRYPT_MODE, aesKey);
-                return aes.doFinal(encryptedShard.getEncryptedShardValue());
+                byte[] keyText = rsaDecrypt(key, encryptedShard.getEncryptedSymmetricKey());
+                return symmetricEncryptionAlgorithm.decrypt(keyText, encryptedShard.getEncryptedShardValue());
             }
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
             throw new RuntimeException("Error occurred while decrypting", e);
         }
     };
 
-    static byte[] rsaDecrypt(final PrivateKey privateKey, final byte[] encryptedText)
+    private static byte[] rsaDecrypt(final Key key, final byte[] encryptedText)
             throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         Cipher rsa = Cipher.getInstance("RSA");
-        rsa.init(Cipher.DECRYPT_MODE, privateKey);
+        rsa.init(Cipher.DECRYPT_MODE, key);
         return rsa.doFinal(encryptedText);
     }
 }
@@ -97,15 +79,21 @@ class AsymmetricEncryptionFunctions {
  * An enumeration of supported assymetric encryptionFunction algorithms. <p></p> Created by mark.grand on 7/14/2017.
  */
 public enum AsymmetricEncryptionAlgorithms {
-    RSA(AsymmetricEncryptionFunctions.RSA_ENCRYPTION);
+    RSA(AsymmetricEncryptionFunctions.RSA_ENCRYPTION, AsymmetricEncryptionFunctions.RSA_DECRYPTION);
 
-    final EncryptionFunction encryptionFunction;
+    private final EncryptionFunction encryptionFunction;
+    private final DecryptionFunction decryptionFunction;
 
-    AsymmetricEncryptionAlgorithms(EncryptionFunction encryption) {
-        this.encryptionFunction = encryption;
+    AsymmetricEncryptionAlgorithms(EncryptionFunction encryptionFunction, DecryptionFunction decryptionFunction) {
+        this.encryptionFunction = encryptionFunction;
+        this.decryptionFunction = decryptionFunction;
     }
 
-    EncryptionFunction getEncryptionFunction() {
-        return encryptionFunction;
+    public EncryptedShard encrypt(final Key key, final byte[] plainText) {
+        return encryptionFunction.apply(key, plainText);
+    }
+
+    public byte[] decrypt(final Key key, final EncryptedShard encryptedShard) {
+        return decryptionFunction.apply(key, encryptedShard);
     }
 }
