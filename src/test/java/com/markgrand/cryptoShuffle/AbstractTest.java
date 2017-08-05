@@ -32,7 +32,15 @@ public abstract class AbstractTest {
             throw new RuntimeException("Error occurred while encrypting", e);
         }
     };
-    private KeyPairGenerator keyPairGenerator ;
+
+    private static KeyPairGenerator keyPairGenerator;
+    static {
+        try {
+            keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Problem initializing KeyPairGenerator", e);
+        }
+    }
 
     @BeforeClass
     public static void initKeys() {
@@ -41,19 +49,21 @@ public abstract class AbstractTest {
         key24 = generator.generateKey(24);
     }
 
-    @Before
-    public void init() throws Exception {
-        keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-    }
-
     /**
      * Generate the given quantity of key pairs
      */
-    protected Set<KeyPair> generateKeyPairs(int quantity) {
+    protected static Set<KeyPair> generateKeyPairs(int quantity) {
         Set<KeyPair> keyPairs = new HashSet<>();
         for (int i = 0; i < quantity; i++) {
-            keyPairs.add(keyPairGenerator.generateKeyPair());
+            keyPairs.add(generateKeyPair());
         }
         return keyPairs;
+    }
+
+    /**
+     * Generate a single key pair.
+     */
+    protected static KeyPair generateKeyPair() {
+        return keyPairGenerator.generateKeyPair();
     }
 }
