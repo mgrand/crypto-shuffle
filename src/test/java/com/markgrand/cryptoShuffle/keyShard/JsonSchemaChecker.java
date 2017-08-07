@@ -19,7 +19,7 @@ import java.io.File;
 public class JsonSchemaChecker implements JsonSchemaConstants {
 
     @Test
-    public void checkJsonschema() throws Exception {
+    public void checkJsonSchema() throws Exception {
         File file = new File(JSON_SCHEMA_FILE_PATH);
         System.out.println("Validating syntax of " + file.getAbsolutePath());
         ObjectMapper objectMapper = new ObjectMapper();

@@ -1,6 +1,5 @@
 package com.markgrand.cryptoShuffle;
 
-import org.junit.Before;
 import org.junit.BeforeClass;
 
 import javax.crypto.BadPaddingException;
@@ -33,7 +32,7 @@ public abstract class AbstractTest {
         }
     };
 
-    private static KeyPairGenerator keyPairGenerator;
+    private static final KeyPairGenerator keyPairGenerator;
     static {
         try {
             keyPairGenerator = KeyPairGenerator.getInstance("RSA");

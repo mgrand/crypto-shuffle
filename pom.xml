@@ -55,7 +55,6 @@
   <inceptionYear>2017</inceptionYear>
 
   <dependencies>
-    <!-- https://mvnrepository.com/artifact/org.bouncycastle/bcprov-jdk15on -->
     <dependency>
       <groupId>org.bouncycastle</groupId>
       <artifactId>bcprov-jdk15on</artifactId>

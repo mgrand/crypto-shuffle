@@ -28,14 +28,14 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
 
     private KeyShardSet keyShardSet;
 
-    private Map<PublicKey, PrivateKey> keyDictionary = new HashMap<>();
+    private final Map<PublicKey, PrivateKey> keyDictionary = new HashMap<>();
 
     @BeforeClass
     public static void initSchema() throws Exception {
-        File file = new File(JSON_SCHEMA_FILE_PATH);
+        final File file = new File(JSON_SCHEMA_FILE_PATH);
         System.out.println("Validating syntax of " + file.getAbsolutePath());
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode jsonNode = objectMapper.readTree(file);
+        final ObjectMapper objectMapper = new ObjectMapper();
+        final JsonNode jsonNode = objectMapper.readTree(file);
         jsonSchema = JsonSchemaFactory.byDefault().getJsonSchema(jsonNode);
     }
 

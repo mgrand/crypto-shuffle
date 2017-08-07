@@ -134,7 +134,7 @@ public class JsonUtil {
         }
 
         @Override
-        public KeyShardSet deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
+        public KeyShardSet deserialize(JsonParser jp, DeserializationContext context) throws IOException {
             JsonNode node = jp.getCodec().readTree(jp);
             if (!RSA.equals(node.get(ENCRYPTION_ALGORITHM).asText())) {
                 throw new IOException(ENCRYPTION_ALGORITHM + " has unsupported value " + node.get(ENCRYPTION_ALGORITHM));

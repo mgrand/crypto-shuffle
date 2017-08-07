@@ -76,7 +76,7 @@ class AsymmetricEncryptionFunctions {
 }
 
 /**
- * An enumeration of supported assymetric encryptionFunction algorithms. <p></p> Created by mark.grand on 7/14/2017.
+ * An enumeration of supported asymmetric encryptionFunction algorithms. <p></p> Created by mark.grand on 7/14/2017.
  */
 public enum AsymmetricEncryptionAlgorithms {
     RSA(AsymmetricEncryptionFunctions.RSA_ENCRYPTION, AsymmetricEncryptionFunctions.RSA_DECRYPTION);
