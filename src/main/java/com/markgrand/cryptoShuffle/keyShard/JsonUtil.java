@@ -12,11 +12,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Map;
 
@@ -28,7 +24,6 @@ import java.util.Map;
 public class JsonUtil {
     private final static ObjectMapper objectMapper = new ObjectMapper();
     public static final String ENCRYPTION_ALGORITHM = "encryptionAlgorithm";
-    public static final String RSA = "RSA";
 
     static {
         final SimpleModule module = new SimpleModule("KeyShardSet");
@@ -60,7 +55,7 @@ public class JsonUtil {
         public void serialize(KeyShardSet value, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField("version", "1.0");
-            jsonGenerator.writeStringField(ENCRYPTION_ALGORITHM, RSA);
+            jsonGenerator.writeStringField(ENCRYPTION_ALGORITHM, value.getEncryptionAlgorithm().name());
             jsonGenerator.writeStringField("uuid", value.getUuid().toString());
             jsonGenerator.writeNumberField("shardCount", value.getShardCount());
             jsonGenerator.writeArrayFieldStart("groups");
@@ -136,17 +131,16 @@ public class JsonUtil {
         @Override
         public KeyShardSet deserialize(JsonParser jp, DeserializationContext context) throws IOException {
             JsonNode node = jp.getCodec().readTree(jp);
-            if (!RSA.equals(node.get(ENCRYPTION_ALGORITHM).asText())) {
-                throw new IOException(ENCRYPTION_ALGORITHM + " has unsupported value " + node.get(ENCRYPTION_ALGORITHM));
-            }
+            AsymmetricEncryptionAlgorithms encryptionAlgorithm = AsymmetricEncryptionAlgorithms.valueOf(node.get(ENCRYPTION_ALGORITHM).asText());
+
             //KeyShardSet.newBuilder();
             // TODO finish this
             return null;
         }
     }
 
-    private static PublicKey X509EncodedKeySpecToRsaPublicKey(final byte[] bytes)
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
-        return KeyFactory.getInstance(RSA).generatePublic(new X509EncodedKeySpec(bytes));
-    }
+//    private static PublicKey X509EncodedKeySpecToRsaPublicKey(final byte[] bytes)
+//            throws NoSuchAlgorithmException, InvalidKeySpecException {
+//        return KeyFactory.getInstance(RSA).generatePublic(new X509EncodedKeySpec(bytes));
+//    }
 }

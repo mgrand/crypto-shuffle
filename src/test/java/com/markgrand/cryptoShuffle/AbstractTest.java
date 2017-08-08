@@ -2,14 +2,11 @@ package com.markgrand.cryptoShuffle;
 
 import org.junit.BeforeClass;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import java.security.*;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.BiFunction;
 
 /**
  * <p>Base class for unit tests</p>
@@ -18,19 +15,6 @@ import java.util.function.BiFunction;
 public abstract class AbstractTest {
     static protected byte[] key4800;
     static protected byte[] key24;
-
-    /**
-     * Function for encryption.
-     */
-    protected final BiFunction<PublicKey, byte[], byte[]> rsaEncryption = (publicKey, plaintext) -> {
-        try {
-            Cipher rsa = Cipher.getInstance("RSA");
-            rsa.init(Cipher.ENCRYPT_MODE, publicKey);
-            return rsa.doFinal(plaintext);
-        } catch (NoSuchAlgorithmException|NoSuchPaddingException |IllegalBlockSizeException|BadPaddingException|InvalidKeyException e) {
-            throw new RuntimeException("Error occurred while encrypting", e);
-        }
-    };
 
     private static final KeyPairGenerator keyPairGenerator;
     static {

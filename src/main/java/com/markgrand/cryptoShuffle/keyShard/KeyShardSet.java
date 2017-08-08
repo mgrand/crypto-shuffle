@@ -5,7 +5,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.security.PublicKey;
 import java.util.*;
-import java.util.function.BiFunction;
 
 /**
  * <p>
@@ -48,24 +47,27 @@ public class KeyShardSet {
     @NotNull
     private final UUID uuid;
 
-    private KeyShardSet(@NotNull final ArrayList<KeyShardGroup> groups, final int shardCount, @NotNull final UUID uuid) {
+    @NotNull
+    private final AsymmetricEncryptionAlgorithms encryptionAlgorithm;
+
+    private KeyShardSet(@NotNull final ArrayList<KeyShardGroup> groups, final int shardCount,
+                        @NotNull final UUID uuid,
+                        @NotNull final AsymmetricEncryptionAlgorithms encryptionAlgorithm) {
         this.groups = groups;
         this.shardCount = shardCount;
         this.uuid = uuid;
+        this.encryptionAlgorithm = encryptionAlgorithm;
     }
 
     /**
      * Create a new builder for a {@code KeyShardSet}
      *
-     * @param encryptionFunction A function that will be used to encrypt the key shards. Its first parameter should be a
-     *                           public key. The second parameter should be the plain text to be encrypted. The return
-     *                           value should be the encrypted text.
+     * @param encryptionAlgorithm The algorithm that will be used to encrypt the key shards.
      * @return the new builder.
      */
-    @SuppressWarnings("WeakerAccess")
     @NotNull
-    public static KeyShardingSetBuilder newBuilder(@NotNull final BiFunction<PublicKey, byte[], byte[]> encryptionFunction) {
-        return new KeyShardingSetBuilder(encryptionFunction);
+    public static KeyShardingSetBuilder newBuilder(@NotNull final AsymmetricEncryptionAlgorithms encryptionAlgorithm) {
+        return new KeyShardingSetBuilder(encryptionAlgorithm);
     }
 
     @NotNull
@@ -109,6 +111,11 @@ public class KeyShardSet {
         return uuid;
     }
 
+    @NotNull
+    public AsymmetricEncryptionAlgorithms getEncryptionAlgorithm() {
+        return encryptionAlgorithm;
+    }
+
     /**
      * Description of a group of keys that enumerates a set of public keys and the how many private keys will be needed
      * to reconstitute the original cryptoshuffle key.
@@ -136,7 +143,7 @@ public class KeyShardSet {
 
         // Map public keys to
         @NotNull
-        private final Map<PublicKey, Map<Integer, byte[]>> keyMap;
+        private final Map<PublicKey, Map<Integer, EncryptedShard>> keyMap;
 
         /**
          * Constructor
@@ -191,7 +198,7 @@ public class KeyShardSet {
          * @param key    the public key
          * @param shards The map of ordinalities to encrypted shards.
          */
-        void associateEncryptedShardsWithKey(@NotNull PublicKey key, Map<Integer, byte[]> shards) {
+        void associateEncryptedShardsWithKey(@NotNull PublicKey key, Map<Integer, EncryptedShard> shards) {
             keyMap.put(key, shards);
         }
 
@@ -213,8 +220,9 @@ public class KeyShardSet {
     public static class KeyShardingSetBuilder {
         @NotNull
         private final ArrayList<KeyShardGroup> groups = new ArrayList<>();
+
         @NotNull
-        private final BiFunction<PublicKey, byte[], byte[]> encryptionFunction;
+        private final AsymmetricEncryptionAlgorithms encryptionAlgorithm;
 
         @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
         @NotNull
@@ -223,12 +231,12 @@ public class KeyShardSet {
         /**
          * Constructor is private to prevent instantiation with {@code new}.
          *
-         * @param encryptionFunction A function that will be used to encrypt the key shards. Its first parameter should
+         * @param encryptionAlgorithm A function that will be used to encrypt the key shards. Its first parameter should
          *                           be a public key. The second parameter should be the plain text to be encrypted. The
          *                           return value should be the encrypted text.
          */
-        private KeyShardingSetBuilder(@NotNull final BiFunction<PublicKey, byte[], byte[]> encryptionFunction) {
-            this.encryptionFunction = encryptionFunction;
+        private KeyShardingSetBuilder(@NotNull final AsymmetricEncryptionAlgorithms encryptionAlgorithm) {
+            this.encryptionAlgorithm = encryptionAlgorithm;
         }
 
         /**
@@ -275,7 +283,7 @@ public class KeyShardSet {
             checkForMinimumShardSize(cryptoshuffleKey, requiredNumberOfShards, shardSize);
             @NotNull final byte[][] shards = makeShards(cryptoshuffleKey, requiredNumberOfShards, shardSize);
             populateGroups(shards);
-            return new KeyShardSet(groups, requiredNumberOfShards, uuid.orElseGet(UUID::randomUUID));
+            return new KeyShardSet(groups, requiredNumberOfShards, uuid.orElseGet(UUID::randomUUID), encryptionAlgorithm);
         }
 
         private void populateGroups(@NotNull byte[][] shards) {
@@ -287,10 +295,10 @@ public class KeyShardSet {
                 final int shardsPerKey = (quorumSize - 1) * -1 + groupKeyCount;
                 int keyIndex = 0;
                 for (final PublicKey key : publicKeys) {
-                    final Map<Integer, byte[]> encryptedShardOrdinalityMapping = new HashMap<>();
+                    final Map<Integer, EncryptedShard> encryptedShardOrdinalityMapping = new HashMap<>();
                     for (int keyShardIndex = 0; keyShardIndex < shardsPerKey; keyShardIndex++) {
                         final int shardIndex = offset + ((keyShardIndex + keyIndex) % groupKeyCount);
-                        final byte[] encryptedShard = encryptionFunction.apply(key, shards[shardIndex]);
+                        final EncryptedShard encryptedShard = encryptionAlgorithm.encrypt(key, shards[shardIndex]);
                         encryptedShardOrdinalityMapping.put(shardIndex, encryptedShard);
                     }
                     group.associateEncryptedShardsWithKey(key, encryptedShardOrdinalityMapping);
