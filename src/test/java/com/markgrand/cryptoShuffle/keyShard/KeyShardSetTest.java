@@ -112,7 +112,7 @@ public class KeyShardSetTest extends AbstractTest {
             int keyNumber = 0;
             for (final PublicKey key: group.getKeys()) {
                 System.out.print("Group " + groupNumber + " key " + keyNumber + ": ");
-                for (final Map.Entry<Integer, byte[]> shard: group.getEncryptedShardsForKey(key).entrySet()) {
+                for (final Map.Entry<Integer, EncryptedShard> shard: group.getEncryptedShardsForKey(key).entrySet()) {
                     coverageFlags[shard.getKey()] = 1;
                     System.out.print(shard.getKey() + " ");
                 }

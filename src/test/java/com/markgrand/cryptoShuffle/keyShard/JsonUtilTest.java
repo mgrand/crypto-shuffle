@@ -32,23 +32,35 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
 
     @BeforeClass
     public static void initSchema() throws Exception {
-        final File file = new File(JSON_SCHEMA_FILE_PATH);
-        System.out.println("Validating syntax of " + file.getAbsolutePath());
-        final ObjectMapper objectMapper = new ObjectMapper();
-        final JsonNode jsonNode = objectMapper.readTree(file);
-        jsonSchema = JsonSchemaFactory.byDefault().getJsonSchema(jsonNode);
+        try {
+            final File file = new File(JSON_SCHEMA_FILE_PATH);
+            System.out.println("Validating syntax of " + file.getAbsolutePath());
+            final ObjectMapper objectMapper = new ObjectMapper();
+            final JsonNode jsonNode = objectMapper.readTree(file);
+            jsonSchema = JsonSchemaFactory.byDefault().getJsonSchema(jsonNode);
+        } catch (Throwable e) {
+            System.err.println("BeforeClass");
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @Before
     public void createKeyShardSet() {
-        final Set<KeyPair> keyPairs5 = generateKeyPairs(5);
-        final Set<KeyPair> keyPairs3 = generateKeyPairs(3);
-        final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithms.RSA);
-        final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
-        final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
-        keyShardSet = builder.addKeyGroup(2,  publicKeys5).addKeyGroup(3,  publicKeys3).build(key4800);
+        try {
+            final Set<KeyPair> keyPairs5 = generateKeyPairs(5);
+            final Set<KeyPair> keyPairs3 = generateKeyPairs(3);
+            final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithms.RSA);
+            final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
+            final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
+            keyShardSet = builder.addKeyGroup(2,  publicKeys5).addKeyGroup(3,  publicKeys3).build(key4800);
 //        addToKeyDictionary(keyPairs3);
 //        addToKeyDictionary(keyPairs5);
+        } catch (Throwable e) {
+            System.err.println("Before");
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private void addToKeyDictionary(Set<KeyPair> keyPairs3) {

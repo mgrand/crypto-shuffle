@@ -94,17 +94,31 @@ public class JsonUtil {
                 final String encodedPublicKey = Base64.getEncoder().encodeToString(publicKey.getEncoded());
                 jsonGenerator.writeStringField("publicKey", encodedPublicKey);
                 jsonGenerator.writeArrayFieldStart("shards");
-                final Map<Integer, byte[]> shards = value.getEncryptedShardsForKey(publicKey);
-                for (Map.Entry<Integer, byte[]> shard : shards.entrySet()) {
-                    jsonGenerator.writeStartObject();
-                    jsonGenerator.writeNumberField("shardPosition", shard.getKey());
-                    final String base64EncodedEncryptedShard = Base64.getEncoder().encodeToString(shard.getValue());
-                    jsonGenerator.writeStringField("encryptedShard", base64EncodedEncryptedShard);
-                    jsonGenerator.writeEndObject();
+                final Map<Integer, EncryptedShard> shards = value.getEncryptedShardsForKey(publicKey);
+                Base64.Encoder base64Encoder = Base64.getEncoder();
+                for (Map.Entry<Integer, EncryptedShard> shard : shards.entrySet()) {
+                    serializeEncryptedShard(jsonGenerator, base64Encoder, shard);
                 }
                 jsonGenerator.writeEndArray();
                 jsonGenerator.writeEndObject();
             }
+        }
+
+        private static void serializeEncryptedShard(JsonGenerator jsonGenerator, Base64.Encoder base64Encoder, Map.Entry<Integer, EncryptedShard> shard) throws IOException {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeNumberField("shardPosition", shard.getKey());
+            final String base64EncodedEncryptedShard = base64Encoder.encodeToString(shard.getValue().getEncryptedShardValue());
+            jsonGenerator.writeStringField("encryptedShard", base64EncodedEncryptedShard);
+            final SymmetricEncryptionAlgorithm symmetricEncryptionAlgorithm = shard.getValue().getSymmetricEncryptionAlgorithm();
+            if (symmetricEncryptionAlgorithm != null) {
+                jsonGenerator.writeStringField("symmetricEncryption", symmetricEncryptionAlgorithm.name());
+            }
+            final byte[] encryptedSymmetricKey = shard.getValue().getEncryptedSymmetricKey();
+            if (encryptedSymmetricKey != null) {
+                final String base64EncryptedKey = base64Encoder.encodeToString(encryptedSymmetricKey);
+                jsonGenerator.writeStringField("encryptedSymmetricKey", base64EncryptedKey);
+            }
+            jsonGenerator.writeEndObject();
         }
     }
 

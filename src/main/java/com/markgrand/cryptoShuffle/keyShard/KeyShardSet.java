@@ -210,7 +210,7 @@ public class KeyShardSet {
          * the given key, an empty map is returned.
          */
         @NotNull
-        public Map<Integer, byte[]> getEncryptedShardsForKey(@NotNull PublicKey key) {
+        public Map<Integer, EncryptedShard> getEncryptedShardsForKey(@NotNull PublicKey key) {
             //noinspection unchecked
             return keyMap.getOrDefault(key, Collections.EMPTY_MAP);
         }
