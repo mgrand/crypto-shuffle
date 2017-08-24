@@ -9,25 +9,31 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
 import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * <p>Utility class for converting instances of classes in this package to and from JSON.</p>
  * Created by mark.grand on 7/5/2017.
  */
-@SuppressWarnings("WeakerAccess")
 public class JsonUtil {
     private final static ObjectMapper objectMapper = new ObjectMapper();
-    public static final String ENCRYPTION_ALGORITHM = "encryptionAlgorithm";
+    public static final String ENCRYPTION_ALGORITHM_NAME = "encryptionAlgorithm";
+    public static final String SHARD_COUNT_NAME = "shardCount";
+    public static final String UUID_NAME = "uuid";
+    public static final String VERSION_NAME = "version";
 
     static {
         final SimpleModule module = new SimpleModule("KeyShardSet");
         module.addSerializer(KeyShardSet.class, new KeyShardSetSerializer());
+        module.addDeserializer(KeyShardSet.class, new KeyShardSetDeserializer());
         module.addSerializer(KeyShardSet.KeyShardGroup.class, new KeyShardGroupSerializer());
         objectMapper.registerModule(module);
     }
@@ -55,7 +61,7 @@ public class JsonUtil {
         public void serialize(KeyShardSet value, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeStringField("version", "1.0");
-            jsonGenerator.writeStringField(ENCRYPTION_ALGORITHM, value.getEncryptionAlgorithm().name());
+            jsonGenerator.writeStringField(ENCRYPTION_ALGORITHM_NAME, value.getEncryptionAlgorithm().name());
             jsonGenerator.writeStringField("uuid", value.getUuid().toString());
             jsonGenerator.writeNumberField("shardCount", value.getShardCount());
             jsonGenerator.writeArrayFieldStart("groups");
@@ -143,13 +149,80 @@ public class JsonUtil {
         }
 
         @Override
-        public KeyShardSet deserialize(JsonParser jp, DeserializationContext context) throws IOException {
+        public KeyShardSet deserialize(final JsonParser jp, final DeserializationContext context) throws IOException {
             JsonNode node = jp.getCodec().readTree(jp);
-            AsymmetricEncryptionAlgorithms encryptionAlgorithm = AsymmetricEncryptionAlgorithms.valueOf(node.get(ENCRYPTION_ALGORITHM).asText());
-
+            String version = deserializeVersion(node);
+            switch (version) {
+                case "1.0":
+                    deserialize1_0(node);
+                    break;
+                default:
+                    throw new RuntimeException("Value of " + VERSION_NAME + " is \"" + version + "\" but must be \"1.0\"");
+            }
             //KeyShardSet.newBuilder();
             // TODO finish this
             return null;
+        }
+
+        private void deserialize1_0(final JsonNode node) {
+            final AsymmetricEncryptionAlgorithms encryptionAlgorithm = deserializeAsymmetricEncryptionAlgorithm(node);
+            final UUID uuid = deserializeUuid(node);
+            final int shardCount = deserializeShartCount(node);
+        }
+
+        private int deserializeShartCount(JsonNode node) {
+            return requireIntValue(node, SHARD_COUNT_NAME);
+        }
+
+        private UUID deserializeUuid(JsonNode node) {
+            String uuidString = requireStringValue(node, UUID_NAME);
+            return UUID.fromString(uuidString);
+        }
+
+        private static String deserializeVersion(JsonNode node) {
+            return requireStringValue(node, VERSION_NAME);
+        }
+
+        private static int requireIntValue(final JsonNode node, final String fieldName) {
+            final JsonNode valueNode = requireValue(node, fieldName);
+            ensureType(valueNode, JsonNodeType.NUMBER, fieldName);
+            if (!valueNode.canConvertToInt()) {
+                throw new RuntimeException("Value of " + fieldName + " must be an integer: " + node);
+            }
+            return valueNode.asInt();
+        }
+
+        private static String requireStringValue(final JsonNode node, final String fieldName) {
+            final JsonNode valueNode = requireValue(node, fieldName);
+            ensureType(valueNode, JsonNodeType.STRING, fieldName);
+            return valueNode.asText();
+        }
+
+        private static void ensureType(final JsonNode node, final JsonNodeType type, final String fieldName) {
+            if (!type.equals(node.getNodeType())) {
+                String msg = "Value of " + fieldName + " must be specified as a string but was specified as a " + type.name();
+                throw new RuntimeException(msg);
+            }
+        }
+
+        private static JsonNode requireValue(final JsonNode node, final String fieldName) {
+            final JsonNode valueNode = node.get(fieldName);
+            if (valueNode == null) {
+                String msg = "Value of " + fieldName + " must be specified in JSON for a KeyShardSet: " + node.toString();
+                throw new RuntimeException(msg);
+            }
+            return valueNode;
+        }
+
+        private static AsymmetricEncryptionAlgorithms  deserializeAsymmetricEncryptionAlgorithm(JsonNode node) {
+            final String encryptionAlgorithmValue = node.get(ENCRYPTION_ALGORITHM_NAME).asText();
+            try {
+                return AsymmetricEncryptionAlgorithms.valueOf(encryptionAlgorithmValue);
+            } catch (IllegalArgumentException e) {
+                String msg = "Unsupported value for " + ENCRYPTION_ALGORITHM_NAME + ": " + encryptionAlgorithmValue
+                        + "\nSupported values are " + Arrays.toString(AsymmetricEncryptionAlgorithms.values());
+                throw new RuntimeException(msg);
+            }
         }
     }
 

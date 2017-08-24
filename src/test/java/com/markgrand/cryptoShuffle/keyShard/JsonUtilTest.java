@@ -2,6 +2,7 @@ package com.markgrand.cryptoShuffle.keyShard;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.markgrand.cryptoShuffle.AbstractTest;
@@ -28,6 +29,8 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
 
     private KeyShardSet keyShardSet;
 
+    private static ObjectMapper objectMapper;
+
     private final Map<PublicKey, PrivateKey> keyDictionary = new HashMap<>();
 
     @BeforeClass
@@ -35,7 +38,7 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         try {
             final File file = new File(JSON_SCHEMA_FILE_PATH);
             System.out.println("Validating syntax of " + file.getAbsolutePath());
-            final ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper = new ObjectMapper();
             final JsonNode jsonNode = objectMapper.readTree(file);
             jsonSchema = JsonSchemaFactory.byDefault().getJsonSchema(jsonNode);
         } catch (Throwable e) {
@@ -76,10 +79,40 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         Assert.assertTrue(jsonNode.toString(),jsonSchema.validInstance(jsonNode));
     }
 
+    @Test(expected = java.lang.RuntimeException.class)
+    public void missingVersionTest() throws Exception {
+        final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);
+        jsonObject.remove(JsonUtil.VERSION_NAME);
+        JsonUtil.jsonToKeyShardSet(jsonObject);
+    }
+
+    @Test(expected = java.lang.RuntimeException.class)
+    public void unsupportedVersionTest() throws Exception {
+        final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);
+        jsonObject.remove(JsonUtil.VERSION_NAME);
+        jsonObject.put(JsonUtil.VERSION_NAME, "0");
+        JsonUtil.jsonToKeyShardSet(jsonObject);
+    }
+
+    @Test(expected = java.lang.RuntimeException.class)
+    public void nullVersionTest() throws Exception {
+        final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);
+        jsonObject.remove(JsonUtil.VERSION_NAME);
+        jsonObject.replace(JsonUtil.VERSION_NAME, objectMapper.getNodeFactory().nullNode());
+        JsonUtil.jsonToKeyShardSet(jsonObject);
+    }
     @Test
     public void roundTripTest() throws Exception {
-        final JsonNode jsonNode = JsonUtil.keyShardSetToJson(keyShardSet);
-        final KeyShardSet reconstructedKeyShardSet = JsonUtil.jsonToKeyShardSet(jsonNode);
+        final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);
+        System.out.println("JSON node: " + jsonObject);
+        final KeyShardSet reconstructedKeyShardSet = JsonUtil.jsonToKeyShardSet(jsonObject);
         Assert.assertEquals(keyShardSet, reconstructedKeyShardSet);
+    }
+
+    @Test
+    public void deserializeAssymentricEncryptionAlgorithmTest() {
+        ObjectNode objectNode = objectMapper.createObjectNode();
+        objectNode.put(JsonUtil.ENCRYPTION_ALGORITHM_NAME, "RSA");
+
     }
 }
