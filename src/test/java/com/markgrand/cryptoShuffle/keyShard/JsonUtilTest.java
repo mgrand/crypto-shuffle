@@ -101,18 +101,40 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         jsonObject.replace(JsonUtil.VERSION_NAME, objectMapper.getNodeFactory().nullNode());
         JsonUtil.jsonToKeyShardSet(jsonObject);
     }
+
+    @Test(expected = java.lang.RuntimeException.class)
+    public void missingAssymentricEncryptionAlgorithmTest() throws Exception {
+        final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);
+        jsonObject.remove(JsonUtil.ENCRYPTION_ALGORITHM_NAME);
+        JsonUtil.jsonToKeyShardSet(jsonObject);
+    }
+
+    @Test(expected = java.lang.RuntimeException.class)
+    public void missingShardCountTest() throws Exception {
+        final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);
+        jsonObject.remove(JsonUtil.SHARD_COUNT_NAME);
+        JsonUtil.jsonToKeyShardSet(jsonObject);
+    }
+
+    @Test(expected = java.lang.RuntimeException.class)
+    public void wrongTypeShardCountTest() throws Exception {
+        final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);
+        jsonObject.replace(JsonUtil.SHARD_COUNT_NAME, objectMapper.getNodeFactory().nullNode());
+        JsonUtil.jsonToKeyShardSet(jsonObject);
+    }
+
+    @Test(expected = java.lang.RuntimeException.class)
+    public void zeroShardCountTest() throws Exception {
+        final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);
+        jsonObject.replace(JsonUtil.SHARD_COUNT_NAME, objectMapper.getNodeFactory().numberNode(0));
+        JsonUtil.jsonToKeyShardSet(jsonObject);
+    }
+
     @Test
     public void roundTripTest() throws Exception {
         final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);
         System.out.println("JSON node: " + jsonObject);
         final KeyShardSet reconstructedKeyShardSet = JsonUtil.jsonToKeyShardSet(jsonObject);
         Assert.assertEquals(keyShardSet, reconstructedKeyShardSet);
-    }
-
-    @Test
-    public void deserializeAssymentricEncryptionAlgorithmTest() {
-        ObjectNode objectNode = objectMapper.createObjectNode();
-        objectNode.put(JsonUtil.ENCRYPTION_ALGORITHM_NAME, "RSA");
-
     }
 }

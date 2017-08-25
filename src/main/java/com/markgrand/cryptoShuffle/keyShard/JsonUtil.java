@@ -171,7 +171,11 @@ public class JsonUtil {
         }
 
         private int deserializeShartCount(JsonNode node) {
-            return requireIntValue(node, SHARD_COUNT_NAME);
+            int shardCount = requireIntValue(node, SHARD_COUNT_NAME);
+            if (shardCount < 1) {
+                throw new RuntimeException("Value of " + SHARD_COUNT_NAME + " must be greater than 0.");
+            }
+            return shardCount;
         }
 
         private UUID deserializeUuid(JsonNode node) {
