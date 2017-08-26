@@ -130,6 +130,13 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         JsonUtil.jsonToKeyShardSet(jsonObject);
     }
 
+    @Test(expected = java.lang.RuntimeException.class)
+    public void noGroupsTest() throws Exception {
+        final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);
+        jsonObject.replace(JsonUtil.GROUPS_NAME, objectMapper.getNodeFactory().arrayNode());
+        JsonUtil.jsonToKeyShardSet(jsonObject);
+    }
+
     @Test
     public void roundTripTest() throws Exception {
         final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);

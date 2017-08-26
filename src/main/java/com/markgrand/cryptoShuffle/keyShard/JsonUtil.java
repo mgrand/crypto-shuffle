@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
@@ -26,6 +27,7 @@ import java.util.UUID;
 public class JsonUtil {
     private final static ObjectMapper objectMapper = new ObjectMapper();
     public static final String ENCRYPTION_ALGORITHM_NAME = "encryptionAlgorithm";
+    public static final String GROUPS_NAME = "groups";
     public static final String SHARD_COUNT_NAME = "shardCount";
     public static final String UUID_NAME = "uuid";
     public static final String VERSION_NAME = "version";
@@ -167,10 +169,21 @@ public class JsonUtil {
         private void deserialize1_0(final JsonNode node) {
             final AsymmetricEncryptionAlgorithms encryptionAlgorithm = deserializeAsymmetricEncryptionAlgorithm(node);
             final UUID uuid = deserializeUuid(node);
-            final int shardCount = deserializeShartCount(node);
+            final int shardCount = deserializeShardCount(node);
+            final ArrayNode groups = getGroups(node);
         }
 
-        private int deserializeShartCount(JsonNode node) {
+        private ArrayNode getGroups(JsonNode node) {
+            final JsonNode valueNode = requireValue(node, GROUPS_NAME);
+            ensureType(valueNode, JsonNodeType.ARRAY, GROUPS_NAME);
+            final ArrayNode groups = (ArrayNode)valueNode;
+            if (groups.size() == 0) {
+                throw new RuntimeException("Value of groups is an empty array. At least one group is required.");
+            }
+            return groups;
+        }
+
+        private int deserializeShardCount(JsonNode node) {
             int shardCount = requireIntValue(node, SHARD_COUNT_NAME);
             if (shardCount < 1) {
                 throw new RuntimeException("Value of " + SHARD_COUNT_NAME + " must be greater than 0.");
