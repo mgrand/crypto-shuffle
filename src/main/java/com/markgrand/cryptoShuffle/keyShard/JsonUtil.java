@@ -14,11 +14,10 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
+import java.security.KeyFactory;
 import java.security.PublicKey;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Map;
-import java.util.UUID;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.*;
 
 /**
  * <p>Utility class for converting instances of classes in this package to and from JSON.</p>
@@ -26,11 +25,20 @@ import java.util.UUID;
  */
 public class JsonUtil {
     private final static ObjectMapper objectMapper = new ObjectMapper();
+    public static final String ENCRYPTED_SHARD_NAME = "encryptedShard";
+    public static final String ENCRYPTED_SYMMETRIC_KEY_NAME = "encryptedSymmetricKey";
     public static final String ENCRYPTION_ALGORITHM_NAME = "encryptionAlgorithm";
     public static final String GROUPS_NAME = "groups";
+    public static final String KEY_MAP_NAME = "keyMap";
+    public static final String PUBLIC_KEY_NAME = "publicKey";
+    public static final String QUORUM_SIZE_NAME = "quorumSize";
     public static final String SHARD_COUNT_NAME = "shardCount";
+    public static final String SHARD_POSITION_NAME = "shardPosition";
+    public static final String SYMMETRIC_ENCRYPTION_NAME = "symmetricEncryption";
     public static final String UUID_NAME = "uuid";
+    public static final String VERSION1_0 = "1.0";
     public static final String VERSION_NAME = "version";
+    public static final String SHARDS_NAME = "shards";
 
     static {
         final SimpleModule module = new SimpleModule("KeyShardSet");
@@ -62,11 +70,11 @@ public class JsonUtil {
         @Override
         public void serialize(KeyShardSet value, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("version", "1.0");
+            jsonGenerator.writeStringField(VERSION_NAME, VERSION1_0);
             jsonGenerator.writeStringField(ENCRYPTION_ALGORITHM_NAME, value.getEncryptionAlgorithm().name());
-            jsonGenerator.writeStringField("uuid", value.getUuid().toString());
-            jsonGenerator.writeNumberField("shardCount", value.getShardCount());
-            jsonGenerator.writeArrayFieldStart("groups");
+            jsonGenerator.writeStringField(UUID_NAME, value.getUuid().toString());
+            jsonGenerator.writeNumberField(SHARD_COUNT_NAME, value.getShardCount());
+            jsonGenerator.writeArrayFieldStart(GROUPS_NAME);
             for (KeyShardSet.KeyShardGroup group : value.getGroups()) {
                 jsonGenerator.writeObject(group);
             }
@@ -89,8 +97,8 @@ public class JsonUtil {
         public void serialize(KeyShardSet.KeyShardGroup value,
                               JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeNumberField("quorumSize", value.getQuorumSize());
-            jsonGenerator.writeArrayFieldStart("keyMap");
+            jsonGenerator.writeNumberField(QUORUM_SIZE_NAME, value.getQuorumSize());
+            jsonGenerator.writeArrayFieldStart(KEY_MAP_NAME);
             serializeGroupPublicKeys(value, jsonGenerator);
             jsonGenerator.writeEndArray();
             jsonGenerator.writeEndObject();
@@ -100,8 +108,8 @@ public class JsonUtil {
             for (PublicKey publicKey : value.getKeys()) {
                 jsonGenerator.writeStartObject();
                 final String encodedPublicKey = Base64.getEncoder().encodeToString(publicKey.getEncoded());
-                jsonGenerator.writeStringField("publicKey", encodedPublicKey);
-                jsonGenerator.writeArrayFieldStart("shards");
+                jsonGenerator.writeStringField(PUBLIC_KEY_NAME, encodedPublicKey);
+                jsonGenerator.writeArrayFieldStart(SHARDS_NAME);
                 final Map<Integer, EncryptedShard> shards = value.getEncryptedShardsForKey(publicKey);
                 Base64.Encoder base64Encoder = Base64.getEncoder();
                 for (Map.Entry<Integer, EncryptedShard> shard : shards.entrySet()) {
@@ -114,17 +122,17 @@ public class JsonUtil {
 
         private static void serializeEncryptedShard(JsonGenerator jsonGenerator, Base64.Encoder base64Encoder, Map.Entry<Integer, EncryptedShard> shard) throws IOException {
             jsonGenerator.writeStartObject();
-            jsonGenerator.writeNumberField("shardPosition", shard.getKey());
+            jsonGenerator.writeNumberField(SHARD_POSITION_NAME, shard.getKey());
             final String base64EncodedEncryptedShard = base64Encoder.encodeToString(shard.getValue().getEncryptedShardValue());
-            jsonGenerator.writeStringField("encryptedShard", base64EncodedEncryptedShard);
+            jsonGenerator.writeStringField(ENCRYPTED_SHARD_NAME, base64EncodedEncryptedShard);
             final SymmetricEncryptionAlgorithm symmetricEncryptionAlgorithm = shard.getValue().getSymmetricEncryptionAlgorithm();
             if (symmetricEncryptionAlgorithm != null) {
-                jsonGenerator.writeStringField("symmetricEncryption", symmetricEncryptionAlgorithm.name());
+                jsonGenerator.writeStringField(SYMMETRIC_ENCRYPTION_NAME, symmetricEncryptionAlgorithm.name());
             }
             final byte[] encryptedSymmetricKey = shard.getValue().getEncryptedSymmetricKey();
             if (encryptedSymmetricKey != null) {
                 final String base64EncryptedKey = base64Encoder.encodeToString(encryptedSymmetricKey);
-                jsonGenerator.writeStringField("encryptedSymmetricKey", base64EncryptedKey);
+                jsonGenerator.writeStringField(ENCRYPTED_SYMMETRIC_KEY_NAME, base64EncryptedKey);
             }
             jsonGenerator.writeEndObject();
         }
@@ -155,43 +163,98 @@ public class JsonUtil {
             JsonNode node = jp.getCodec().readTree(jp);
             String version = deserializeVersion(node);
             switch (version) {
-                case "1.0":
-                    deserialize1_0(node);
-                    break;
+                case VERSION1_0:
+                    return deserialize1_0(node);
                 default:
                     throw new RuntimeException("Value of " + VERSION_NAME + " is \"" + version + "\" but must be \"1.0\"");
             }
-            //KeyShardSet.newBuilder();
-            // TODO finish this
-            return null;
         }
 
-        private void deserialize1_0(final JsonNode node) {
-            final AsymmetricEncryptionAlgorithms encryptionAlgorithm = deserializeAsymmetricEncryptionAlgorithm(node);
+        private KeyShardSet deserialize1_0(final JsonNode node) {
             final UUID uuid = deserializeUuid(node);
             final int shardCount = deserializeShardCount(node);
+            final AsymmetricEncryptionAlgorithms asymmetricEncryptionAlgorithm = deserializeAsymmetricEncryptionAlgorithm(node);
             final ArrayNode groups = getGroups(node);
+            final ArrayList<KeyShardSet.KeyShardGroup> keyShardGroups = new ArrayList<>();
+            for (JsonNode group : groups) {
+                final int quorumSize = deserializeQuorumSize(group);
+                final Map<PublicKey, Map<Integer, EncryptedShard>> keyMap = deserializeKeyMap(group);
+                keyShardGroups.add(new KeyShardSet.KeyShardGroup(quorumSize, keyMap));
+            }
+            return new KeyShardSet(keyShardGroups, shardCount, uuid, asymmetricEncryptionAlgorithm);
         }
 
-        private ArrayNode getGroups(JsonNode node) {
-            final JsonNode valueNode = requireValue(node, GROUPS_NAME);
-            ensureType(valueNode, JsonNodeType.ARRAY, GROUPS_NAME);
-            final ArrayNode groups = (ArrayNode)valueNode;
+        private int deserializeQuorumSize(JsonNode group) {
+            return deserializePositiveInt(group, QUORUM_SIZE_NAME);
+        }
+
+        private Map<PublicKey,Map<Integer,EncryptedShard>> deserializeKeyMap(JsonNode group) {
+            final ArrayNode keyMapArray = requireArrayValue(group, KEY_MAP_NAME);
+            final Map<PublicKey,Map<Integer,EncryptedShard>> keyMap = new HashMap<>();
+            for(JsonNode key : keyMapArray) {
+                final byte[] publicKeyBytes = base64StringToBytes(requireStringValue(key, PUBLIC_KEY_NAME));
+                final PublicKey publicKey = bytesToPublicKey(publicKeyBytes);
+                final Map<Integer,EncryptedShard> shardMap = deserializeShardMap(publicKeyBytes, key);
+                keyMap.put(publicKey, shardMap);
+            }
+            return keyMap;
+        }
+
+        private Map<Integer,EncryptedShard> deserializeShardMap(final byte[] publicKeyBytes, final JsonNode key) {
+            final Map<Integer, EncryptedShard> shardMap = new HashMap<>();
+            final ArrayNode shardMapArray = requireArrayValue(key, SHARDS_NAME);
+            for (JsonNode shard: shardMapArray) {
+                final int shardPosition = requireIntValue(shard, SHARD_POSITION_NAME);
+                final EncryptedShard encryptedShard = deserializeEncryptedShard(publicKeyBytes, shard);
+                shardMap.put(shardPosition, encryptedShard);
+            }
+            return shardMap;
+        }
+
+        private EncryptedShard deserializeEncryptedShard(final byte[] publicKeyBytes, final JsonNode shard) {
+            byte[] encryptedKeyShardBytes = base64StringToBytes(requireStringValue(shard, ENCRYPTED_SHARD_NAME));
+            final JsonNode symmetricKeyNode = shard.get(ENCRYPTED_SYMMETRIC_KEY_NAME);
+            final JsonNode symmetricEncryptionAlgorithmNode = shard.get(SYMMETRIC_ENCRYPTION_NAME);
+            if (symmetricKeyNode == null && symmetricEncryptionAlgorithmNode == null) {
+                return new EncryptedShard(publicKeyBytes, encryptedKeyShardBytes);
+            } else if (symmetricKeyNode != null && symmetricEncryptionAlgorithmNode != null) {
+                byte[] encryptedSymmetricKey = base64StringToBytes(symmetricKeyNode.asText());
+                SymmetricEncryptionAlgorithm symmetricEncryptionAlgorithm = SymmetricEncryptionAlgorithm.valueOf(symmetricEncryptionAlgorithmNode.asText());
+                return new EncryptedShard(publicKeyBytes, encryptedKeyShardBytes, symmetricEncryptionAlgorithm, encryptedSymmetricKey);
+            } else {
+                final String msg = ENCRYPTED_SYMMETRIC_KEY_NAME + " and " + SYMMETRIC_ENCRYPTION_NAME
+                                           + " must either be both specified or both not specified " + shard.toString();
+                throw new RuntimeException(msg);
+            }
+        }
+
+        private static ArrayNode getGroups(JsonNode node) {
+            final ArrayNode groups = requireArrayValue(node, GROUPS_NAME);
             if (groups.size() == 0) {
                 throw new RuntimeException("Value of groups is an empty array. At least one group is required.");
             }
             return groups;
         }
 
-        private int deserializeShardCount(JsonNode node) {
-            int shardCount = requireIntValue(node, SHARD_COUNT_NAME);
-            if (shardCount < 1) {
-                throw new RuntimeException("Value of " + SHARD_COUNT_NAME + " must be greater than 0.");
-            }
-            return shardCount;
+        private static ArrayNode requireArrayValue(final JsonNode node, final String fieldName) {
+            final JsonNode valueNode = requireValue(node, fieldName);
+            ensureType(valueNode, JsonNodeType.ARRAY, fieldName);
+            return (ArrayNode)valueNode;
         }
 
-        private UUID deserializeUuid(JsonNode node) {
+        private static int deserializeShardCount(JsonNode node) {
+            return deserializePositiveInt(node, SHARD_COUNT_NAME);
+        }
+
+        private static int deserializePositiveInt(final JsonNode node, final String fieldName) {
+            int value = requireIntValue(node, fieldName);
+            if (value < 1) {
+                throw new RuntimeException("Value of " + fieldName + " must be greater than 0.");
+            }
+            return value;
+        }
+
+        private static UUID deserializeUuid(JsonNode node) {
             String uuidString = requireStringValue(node, UUID_NAME);
             return UUID.fromString(uuidString);
         }
@@ -231,6 +294,21 @@ public class JsonUtil {
             return valueNode;
         }
 
+//        public static PublicKey stringToPublicKey(String keyString){
+//            return bytesToPublicKey(base64StringToBytes(keyString));
+//        }
+
+        public static PublicKey bytesToPublicKey(byte[] keyBytes){
+            try{
+                X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(keyBytes);
+                KeyFactory kf = KeyFactory.getInstance("RSA");
+                return kf.generatePublic(X509publicKey);
+            }
+            catch(Exception e){
+                throw new RuntimeException("Problem converting string to PublicKey: " + bytesToBase64String(keyBytes), e);
+            }
+        }
+
         private static AsymmetricEncryptionAlgorithms  deserializeAsymmetricEncryptionAlgorithm(JsonNode node) {
             final String encryptionAlgorithmValue = node.get(ENCRYPTION_ALGORITHM_NAME).asText();
             try {
@@ -240,6 +318,14 @@ public class JsonUtil {
                         + "\nSupported values are " + Arrays.toString(AsymmetricEncryptionAlgorithms.values());
                 throw new RuntimeException(msg);
             }
+        }
+
+        private static byte[] base64StringToBytes(String keyString) {
+            return Base64.getDecoder().decode(keyString);
+        }
+
+        private static String bytesToBase64String(byte[] bytes) {
+            return Base64.getEncoder().encodeToString(bytes);
         }
     }
 
