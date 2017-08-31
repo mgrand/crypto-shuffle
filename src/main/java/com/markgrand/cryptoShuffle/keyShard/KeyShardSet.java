@@ -222,7 +222,7 @@ public class KeyShardSet {
 
         @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
         @NotNull
-        private Optional<UUID> uuid = Optional.empty();
+        private final Optional<UUID> uuid = Optional.empty();
 
         /**
          * Constructor is private to prevent instantiation with {@code new}.
