@@ -142,6 +142,7 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);
         System.out.println("JSON node: " + jsonObject);
         final KeyShardSet reconstructedKeyShardSet = JsonUtil.jsonToKeyShardSet(jsonObject);
-        Assert.assertEquals(keyShardSet, reconstructedKeyShardSet);
+        Assert.assertEquals("original: " + jsonObject + "\n reconstructed: " + JsonUtil.keyShardSetToJson(reconstructedKeyShardSet),
+                keyShardSet, reconstructedKeyShardSet);
     }
 }
