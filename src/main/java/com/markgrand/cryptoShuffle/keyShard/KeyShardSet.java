@@ -111,7 +111,6 @@ public class KeyShardSet {
      * Description of a group of keys that enumerates a set of public keys and the how many private keys will be needed
      * to reconstitute the original cryptoshuffle key.
      */
-    @SuppressWarnings("WeakerAccess")
     public static class KeyShardGroup {
         private final int quorumSize;
 
@@ -129,7 +128,7 @@ public class KeyShardSet {
          *                                  the number of keys in the group.
          */
         KeyShardGroup(final int quorumSize, @NotNull final Set<PublicKey> keys) {
-            this(quorumSize, unvaluedKeyMap(keys));
+            this(quorumSize, nullValuedKeyMap(keys));
         }
 
         KeyShardGroup(final int quorumSize, @NotNull final Map<PublicKey, Map<Integer, EncryptedShard>> keyMap) {
@@ -148,7 +147,7 @@ public class KeyShardSet {
             this.keyMap = keyMap;
         }
 
-        private static Map<PublicKey, Map<Integer, EncryptedShard>> unvaluedKeyMap(@NotNull final Set<PublicKey> keys) {
+        private static Map<PublicKey, Map<Integer, EncryptedShard>> nullValuedKeyMap(@NotNull final Set<PublicKey> keys) {
             Map<PublicKey, Map<Integer, EncryptedShard>> keyMap = new HashMap<>();
             for (PublicKey key : keys) {
                 keyMap.put(key, null);
