@@ -1,5 +1,7 @@
 package com.markgrand.cryptoShuffle.keyShard;
 
+import java.util.Arrays;
+
 /**
  * <p>Value object to contain the details of an encrypted key shard.
  * </p>
@@ -73,5 +75,27 @@ public class EncryptedShard {
      */
     public byte[] getEncryptedSymmetricKey() {
         return encryptedSymmetricKey;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        EncryptedShard that = (EncryptedShard) o;
+
+        return Arrays.equals(encodedPublicKey, that.encodedPublicKey)
+                       && Arrays.equals(encryptedShardValue, that.encryptedShardValue)
+                       && symmetricEncryptionAlgorithm == that.symmetricEncryptionAlgorithm
+                       && Arrays.equals(encryptedSymmetricKey, that.encryptedSymmetricKey);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(encodedPublicKey);
+        result = 31 * result + Arrays.hashCode(encryptedShardValue);
+        result = 31 * result + (symmetricEncryptionAlgorithm != null ? symmetricEncryptionAlgorithm.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(encryptedSymmetricKey);
+        return result;
     }
 }

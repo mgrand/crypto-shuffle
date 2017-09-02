@@ -298,7 +298,7 @@ public class JsonUtil {
 //            return bytesToPublicKey(base64StringToBytes(keyString));
 //        }
 
-        public static PublicKey bytesToPublicKey(byte[] keyBytes){
+         static PublicKey bytesToPublicKey(byte[] keyBytes){
             try{
                 X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(keyBytes);
                 KeyFactory kf = KeyFactory.getInstance("RSA");

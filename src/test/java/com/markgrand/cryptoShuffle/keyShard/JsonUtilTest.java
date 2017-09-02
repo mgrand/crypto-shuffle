@@ -139,6 +139,16 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
     }
 
     @Test
+    public void publicKeyTest() throws Exception {
+        final KeyPair keyPair = generateKeyPair();
+        final PublicKey publicKey = keyPair.getPublic();
+        final byte[] encodedPublicKey = publicKey.getEncoded();
+        final PublicKey reconstruction = JsonUtil.KeyShardSetDeserializer.bytesToPublicKey(encodedPublicKey);
+        assertEquals(publicKey, reconstruction);
+        assertEquals(publicKey.hashCode(), reconstruction.hashCode());
+    }
+
+    @Test
     public void roundTripTest() throws Exception {
         final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);
         System.out.println("JSON node: " + jsonObject);
