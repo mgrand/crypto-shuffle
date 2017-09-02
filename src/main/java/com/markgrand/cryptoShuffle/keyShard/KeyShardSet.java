@@ -6,22 +6,29 @@ import java.security.PublicKey;
 import java.util.*;
 
 /**
- * <p> Utility for breaking keys into multiple shards so that they can be securely shared by multiple people.</p> <p> A
- * key shard set consists of a long cryptoshuffle key that has been broken into two or more pieces called shards and
+ * Utility for breaking keys into multiple shards so that they can be securely shared by multiple people.
+ * <p/>
+ * A key shard set consists of a long cryptoshuffle key that has been broken into two or more pieces called shards and
  * some public keys. One or more of the key shards is associated with each of the public keys. The key shards that are
  * associated with a public key are encrypted using that public key. If a key shard is associated with more than one
- * public key, a different copy of the shard will be associated with each public can and encrypted with that public key.
- * </p> <p> Key shards have two distinct uses. They can be used to as a form of information escrow, to require the
- * cooperation and agreement of multiple parties to decrypt a piece of information. For example, if a cryptoshuffle key
- * is split into two shards, each encrypted with a different party's public key, then the two parties will need to
- * cooperate to reconstruct the full cryptoshuffle key and decrypt the cryptoshuffle encrypted text. </p> <p> More
- * elaborate uses of information escrow could require three out of five to agree or get even fancier. In the three out
- * of five case, each public key would be associated with three shards distributed in a way that requires at least three
- * private keys to have all five decrypted shards. </p> <p> The other use of key shards is to provide a way of
- * strengthening the asymmetric encryption used to encrypt the cryptoshuffle keys. If you want to share a cryptoshuffle
- * key with one party but not rely on the security of a single private key then split the cryptoshuffle key into two
- * encrypted shards and someone will need to know two private keys to recover the original cryptoshuffle key. </p>
- * <p>Created by Mark Grand on 6/1/2017.</p>
+ * public key, a different copy of the shard will be associated with each public can and encrypted with that public
+ * key.
+ * <p/>
+ * Key shards have two distinct uses. They can be used to as a form of information escrow, to require the cooperation
+ * and agreement of multiple parties to decrypt a piece of information. For example, if a cryptoshuffle key is split
+ * into two shards, each encrypted with a different party's public key, then the two parties will need to cooperate to
+ * reconstruct the full cryptoshuffle key and decrypt the cryptoshuffle encrypted text.
+ * <p/>
+ * More elaborate uses of information escrow could require three out of five to agree or get even fancier. In the three
+ * out of five case, each public key would be associated with three shards distributed in a way that requires at least
+ * three private keys to have all five decrypted shards.
+ * <p/>
+ * The other use of key shards is to provide a way of strengthening the asymmetric encryption used to encrypt the
+ * cryptoshuffle keys. If you want to share a cryptoshuffle key with one party but not rely on the security of a single
+ * private key then split the cryptoshuffle key into two encrypted shards and someone will need to know two private keys
+ * to recover the original cryptoshuffle key.
+ * <p/>
+ * Created by Mark Grand on 6/1/2017.
  */
 @SuppressWarnings("WeakerAccess")
 public class KeyShardSet {
@@ -106,6 +113,24 @@ public class KeyShardSet {
     @NotNull
     public AsymmetricEncryptionAlgorithms getEncryptionAlgorithm() {
         return encryptionAlgorithm;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof KeyShardSet)) return false;
+
+        @NotNull KeyShardSet that = (KeyShardSet) o;
+
+        return shardCount == that.shardCount && groups.equals(that.groups) && uuid.equals(that.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = shardCount;
+        result = 31 * result + groups.hashCode();
+        result = 31 * result + uuid.hashCode();
+        return result;
     }
 
     /**
@@ -295,9 +320,9 @@ public class KeyShardSet {
         private void checkForMinimumShardSize(@NotNull byte[] cryptoshuffleKey, int requiredNumberOfShards, int shardSize) {
             if (shardSize < MINIMUM_SHARD_SIZE) {
                 @NotNull final String msg = "This key set would contain " + requiredNumberOfShards + " shards."
-                                           + " The length of the key to be sharded is " + cryptoshuffleKey.length
-                                           + ". This would result in shards of length " + shardSize
-                                           + " which is less than the minimum shard size of " + MINIMUM_SHARD_SIZE;
+                                                    + " The length of the key to be sharded is " + cryptoshuffleKey.length
+                                                    + ". This would result in shards of length " + shardSize
+                                                    + " which is less than the minimum shard size of " + MINIMUM_SHARD_SIZE;
                 throw new IllegalStateException(msg);
             }
         }
@@ -309,23 +334,5 @@ public class KeyShardSet {
             }
             return shardTotal;
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof KeyShardSet)) return false;
-
-        @NotNull KeyShardSet that = (KeyShardSet) o;
-
-        return shardCount == that.shardCount && groups.equals(that.groups) && uuid.equals(that.uuid);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = shardCount;
-        result = 31 * result + groups.hashCode();
-        result = 31 * result + uuid.hashCode();
-        return result;
     }
 }
