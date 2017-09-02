@@ -30,7 +30,6 @@ import java.util.*;
  * <p/>
  * Created by Mark Grand on 6/1/2017.
  */
-@SuppressWarnings("WeakerAccess")
 public class KeyShardSet {
     private static final int MINIMUM_QUORUM_SIZE = 2;
     private static final int MINIMUM_SHARD_SIZE = 8;
@@ -92,7 +91,6 @@ public class KeyShardSet {
      * Return the keyShardGroups in this {@code KeyShardSet}
      */
     @NotNull
-    @SuppressWarnings("WeakerAccess")
     public Collection<KeyShardGroup> getGroups() {
         return groups;
     }
@@ -104,7 +102,6 @@ public class KeyShardSet {
     /**
      * Return the UUID of this {@code @link KeyShardSet}
      */
-    @SuppressWarnings("WeakerAccess")
     @NotNull
     public UUID getUuid() {
         return uuid;
@@ -185,7 +182,6 @@ public class KeyShardSet {
         /**
          * Return the minimum number of private keys that will be needed to reconstitute the full cryptoshuffle key.
          */
-        @SuppressWarnings("WeakerAccess")
         public int getQuorumSize() {
             return quorumSize;
         }
@@ -193,7 +189,6 @@ public class KeyShardSet {
         /**
          * Return the public keys in this group.
          */
-        @SuppressWarnings("WeakerAccess")
         @NotNull
         public Set<PublicKey> getKeys() {
             return keyMap.keySet();
@@ -238,7 +233,6 @@ public class KeyShardSet {
         }
     }
 
-    @SuppressWarnings("WeakerAccess")
     public static class KeyShardingSetBuilder {
         @NotNull
         private final ArrayList<KeyShardGroup> groups = new ArrayList<>();
