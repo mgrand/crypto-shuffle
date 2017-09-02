@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.markgrand.cryptoShuffle.AbstractTest;
-import org.junit.Assert;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -15,6 +15,7 @@ import java.io.File;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -76,7 +77,7 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
     public void keyShardSetToJsonTest() throws Exception {
         final JsonNode jsonNode = JsonUtil.keyShardSetToJson(keyShardSet);
         System.out.println(jsonSchema.validate(jsonNode, true).toString());
-        Assert.assertTrue(jsonNode.toString(),jsonSchema.validInstance(jsonNode));
+        assertTrue(jsonNode.toString(),jsonSchema.validInstance(jsonNode));
     }
 
     @Test(expected = java.lang.RuntimeException.class)
@@ -142,7 +143,16 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);
         System.out.println("JSON node: " + jsonObject);
         final KeyShardSet reconstructedKeyShardSet = JsonUtil.jsonToKeyShardSet(jsonObject);
-        Assert.assertEquals("original: " + jsonObject + "\n reconstructed: " + JsonUtil.keyShardSetToJson(reconstructedKeyShardSet),
+        assertEquals(keyShardSet.getShardCount(), reconstructedKeyShardSet.getShardCount());
+        assertEquals(keyShardSet.getUuid(), reconstructedKeyShardSet.getUuid());
+        assertEquals(keyShardSet.getEncryptionAlgorithm(), reconstructedKeyShardSet.getEncryptionAlgorithm());
+        final Collection<KeyShardSet.KeyShardGroup> reconstructedGroups = reconstructedKeyShardSet.getGroups();
+        assertEquals(keyShardSet.getGroups().size(), reconstructedGroups.size());
+        for (KeyShardSet.KeyShardGroup group: keyShardSet.getGroups()) {
+            assertTrue(reconstructedGroups.contains(group));
+        }
+        assertEquals(keyShardSet.getGroups(), reconstructedKeyShardSet.getGroups());
+        assertEquals("original: " + jsonObject + "\n reconstructed: " + JsonUtil.keyShardSetToJson(reconstructedKeyShardSet),
                 keyShardSet, reconstructedKeyShardSet);
     }
 }
