@@ -64,7 +64,7 @@ public class KeyShardSet {
     @NotNull
     static byte[][] makeShards(@NotNull final byte[] cryptoshuffleKey,
                                final int requiredNumberOfShards, final int shardSize) {
-        final byte[][] shards = new byte[requiredNumberOfShards][];
+        @NotNull final byte[][] shards = new byte[requiredNumberOfShards][];
         int remainder = cryptoshuffleKey.length - (shardSize * requiredNumberOfShards);
         int decrement = remainder == 0 ? 0 : ((shardSize + (2 * remainder) - 1) / remainder) - 1;
         int offset = 0;
@@ -84,6 +84,7 @@ public class KeyShardSet {
     /**
      * Return the keyShardGroups in this {@code KeyShardSet}
      */
+    @NotNull
     @SuppressWarnings("WeakerAccess")
     public Collection<KeyShardGroup> getGroups() {
         return groups;
@@ -147,8 +148,9 @@ public class KeyShardSet {
             this.keyMap = keyMap;
         }
 
+        @NotNull
         private static Map<PublicKey, Map<Integer, EncryptedShard>> nullValuedKeyMap(@NotNull final Set<PublicKey> keys) {
-            Map<PublicKey, Map<Integer, EncryptedShard>> keyMap = new HashMap<>();
+            @NotNull Map<PublicKey, Map<Integer, EncryptedShard>> keyMap = new HashMap<>();
             for (PublicKey key : keys) {
                 keyMap.put(key, null);
             }
@@ -198,7 +200,7 @@ public class KeyShardSet {
             if (this == o) return true;
             if (!(o instanceof KeyShardGroup)) return false;
 
-            KeyShardGroup that = (KeyShardGroup) o;
+            @NotNull KeyShardGroup that = (KeyShardGroup) o;
 
             return quorumSize == that.quorumSize && keyMap.equals(that.keyMap);
         }
@@ -270,14 +272,14 @@ public class KeyShardSet {
 
         private void populateGroups(@NotNull byte[][] shards) {
             int offset = 0;
-            for (final KeyShardGroup group : groups) {
-                final Set<PublicKey> publicKeys = group.getKeys();
+            for (@NotNull final KeyShardGroup group : groups) {
+                @NotNull final Set<PublicKey> publicKeys = group.getKeys();
                 final int quorumSize = group.getQuorumSize();
                 final int groupKeyCount = publicKeys.size();
                 final int shardsPerKey = (quorumSize - 1) * -1 + groupKeyCount;
                 int keyIndex = 0;
-                for (final PublicKey key : publicKeys) {
-                    final Map<Integer, EncryptedShard> encryptedShardOrdinalityMapping = new HashMap<>();
+                for (@NotNull final PublicKey key : publicKeys) {
+                    @NotNull final Map<Integer, EncryptedShard> encryptedShardOrdinalityMapping = new HashMap<>();
                     for (int keyShardIndex = 0; keyShardIndex < shardsPerKey; keyShardIndex++) {
                         final int shardIndex = offset + ((keyShardIndex + keyIndex) % groupKeyCount);
                         final EncryptedShard encryptedShard = encryptionAlgorithm.encrypt(key, shards[shardIndex]);
@@ -292,7 +294,7 @@ public class KeyShardSet {
 
         private void checkForMinimumShardSize(@NotNull byte[] cryptoshuffleKey, int requiredNumberOfShards, int shardSize) {
             if (shardSize < MINIMUM_SHARD_SIZE) {
-                final String msg = "This key set would contain " + requiredNumberOfShards + " shards."
+                @NotNull final String msg = "This key set would contain " + requiredNumberOfShards + " shards."
                                            + " The length of the key to be sharded is " + cryptoshuffleKey.length
                                            + ". This would result in shards of length " + shardSize
                                            + " which is less than the minimum shard size of " + MINIMUM_SHARD_SIZE;
@@ -302,7 +304,7 @@ public class KeyShardSet {
 
         private int computeRequiredNumberOfShards() {
             int shardTotal = 0;
-            for (KeyShardGroup group : groups) {
+            for (@NotNull KeyShardGroup group : groups) {
                 shardTotal += group.getKeys().size();
             }
             return shardTotal;
@@ -314,7 +316,7 @@ public class KeyShardSet {
         if (this == o) return true;
         if (!(o instanceof KeyShardSet)) return false;
 
-        KeyShardSet that = (KeyShardSet) o;
+        @NotNull KeyShardSet that = (KeyShardSet) o;
 
         return shardCount == that.shardCount && groups.equals(that.groups) && uuid.equals(that.uuid);
     }

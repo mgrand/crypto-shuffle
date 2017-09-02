@@ -1,5 +1,7 @@
 package com.markgrand.cryptoShuffle.keyShard;
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.InvalidKeyException;
@@ -10,7 +12,7 @@ class SymmetricEncryptionAlgorithmHelper {
     static Cipher getAesCipherInstance() {
         try {
             return Cipher.getInstance("AES");
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
+        } catch (@NotNull NoSuchAlgorithmException | NoSuchPaddingException e) {
             throw new RuntimeException("Error getting AES cipher", e);
         }
     }
@@ -22,9 +24,10 @@ class SymmetricEncryptionAlgorithmHelper {
 public enum SymmetricEncryptionAlgorithm {
     AES(aesKeyGenerator(), SymmetricEncryptionAlgorithm::aesEncrypt, SymmetricEncryptionAlgorithm::aesDecrypt);
 
+    @NotNull
     private static synchronized KeyGenerator aesKeyGenerator() {
         try {
-            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            @NotNull KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
             keyGenerator.init(128);
             return keyGenerator;
         } catch (NoSuchAlgorithmException e) {
@@ -32,7 +35,7 @@ public enum SymmetricEncryptionAlgorithm {
         }
     }
 
-    private static byte[] aesEncrypt(SecretKey aesKey, byte[] plainText) {
+    private static byte[] aesEncrypt(SecretKey aesKey, @NotNull byte[] plainText) {
         Cipher aes = SymmetricEncryptionAlgorithmHelper.getAesCipherInstance();
         try {
             aes.init(Cipher.ENCRYPT_MODE, aesKey);
@@ -41,18 +44,18 @@ public enum SymmetricEncryptionAlgorithm {
         }
         try {
             return aes.doFinal(plainText);
-        } catch (IllegalBlockSizeException | BadPaddingException e) {
+        } catch (@NotNull IllegalBlockSizeException | BadPaddingException e) {
             throw new RuntimeException("Bad encrypted value", e);
         }
     }
 
-    private static byte[] aesDecrypt(byte[] key, byte[] encryptedText) {
-        SecretKeySpec aesKey = new SecretKeySpec(key, "AES");
+    private static byte[] aesDecrypt(@NotNull byte[] key, @NotNull byte[] encryptedText) {
+        @NotNull SecretKeySpec aesKey = new SecretKeySpec(key, "AES");
         Cipher aes = SymmetricEncryptionAlgorithmHelper.getAesCipherInstance();
         try {
             aes.init(Cipher.DECRYPT_MODE, aesKey);
             return aes.doFinal(encryptedText);
-        } catch (InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+        } catch (@NotNull InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
             throw new RuntimeException("Problem with AES decrypt", e);
         }
     }

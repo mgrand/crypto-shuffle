@@ -1,5 +1,8 @@
 package com.markgrand.cryptoShuffle.keyShard;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.Arrays;
 
 /**
@@ -78,11 +81,11 @@ public class EncryptedShard {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        EncryptedShard that = (EncryptedShard) o;
+        @Nullable EncryptedShard that = (EncryptedShard) o;
 
         return Arrays.equals(encodedPublicKey, that.encodedPublicKey)
                        && Arrays.equals(encryptedShardValue, that.encryptedShardValue)

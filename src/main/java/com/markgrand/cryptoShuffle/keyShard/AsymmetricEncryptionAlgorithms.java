@@ -1,6 +1,8 @@
 package com.markgrand.cryptoShuffle.keyShard;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.crypto.*;
 import java.security.InvalidKeyException;
@@ -35,7 +37,7 @@ class AsymmetricEncryptionFunctions {
     private static final int PADDING_SIZE = 11;
 
     static final EncryptionFunction RSA_ENCRYPTION = (key, plaintext) -> {
-        RSAKey rsaKey = (RSAKey) key;
+        @NotNull RSAKey rsaKey = (RSAKey) key;
         final int maxEncryptablePlaintextBytes = rsaKey.getModulus().bitCount() / 8 - PADDING_SIZE;
         try {
             Cipher rsa = Cipher.getInstance("RSA");
@@ -48,11 +50,12 @@ class AsymmetricEncryptionFunctions {
                                                  SymmetricEncryptionAlgorithm.AES.encrypt(aesKey, plaintext),
                                                  SymmetricEncryptionAlgorithm.AES, rsa.doFinal(aesKey.getEncoded()));
             }
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
+        } catch (@NotNull NoSuchAlgorithmException | NoSuchPaddingException | IllegalBlockSizeException | BadPaddingException | InvalidKeyException e) {
             throw new RuntimeException("Error occurred while encrypting", e);
         }
     };
 
+    @Nullable
     static final DecryptionFunction RSA_DECRYPTION = (key, encryptedShard) -> {
         final SymmetricEncryptionAlgorithm symmetricEncryptionAlgorithm = encryptedShard.getSymmetricEncryptionAlgorithm();
         try {
@@ -62,12 +65,12 @@ class AsymmetricEncryptionFunctions {
                 byte[] keyText = rsaDecrypt(key, encryptedShard.getEncryptedSymmetricKey());
                 return symmetricEncryptionAlgorithm.decrypt(keyText, encryptedShard.getEncryptedShardValue());
             }
-        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+        } catch (@NotNull NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
             throw new RuntimeException("Error occurred while decrypting", e);
         }
     };
 
-    private static byte[] rsaDecrypt(final Key key, final byte[] encryptedText)
+    private static byte[] rsaDecrypt(final Key key, @NotNull final byte[] encryptedText)
             throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         Cipher rsa = Cipher.getInstance("RSA");
         rsa.init(Cipher.DECRYPT_MODE, key);
