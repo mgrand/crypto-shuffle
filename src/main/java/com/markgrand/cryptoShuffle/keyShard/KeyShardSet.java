@@ -158,6 +158,41 @@ public class KeyShardSet {
     }
 
     /**
+     * Get the decrypted key.
+     *
+     * @return an {@link Optional} object that contains the decrypted key if all of the shards have been decrypted;
+     * otherwise an empty {@link Optional} object.
+     */
+    @NotNull
+    public Optional<byte[]> getDecryptedKey() {
+        return computeDecryptedKeyLength().flatMap( length -> {
+            final byte[] decryptedKey = new byte[length];
+            int offset = 0;
+            for (byte[] decryptedShard : decryptedShards) {
+                System.arraycopy(decryptedShard, 0, decryptedKey, offset, decryptedShard.length);
+            }
+            return Optional.of(decryptedKey);
+        });
+    }
+
+    /**
+     * Compute the length of the decrypted key.
+     *
+     * @return An {@link Optional} object that contains the length of the decrypted key if all of the shards have been
+     * decrypted; otherwise an empty {@link Optional} object.
+     */
+    public Optional<Integer> computeDecryptedKeyLength() {
+        int length = 0;
+        for (byte[] decryptedShard : decryptedShards) {
+            if (decryptedShard == null) {
+                return Optional.empty();
+            }
+            length += decryptedShard.length;
+        }
+        return Optional.of(length);
+    }
+
+    /**
      * Description of a group of keys that enumerates a set of public keys and the how many private keys will be needed
      * to reconstitute the original cryptoshuffle key.
      */
