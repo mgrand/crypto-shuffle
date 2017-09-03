@@ -2,6 +2,7 @@ package com.markgrand.cryptoShuffle.keyShard;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.*;
 
@@ -130,12 +131,30 @@ public class KeyShardSet {
         return this.getShardCount() == that.getShardCount() && groups.equals(that.groups) && uuid.equals(that.uuid);
     }
 
+    /**
+     * {@inheritDoc} This method ignores any decrypted key shards that may be in this object.
+     */
     @Override
     public int hashCode() {
         int result = getShardCount();
         result = 31 * result + groups.hashCode();
         result = 31 * result + uuid.hashCode();
         return result;
+    }
+
+    /**
+     * Using the given private key, decrypt any shards in this key set that are associated with the given public key.
+     *
+     * @param publicKey decrypt shards associated with this public key
+     * @param privateKey use the private key to decrypt.
+     */
+    public void decryptShardsForPublicKey(@NotNull final PublicKey publicKey, @NotNull final PrivateKey privateKey) {
+        for (KeyShardGroup group : groups) {
+            //noinspection CodeBlock2Expr
+            group.getEncryptedShardsForKey(publicKey).forEach((position, encryptedShard) ->{
+                decryptedShards[position] = encryptionAlgorithm.decrypt(privateKey, encryptedShard);
+            });
+        }
     }
 
     /**
