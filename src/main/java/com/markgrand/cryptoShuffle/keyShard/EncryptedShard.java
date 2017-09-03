@@ -5,7 +5,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 
 /**
- * <p>Value object to contain the details of an encrypted key shard. </p> Created by mark.grand on 7/16/2017.
+ * Value object to contain the details of an encrypted key shard.
+ * <p>
+ * Created by mark.grand on 7/16/2017.
  */
 public class EncryptedShard {
     private final byte[] encodedPublicKey;
