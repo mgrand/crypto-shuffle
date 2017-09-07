@@ -11,7 +11,8 @@ to be very strong. The algorithm should has these properties:
 * There is no upper limit on the key length.
 * One of the challenges of cracking the encryption is that there will be
   multiple solutions that look reasonable and no clue as to which is
-  correct.
+  correct. Even if you guess the right key, you won't know that it is 
+  the right key by looking at the resulting plain text.
 
 The algorithm implemented in this package is based on doing a random
 shuffle of the ones and zeros in a plaintext. The actual order of the
@@ -106,9 +107,17 @@ cryptoshuffle library includes a `RandomKeyGenerator` class to generate
 random keys.
 
 The most secure way to share the key to decrypt a message is to keep it
-somewhere different than the encrypted message. If the encrypted message
-is stored on a blockchain, it may be considered convenient to store the
-key on the same blockchain.  In these cases, it is recommended that the
-key be encrypted with multiple public keys using key sharding.
+somewhere different than the encrypted message. However this creates the
+challenge of creating a mechanism to manage al of the random key and
+keeping track of which key goes with which encrypted text. The
+inconvenience of having to do this may be unacceptable.
+
+If the encrypted message is stored on a blockchain, it may be considered
+convenient to store the key on the same blockchain.  In cases, it 
+is recommended that the key be encrypted with the public keys of the 
+parties that you want to share the plaintext with. 
+
+The crypto-shuffle package includes a convenient mechanism for creating
+a single JSON object that contains the 
 
 ## Key Sharding
