@@ -134,3 +134,6 @@ text that was encrypted with the given public key, it uses the
 corresponding private key to decrypt the text.
 
 ## Key Sharding
+
+A future release of crypto-shuffle will support a more sophisticated key
+mangement mechanism that can crequire combinations of private keys to  decrypt.
