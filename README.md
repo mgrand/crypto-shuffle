@@ -118,6 +118,19 @@ is recommended that the key be encrypted with the public keys of the
 parties that you want to share the plaintext with. 
 
 The crypto-shuffle package includes a convenient mechanism for creating
-a single JSON object that contains the 
+a single JSON object that contains the encrypted versions of a plaintext
+that correspond to multiple public keys. This is the `MultiEncryption`
+class.
+
+To create a `MultiEncryption` object, you pass the constructor a plain
+text and a collection of one or more public keys. The constructed object
+contains versions of the plain text encrypted by each of the public 
+keys.
+
+To decrypt the contents of a `MultiEncryption` object, pass a public key
+and its corresponding private key to the `MultiEncryption` object&apos;s
+`decrypt` method. If the `MultiEncryption` object contains an encrypted
+text that was encrypted with the given public key, it uses the
+corresponding private key to decrypt the text.
 
 ## Key Sharding
