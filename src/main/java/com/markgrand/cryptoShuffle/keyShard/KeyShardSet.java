@@ -1,5 +1,6 @@
 package com.markgrand.cryptoShuffle.keyShard;
 
+import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithms;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.PrivateKey;

@@ -1,6 +1,8 @@
 package com.markgrand.cryptoShuffle.keyShard;
 
 import com.markgrand.cryptoShuffle.AbstractTest;
+import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithms;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.security.KeyPair;
@@ -130,6 +132,32 @@ public class KeyShardSetTest extends AbstractTest {
 
     private void checkGroupShardsPerKey(KeyShardSet.KeyShardGroup group, int expectedSize) {
         group.getKeys().forEach(key -> assertEquals(expectedSize, group.getEncryptedShardsForKey(key).size()));
+    }
+
+    @Ignore
+    @Test
+    public void roundTripTest4800() {
+        final Set<KeyPair> keyPairs5 = generateKeyPairs(5);
+        final Set<KeyPair> keyPairs3 = generateKeyPairs(3);
+        final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithms.RSA);
+        final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
+        final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
+        final KeyShardSet keyShardSet = builder.addKeyGroup(2,  publicKeys5)
+                                                .addKeyGroup(3,  publicKeys3)
+                                                .build(key4800);
+        assertFalse(keyShardSet.getDecryptedKey().isPresent());
+        decryptKeyPairs(keyShardSet, keyPairs5);
+        assertFalse(keyShardSet.getDecryptedKey().isPresent());
+        decryptKeyPairs(keyShardSet, keyPairs3);
+        assertTrue(keyShardSet.getDecryptedKey().isPresent());
+
+        assertArrayEquals(key4800, keyShardSet.getDecryptedKey().get());
+    }
+
+    private void decryptKeyPairs(KeyShardSet keyShardSet, Set<KeyPair> keyPairs) {
+        for (KeyPair keyPair : keyPairs) {
+            keyShardSet.decryptShardsForPublicKey(keyPair.getPublic(), keyPair.getPrivate());
+        }
     }
 
 }

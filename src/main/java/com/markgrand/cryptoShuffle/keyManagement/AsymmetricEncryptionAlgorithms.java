@@ -1,5 +1,7 @@
-package com.markgrand.cryptoShuffle.keyShard;
+package com.markgrand.cryptoShuffle.keyManagement;
 
+import com.markgrand.cryptoShuffle.keyShard.EncryptedShard;
+import com.markgrand.cryptoShuffle.keyShard.SymmetricEncryptionAlgorithm;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

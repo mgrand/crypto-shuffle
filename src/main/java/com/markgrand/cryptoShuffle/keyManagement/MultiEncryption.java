@@ -1,4 +1,4 @@
-package com.markgrand.cryptoShuffle;
+package com.markgrand.cryptoShuffle.keyManagement;
 
 import java.security.PublicKey;
 import java.util.HashMap;

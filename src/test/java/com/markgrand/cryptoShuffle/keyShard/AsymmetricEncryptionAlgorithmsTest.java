@@ -2,6 +2,8 @@ package com.markgrand.cryptoShuffle.keyShard;
 
 import com.markgrand.cryptoShuffle.AbstractTest;
 import static org.junit.Assert.*;
+
+import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithms;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
