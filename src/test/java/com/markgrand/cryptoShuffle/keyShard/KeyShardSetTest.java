@@ -3,6 +3,7 @@ package com.markgrand.cryptoShuffle.keyShard;
 import com.markgrand.cryptoShuffle.AbstractTest;
 import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithm;
 import com.markgrand.cryptoShuffle.keyManagement.EncryptedShard;
+import com.markgrand.cryptoShuffle.keyManagement.KeyShardSet;
 import org.junit.Ignore;
 import org.junit.Test;
 

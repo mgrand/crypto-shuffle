@@ -1,4 +1,4 @@
-package com.markgrand.cryptoShuffle.keyShard;
+package com.markgrand.cryptoShuffle.keyManagement;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -13,8 +13,6 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithm;
-import com.markgrand.cryptoShuffle.keyManagement.EncryptedShard;
-import com.markgrand.cryptoShuffle.keyManagement.SymmetricEncryptionAlgorithm;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
