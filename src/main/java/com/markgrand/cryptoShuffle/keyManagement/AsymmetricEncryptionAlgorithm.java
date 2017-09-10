@@ -1,7 +1,5 @@
 package com.markgrand.cryptoShuffle.keyManagement;
 
-import com.markgrand.cryptoShuffle.keyShard.EncryptedShard;
-import com.markgrand.cryptoShuffle.keyShard.SymmetricEncryptionAlgorithm;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -19,13 +17,13 @@ import java.util.function.BiFunction;
  * <p>
  * Created by mark.grand on 7/14/2017.
  */
-public enum AsymmetricEncryptionAlgorithms {
+public enum AsymmetricEncryptionAlgorithm {
     RSA(AsymmetricEncryptionFunctions.RSA_ENCRYPTION, AsymmetricEncryptionFunctions.RSA_DECRYPTION);
 
     private final EncryptionFunction encryptionFunction;
     private final DecryptionFunction decryptionFunction;
 
-    AsymmetricEncryptionAlgorithms(EncryptionFunction encryptionFunction, DecryptionFunction decryptionFunction) {
+    AsymmetricEncryptionAlgorithm(EncryptionFunction encryptionFunction, DecryptionFunction decryptionFunction) {
         this.encryptionFunction = encryptionFunction;
         this.decryptionFunction = decryptionFunction;
     }

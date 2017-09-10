@@ -1,7 +1,8 @@
 package com.markgrand.cryptoShuffle.keyShard;
 
 import com.markgrand.cryptoShuffle.AbstractTest;
-import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithms;
+import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithm;
+import com.markgrand.cryptoShuffle.keyManagement.EncryptedShard;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -71,7 +72,7 @@ public class KeyShardSetTest extends AbstractTest {
     public void buildTest() {
         final Set<KeyPair> keyPairs5 = generateKeyPairs(5);
         final Set<KeyPair> keyPairs3 = generateKeyPairs(3);
-        final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithms.RSA);
+        final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithm.RSA);
         final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
         final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
         final KeyShardSet keyShardSet = builder.addKeyGroup(2,  publicKeys5)
@@ -139,7 +140,7 @@ public class KeyShardSetTest extends AbstractTest {
     public void roundTripTest4800() {
         final Set<KeyPair> keyPairs5 = generateKeyPairs(5);
         final Set<KeyPair> keyPairs3 = generateKeyPairs(3);
-        final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithms.RSA);
+        final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithm.RSA);
         final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
         final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
         final KeyShardSet keyShardSet = builder.addKeyGroup(2,  publicKeys5)

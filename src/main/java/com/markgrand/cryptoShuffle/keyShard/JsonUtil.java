@@ -12,7 +12,9 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithms;
+import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithm;
+import com.markgrand.cryptoShuffle.keyManagement.EncryptedShard;
+import com.markgrand.cryptoShuffle.keyManagement.SymmetricEncryptionAlgorithm;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -176,7 +178,7 @@ public class JsonUtil {
         private KeyShardSet deserialize1_0(@NotNull final JsonNode node) {
             @NotNull final UUID uuid = deserializeUuid(node);
             final int shardCount = deserializeShardCount(node);
-            final AsymmetricEncryptionAlgorithms asymmetricEncryptionAlgorithm = deserializeAsymmetricEncryptionAlgorithm(node);
+            final AsymmetricEncryptionAlgorithm asymmetricEncryptionAlgorithm = deserializeAsymmetricEncryptionAlgorithm(node);
             @NotNull final ArrayNode groups = getGroups(node);
             @NotNull final ArrayList<KeyShardSet.KeyShardGroup> keyShardGroups = new ArrayList<>();
             for (@NotNull JsonNode group : groups) {
@@ -316,13 +318,13 @@ public class JsonUtil {
             }
         }
 
-        private static AsymmetricEncryptionAlgorithms  deserializeAsymmetricEncryptionAlgorithm(@NotNull JsonNode node) {
+        private static AsymmetricEncryptionAlgorithm deserializeAsymmetricEncryptionAlgorithm(@NotNull JsonNode node) {
             final String encryptionAlgorithmValue = node.get(ENCRYPTION_ALGORITHM_NAME).asText();
             try {
-                return AsymmetricEncryptionAlgorithms.valueOf(encryptionAlgorithmValue);
+                return AsymmetricEncryptionAlgorithm.valueOf(encryptionAlgorithmValue);
             } catch (IllegalArgumentException e) {
                 @NotNull String msg = "Unsupported value for " + ENCRYPTION_ALGORITHM_NAME + ": " + encryptionAlgorithmValue
-                        + "\nSupported values are " + Arrays.toString(AsymmetricEncryptionAlgorithms.values());
+                        + "\nSupported values are " + Arrays.toString(AsymmetricEncryptionAlgorithm.values());
                 throw new RuntimeException(msg);
             }
         }

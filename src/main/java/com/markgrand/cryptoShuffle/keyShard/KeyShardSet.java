@@ -1,6 +1,7 @@
 package com.markgrand.cryptoShuffle.keyShard;
 
-import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithms;
+import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithm;
+import com.markgrand.cryptoShuffle.keyManagement.EncryptedShard;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.PrivateKey;
@@ -45,11 +46,11 @@ public class KeyShardSet {
     private final UUID uuid;
 
     @NotNull
-    private final AsymmetricEncryptionAlgorithms encryptionAlgorithm;
+    private final AsymmetricEncryptionAlgorithm encryptionAlgorithm;
 
     KeyShardSet(@NotNull final ArrayList<KeyShardGroup> groups, final int shardCount,
                 @NotNull final UUID uuid,
-                @NotNull final AsymmetricEncryptionAlgorithms encryptionAlgorithm) {
+                @NotNull final AsymmetricEncryptionAlgorithm encryptionAlgorithm) {
         this.groups = groups;
         this.decryptedShards = new byte[shardCount][];
         this.uuid = uuid;
@@ -65,7 +66,7 @@ public class KeyShardSet {
      * @return the new builder.
      */
     @NotNull
-    public static KeyShardingSetBuilder newBuilder(@NotNull final AsymmetricEncryptionAlgorithms encryptionAlgorithm) {
+    public static KeyShardingSetBuilder newBuilder(@NotNull final AsymmetricEncryptionAlgorithm encryptionAlgorithm) {
         return new KeyShardingSetBuilder(encryptionAlgorithm);
     }
 
@@ -114,7 +115,7 @@ public class KeyShardSet {
     }
 
     @NotNull
-    public AsymmetricEncryptionAlgorithms getEncryptionAlgorithm() {
+    public AsymmetricEncryptionAlgorithm getEncryptionAlgorithm() {
         return encryptionAlgorithm;
     }
 
@@ -308,7 +309,7 @@ public class KeyShardSet {
         private final ArrayList<KeyShardGroup> groups = new ArrayList<>();
 
         @NotNull
-        private final AsymmetricEncryptionAlgorithms encryptionAlgorithm;
+        private final AsymmetricEncryptionAlgorithm encryptionAlgorithm;
 
         @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
         @NotNull
@@ -321,7 +322,7 @@ public class KeyShardSet {
          *                            be a public key. The second parameter should be the plain text to be encrypted.
          *                            The return value should be the encrypted text.
          */
-        private KeyShardingSetBuilder(@NotNull final AsymmetricEncryptionAlgorithms encryptionAlgorithm) {
+        private KeyShardingSetBuilder(@NotNull final AsymmetricEncryptionAlgorithm encryptionAlgorithm) {
             this.encryptionAlgorithm = encryptionAlgorithm;
         }
 

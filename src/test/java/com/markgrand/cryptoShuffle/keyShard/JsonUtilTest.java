@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.markgrand.cryptoShuffle.AbstractTest;
-import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithms;
+import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithm;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         try {
             final Set<KeyPair> keyPairs5 = generateKeyPairs(5);
             final Set<KeyPair> keyPairs3 = generateKeyPairs(3);
-            final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithms.RSA);
+            final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithm.RSA);
             final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
             final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
             keyShardSet = builder.addKeyGroup(2,  publicKeys5).addKeyGroup(3,  publicKeys3).build(key4800);
