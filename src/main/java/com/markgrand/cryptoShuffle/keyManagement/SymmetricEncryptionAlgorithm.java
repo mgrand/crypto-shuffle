@@ -1,4 +1,4 @@
-package com.markgrand.cryptoShuffle.keyShard;
+package com.markgrand.cryptoShuffle.keyManagement;
 
 import org.jetbrains.annotations.NotNull;
 

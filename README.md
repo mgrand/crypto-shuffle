@@ -78,20 +78,20 @@ bytes.
 
 If this yields an equal number of key and plaintext groups, then this is
 how the key is used: The SHA512 hash for the first key group is computed
-and then used as the seed to generate pseudo-random numbers that determine
-the shuffle destination of the bits in the first plaintext group. The
-second key group is then combined with the current seed value to produce
-a new SHA512 hash. This new hash is used as the seed to generate
-pseudo-random numbers that determine the shuffle destination of the bits
-in the second plaintext group. This procedure continues to the end of
-the groups.
+and then used as the seed to generate pseudo-random numbers that
+determine the shuffle destination of the bits in the first plaintext
+group. The second key group is then combined with the current seed value
+to produce a new SHA512 hash. This new hash is used as the seed to
+generate pseudo-random numbers that determine the shuffle destination of
+the bits in the second plaintext group. This procedure continues to the
+end of the groups.
 
 If there are fewer key groups than plaintext groups, then after the last
 key group has been incorporated into the seed value that seed is used to
-generate pseudo-random numbers for the rest of the groups in the plaintext.
-If there are more key groups than plaintext groups, then the size of the
-key groups is increased so that the number of key groups will be equal
-to the number of plaintext groups.
+generate pseudo-random numbers for the rest of the groups in the
+plaintext. If there are more key groups than plaintext groups, then the
+size of the key groups is increased so that the number of key groups
+will be equal to the number of plaintext groups.
 
 As mentioned above, the encryption algorithm is implemented using the
 Bouncycastle library. This implementation of Crypto-Shuffle is written
@@ -103,7 +103,7 @@ perhaps there will be a C# implementation of Crypto-Shuffle.
 Each plaintext that is encrypted should be encrypted with a different
 key. If it is known that two encrypted texts were encrypted with the
 same key, then it becomes easier to guess the key. For this reason, the
-cryptoshuffle library includes a `RandomKeyGenerator` class to generate
+crypto-shuffle library includes a `RandomKeyGenerator` class to generate
 random keys.
 
 The most secure way to share the key to decrypt a message is to keep it
@@ -113,25 +113,25 @@ keeping track of which key goes with which encrypted text. The
 inconvenience of having to do this may be unacceptable.
 
 If the encrypted message is stored on a blockchain, it may be considered
-convenient to store the key on the same blockchain.  In cases, it 
-is recommended that the key be encrypted with the public keys of the 
-parties that you want to share the plaintext with. 
+convenient to store the crypto-shuffle key on the same blockchain.  In
+cases, it is recommended that the key be encrypted with the public keys
+of the parties that you want to share the plaintext with.
 
 The crypto-shuffle package includes a convenient mechanism for creating
-a single JSON object that contains the encrypted versions of a plaintext
-that correspond to multiple public keys. This is the `MultiEncryption`
+a single JSON object that contains versions of crypto-shuffle keys
+encrypted by each of a set of public keys. This is the `MultiEncryption`
 class.
 
 To create a `MultiEncryption` object, you pass the constructor a plain
-text and a collection of one or more public keys. The constructed object
-contains versions of the plain text encrypted by each of the public 
-keys.
+text crypto-shuffle key and a collection of one or more public keys. The
+constructed object contains versions of the crypto-shuffle key encrypted
+by each of the public keys.
 
 To decrypt the contents of a `MultiEncryption` object, pass a public key
-and its corresponding private key to the `MultiEncryption` object&apos;s
+and its corresponding private key to the `MultiEncryption` object’s
 `decrypt` method. If the `MultiEncryption` object contains an encrypted
-text that was encrypted with the given public key, it uses the
-corresponding private key to decrypt the text.
+crypto-shuffle key that was encrypted with the given public key, it uses
+the corresponding private key to decrypt the crypto-shuffle key.
 
 ## Key Sharding
 

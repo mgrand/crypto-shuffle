@@ -1,6 +1,8 @@
-package com.markgrand.cryptoShuffle.keyShard;
+package com.markgrand.cryptoShuffle.keyManagement;
 
 import static org.junit.Assert.*;
+
+import com.markgrand.cryptoShuffle.keyManagement.SymmetricEncryptionAlgorithm;
 import org.junit.Test;
 
 import javax.crypto.SecretKey;

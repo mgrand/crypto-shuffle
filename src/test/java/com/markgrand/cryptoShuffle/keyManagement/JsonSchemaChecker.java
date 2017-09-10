@@ -1,10 +1,11 @@
-package com.markgrand.cryptoShuffle.keyShard;
+package com.markgrand.cryptoShuffle.keyManagement;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonschema.core.report.ProcessingReport;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.github.fge.jsonschema.processors.syntax.SyntaxValidator;
+import com.markgrand.cryptoShuffle.keyShard.JsonSchemaConstants;
 import org.junit.Assert;
 import org.junit.Test;
 
