@@ -1,4 +1,4 @@
-package com.markgrand.cryptoShuffle.keyShard;
+package com.markgrand.cryptoShuffle.keyManagement;
 
 import com.markgrand.cryptoShuffle.AbstractTest;
 import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithm;

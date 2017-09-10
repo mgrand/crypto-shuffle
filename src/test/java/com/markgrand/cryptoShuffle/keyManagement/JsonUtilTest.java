@@ -1,4 +1,4 @@
-package com.markgrand.cryptoShuffle.keyShard;
+package com.markgrand.cryptoShuffle.keyManagement;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,9 +6,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonschema.main.JsonSchema;
 import com.github.fge.jsonschema.main.JsonSchemaFactory;
 import com.markgrand.cryptoShuffle.AbstractTest;
-import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithm;
-import com.markgrand.cryptoShuffle.keyManagement.JsonUtil;
-import com.markgrand.cryptoShuffle.keyManagement.KeyShardSet;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
