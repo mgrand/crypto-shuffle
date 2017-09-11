@@ -1,15 +1,13 @@
 package com.markgrand.cryptoShuffle.keyManagement;
 
 import com.markgrand.cryptoShuffle.AbstractTest;
-import static org.junit.Assert.*;
-
-import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithm;
-import com.markgrand.cryptoShuffle.keyManagement.EncryptedShard;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.security.KeyPair;
 import java.util.Random;
+
+import static org.junit.Assert.assertArrayEquals;
 
 /**
  * Unit tests for {@link AsymmetricEncryptionAlgorithm}
@@ -38,9 +36,14 @@ public class AsymmetricEncryptionAlgorithmsTest extends AbstractTest {
     }
 
     @Test
-    public void longRoundTripTest() throws Exception {
-        byte[] plainText = new byte[800];
-        byte[] reconstructedText = rsaRoundTrip(plainText);
-        assertArrayEquals(plainText, reconstructedText);
+    public void roundTripTest4800() throws Exception {
+        byte[] reconstructedText = rsaRoundTrip(key4800);
+        assertArrayEquals(key4800, reconstructedText);
+    }
+
+    @Test
+    public void roundTripTest24() throws Exception {
+        byte[] reconstructedText = rsaRoundTrip(key24);
+        assertArrayEquals(key24, reconstructedText);
     }
 }
