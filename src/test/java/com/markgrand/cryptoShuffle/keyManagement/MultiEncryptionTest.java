@@ -24,7 +24,7 @@ public class MultiEncryptionTest extends AbstractTest {
     private void roundTrip(byte[] plainKey) {
         Set<KeyPair> keyPairs = generateKeyPairs(3);
         final MultiEncryption multiEncryption
-                = new MultiEncryption(plainKey, keyPairs.stream().map(keyPair -> keyPair.getPublic()).collect(Collectors.toList()));
+                = new MultiEncryption(plainKey, keyPairs.stream().map(KeyPair::getPublic).collect(Collectors.toList()));
         assertFalse(multiEncryption.decrypt(generateKeyPair()).isPresent());
         for (KeyPair keyPair: keyPairs) {
             Optional<byte[]> plainText = multiEncryption.decrypt(keyPair);
