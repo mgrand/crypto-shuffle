@@ -2,6 +2,7 @@ package com.markgrand.cryptoShuffle.keyManagement;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Collection;
@@ -31,8 +32,8 @@ public class MultiEncryption {
     /**
      * Constructor to create an {@code EncryptedShard} that uses RSA to encrypt.
      *
-     * @param plainText           The plain text crypto-shuffle key to be encrypted.
-     * @param keys                The keys to use to encrypt the plain text.
+     * @param plainText The plain text crypto-shuffle key to be encrypted.
+     * @param keys      The keys to use to encrypt the plain text.
      */
     public MultiEncryption(@NotNull final byte[] plainText, @NotNull final Collection<PublicKey> keys) {
         this.encryptionAlgorithm = AsymmetricEncryptionAlgorithm.RSA;
@@ -41,6 +42,27 @@ public class MultiEncryption {
         }
     }
 
+    /**
+     * Decrypt the version of the crypto-shuffle key that was encrypted with the given public key.
+     *
+     * @param keyPair A key pair that contains the public key to look for and the private key to use for decryption.
+     * @return If this MultiEncryption contains the given public key, return an {@link Optional} object that contains
+     * the decrypted version of the contained crypto-shuffle key. If this object does not contain the given public key,
+     * then return an empty {@link Optional} object.
+     */
+    public Optional<byte[]> decrypt(@NotNull final KeyPair keyPair) {
+        return decrypt(keyPair.getPublic(), keyPair.getPrivate());
+    }
+
+    /**
+     * Decrypt the version of the crypto-shuffle key that was encrypted with the given public key.
+     *
+     * @param publicKey  The public key to look for.
+     * @param privateKey The private key to use for decryption.
+     * @return If this MultiEncryption contains the given public key, return an {@link Optional} object that contains
+     * the decrypted version of the contained crypto-shuffle key. If this object does not contain the given public key,
+     * then return an empty {@link Optional} object.
+     */
     public Optional<byte[]> decrypt(@NotNull final PublicKey publicKey, @NotNull final PrivateKey privateKey) {
         return Optional.ofNullable(encryptions.get(publicKey)).map(encryptedShard -> encryptionAlgorithm.decrypt(privateKey, encryptedShard));
     }
