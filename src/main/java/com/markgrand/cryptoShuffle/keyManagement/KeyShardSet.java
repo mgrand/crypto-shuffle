@@ -8,6 +8,8 @@ import java.security.PublicKey;
 import java.util.*;
 
 /**
+ * <b>This class is not ready for use. <u>Please do not use it.</u></b>
+ * <p>
  * Utility for breaking keys into multiple shards so that they can be securely shared by multiple people.
  * <p>
  * A key shard set consists of a long cryptoshuffle key that has been broken into two or more pieces called shards and
