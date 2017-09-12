@@ -114,8 +114,8 @@ inconvenience of having to do this may be unacceptable.
 
 If the encrypted message is stored on a blockchain, it may be considered
 convenient to store the crypto-shuffle key on the same blockchain.  In
-cases, it is recommended that the key be encrypted with the public keys
-of the parties that you want to share the plaintext with.
+these cases, it is recommended that the key be encrypted with the public
+keys of the parties that you want to share the plaintext with.
 
 The crypto-shuffle package includes a convenient mechanism for creating
 a single JSON object that contains versions of crypto-shuffle keys
@@ -136,4 +136,5 @@ the corresponding private key to decrypt the crypto-shuffle key.
 ## Key Sharding
 
 A future release of crypto-shuffle will support a more sophisticated key
-mangement mechanism that can crequire combinations of private keys to  decrypt.
+mangement mechanism that can require combinations of private keys to
+decrypt.
