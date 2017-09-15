@@ -161,6 +161,41 @@ class JsonUtil {
         return Base64.getEncoder().encodeToString(publicKey.getEncoded());
     }
 
+    private static String deserializeVersion(@NotNull JsonNode node) {
+        return requireStringValue(node, VERSION_NAME);
+    }
+
+    private static int requireIntValue(@NotNull final JsonNode node, final String fieldName) {
+        final JsonNode valueNode = requireValue(node, fieldName);
+        ensureType(valueNode, JsonNodeType.NUMBER, fieldName);
+        if (!valueNode.canConvertToInt()) {
+            throw new RuntimeException("Value of " + fieldName + " must be an integer: " + node);
+        }
+        return valueNode.asInt();
+    }
+
+    private static String requireStringValue(@NotNull final JsonNode node, final String fieldName) {
+        final JsonNode valueNode = requireValue(node, fieldName);
+        ensureType(valueNode, JsonNodeType.STRING, fieldName);
+        return valueNode.asText();
+    }
+
+    private static void ensureType(@NotNull final JsonNode node, @NotNull final JsonNodeType type, final String fieldName) {
+        if (!type.equals(node.getNodeType())) {
+            @NotNull String msg = "Value of " + fieldName + " must be specified as a string but was specified as a " + type.name();
+            throw new RuntimeException(msg);
+        }
+    }
+
+    private static JsonNode requireValue(@NotNull final JsonNode node, final String fieldName) {
+        final JsonNode valueNode = node.get(fieldName);
+        if (valueNode == null) {
+            @NotNull String msg = "Value of " + fieldName + " must be specified in JSON for a KeyShardSet: " + node.toString();
+            throw new RuntimeException(msg);
+        }
+        return valueNode;
+    }
+
     static class KeyShardSetDeserializer extends StdDeserializer<KeyShardSet> {
         KeyShardSetDeserializer() {
             this(null);
@@ -201,41 +236,6 @@ class JsonUtil {
         private static UUID deserializeUuid(@NotNull JsonNode node) {
             String uuidString = requireStringValue(node, UUID_NAME);
             return UUID.fromString(uuidString);
-        }
-
-        private static String deserializeVersion(@NotNull JsonNode node) {
-            return requireStringValue(node, VERSION_NAME);
-        }
-
-        private static int requireIntValue(@NotNull final JsonNode node, final String fieldName) {
-            final JsonNode valueNode = requireValue(node, fieldName);
-            ensureType(valueNode, JsonNodeType.NUMBER, fieldName);
-            if (!valueNode.canConvertToInt()) {
-                throw new RuntimeException("Value of " + fieldName + " must be an integer: " + node);
-            }
-            return valueNode.asInt();
-        }
-
-        private static String requireStringValue(@NotNull final JsonNode node, final String fieldName) {
-            final JsonNode valueNode = requireValue(node, fieldName);
-            ensureType(valueNode, JsonNodeType.STRING, fieldName);
-            return valueNode.asText();
-        }
-
-        private static void ensureType(@NotNull final JsonNode node, @NotNull final JsonNodeType type, final String fieldName) {
-            if (!type.equals(node.getNodeType())) {
-                @NotNull String msg = "Value of " + fieldName + " must be specified as a string but was specified as a " + type.name();
-                throw new RuntimeException(msg);
-            }
-        }
-
-        private static JsonNode requireValue(@NotNull final JsonNode node, final String fieldName) {
-            final JsonNode valueNode = node.get(fieldName);
-            if (valueNode == null) {
-                @NotNull String msg = "Value of " + fieldName + " must be specified in JSON for a KeyShardSet: " + node.toString();
-                throw new RuntimeException(msg);
-            }
-            return valueNode;
         }
 
         static PublicKey bytesToPublicKey(@NotNull byte[] keyBytes) {
@@ -422,7 +422,14 @@ class JsonUtil {
         @NotNull
         @Override
         public MultiEncryption deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-            return null;
+            JsonNode node = jsonParser.getCodec().readTree(jsonParser);
+            String version = deserializeVersion(node);
+            switch (version) {
+                case VERSION1_0:
+                    return null; //deserialize1_0(node);
+                default:
+                    throw new RuntimeException("Value of " + VERSION_NAME + " is \"" + version + "\" but must be \"1.0\"");
+            }
         }
     }
 
