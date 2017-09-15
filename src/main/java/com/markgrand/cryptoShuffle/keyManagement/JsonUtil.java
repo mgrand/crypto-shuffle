@@ -379,6 +379,7 @@ class JsonUtil {
         @Override
         public void serialize(MultiEncryption multiEncryption, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
             jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField(VERSION_NAME, VERSION1_0);
             jsonGenerator.writeStringField(ENCRYPTION_ALGORITHM_NAME, multiEncryption.getEncryptionAlgorithm().name());
             jsonGenerator.writeObjectFieldStart(ENCRYPTIONS_NAME);
             Base64.Encoder base64Encoder = Base64.getEncoder();

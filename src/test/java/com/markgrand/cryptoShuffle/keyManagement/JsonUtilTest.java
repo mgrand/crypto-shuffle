@@ -162,6 +162,9 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
                 = new MultiEncryption(key24, keyPairs.stream().map(KeyPair::getPublic).collect(Collectors.toList()));
         final ObjectNode jsonObject = (ObjectNode) JsonUtil.multiEncryptionToJson(multiEncryption);
         jsonObject.get(JsonUtil.ENCRYPTION_ALGORITHM_NAME).asText();
+        assertEquals(JsonUtil.VERSION1_0, jsonObject.get(JsonUtil.VERSION_NAME).asText());
         assertEquals("RSA", jsonObject.get(JsonUtil.ENCRYPTION_ALGORITHM_NAME).asText());
+        final ObjectNode keysObject = (ObjectNode) jsonObject.get(JsonUtil.ENCRYPTIONS_NAME);
+        assertEquals(3, keysObject.size());
     }
 }
