@@ -352,7 +352,7 @@ class JsonUtil {
      * @param multiEncryption the {@code MultiEncryption} to be converted to JSON
      * @return a JSON object that represents the given {@link MultiEncryption}
      */
-    static JsonNode multiEncryptionJson(final MultiEncryption multiEncryption) {
+    static JsonNode multiEncryptionToJson(final MultiEncryption multiEncryption) {
         return objectMapper.valueToTree(multiEncryption);
     }
 

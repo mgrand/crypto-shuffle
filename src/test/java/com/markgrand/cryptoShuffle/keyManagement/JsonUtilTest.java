@@ -154,4 +154,14 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         assertEquals("original: " + jsonObject + "\n reconstructed: " + JsonUtil.keyShardSetToJson(reconstructedKeyShardSet),
                 keyShardSet, reconstructedKeyShardSet);
     }
+
+    @Test
+    public void multiEncryptionSerializationTest() {
+        Set<KeyPair> keyPairs = generateKeyPairs(3);
+        final MultiEncryption multiEncryption
+                = new MultiEncryption(key24, keyPairs.stream().map(KeyPair::getPublic).collect(Collectors.toList()));
+        final ObjectNode jsonObject = (ObjectNode) JsonUtil.multiEncryptionToJson(multiEncryption);
+        jsonObject.get(JsonUtil.ENCRYPTION_ALGORITHM_NAME).asText();
+        assertEquals("RSA", jsonObject.get(JsonUtil.ENCRYPTION_ALGORITHM_NAME).asText());
+    }
 }
