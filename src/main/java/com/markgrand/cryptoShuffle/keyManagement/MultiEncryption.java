@@ -66,4 +66,22 @@ public class MultiEncryption {
     public Optional<byte[]> decrypt(@NotNull final PublicKey publicKey, @NotNull final PrivateKey privateKey) {
         return Optional.ofNullable(encryptions.get(publicKey)).map(encryptedShard -> encryptionAlgorithm.decrypt(privateKey, encryptedShard));
     }
+
+    /**
+     * Return the encryption algorithm that was used to produce the encrypted text in this object.
+     * @return the encrption algorithm.
+     */
+    @NotNull
+    public AsymmetricEncryptionAlgorithm getEncryptionAlgorithm() {
+        return encryptionAlgorithm;
+    }
+
+    /**
+     * Return the map whose keys are the public keys in this object havings values that are the associated encrypted
+     * text.
+     * @return the map.
+     */
+    public Map<PublicKey, EncryptedShard> getEncryptions() {
+        return encryptions;
+    }
 }

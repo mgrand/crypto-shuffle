@@ -12,6 +12,14 @@ import static org.junit.Assert.*;
 
 public class MultiEncryptionTest extends AbstractTest {
     @Test
+    public void encryptionAlgorithmTest() {
+        Set<KeyPair> keyPairs = generateKeyPairs(3);
+        final MultiEncryption multiEncryption
+                = new MultiEncryption(key24, keyPairs.stream().map(KeyPair::getPublic).collect(Collectors.toList()));
+        assertEquals("RSA", multiEncryption.getEncryptionAlgorithm().name());
+    }
+
+    @Test
     public void roundTrip24Test() {
         roundTrip(key24);
     }

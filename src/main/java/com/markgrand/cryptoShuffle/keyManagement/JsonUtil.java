@@ -29,6 +29,7 @@ class JsonUtil {
     static final String ENCRYPTED_SHARD_NAME = "encryptedShard";
     static final String ENCRYPTED_SYMMETRIC_KEY_NAME = "encryptedSymmetricKey";
     static final String ENCRYPTION_ALGORITHM_NAME = "encryptionAlgorithm";
+    static final String ENCRYPTIONS_NAME = "encryptions";
     static final String GROUPS_NAME = "groups";
     static final String KEY_MAP_NAME = "keyMap";
     static final String PUBLIC_KEY_NAME = "publicKey";
@@ -43,11 +44,16 @@ class JsonUtil {
     private final static ObjectMapper objectMapper = new ObjectMapper();
 
     static {
-        @NotNull final SimpleModule module = new SimpleModule("KeyShardSet");
-        module.addSerializer(KeyShardSet.class, new KeyShardSetSerializer());
-        module.addDeserializer(KeyShardSet.class, new KeyShardSetDeserializer());
-        module.addSerializer(KeyShardSet.KeyShardGroup.class, new KeyShardGroupSerializer());
-        objectMapper.registerModule(module);
+        @NotNull final SimpleModule keyShardSetModule = new SimpleModule("KeyShardSet");
+        keyShardSetModule.addSerializer(KeyShardSet.class, new KeyShardSetSerializer());
+        keyShardSetModule.addDeserializer(KeyShardSet.class, new KeyShardSetDeserializer());
+        keyShardSetModule.addSerializer(KeyShardSet.KeyShardGroup.class, new KeyShardGroupSerializer());
+        objectMapper.registerModule(keyShardSetModule);
+
+        @NotNull final SimpleModule multiEncryptionModule = new SimpleModule("MultiEncryption");
+        multiEncryptionModule.addSerializer(MultiEncryption.class, new MultiEncryptionSerializer());
+        multiEncryptionModule.addDeserializer(MultiEncryption.class, new MultiEncryptionDeserializer());
+        objectMapper.registerModule(multiEncryptionModule);
     }
 
     /**
@@ -105,12 +111,13 @@ class JsonUtil {
             super(t);
         }
 
-        private static void serializeEncryptedShard(@NotNull JsonGenerator jsonGenerator, @NotNull Base64.Encoder base64Encoder, @NotNull Map.Entry<Integer, EncryptedShard> shard) throws IOException {
+        private static void serializeShard(@NotNull JsonGenerator jsonGenerator, @NotNull Base64.Encoder base64Encoder, @NotNull Map.Entry<Integer, EncryptedShard> shard) throws IOException {
             jsonGenerator.writeStartObject();
             jsonGenerator.writeNumberField(SHARD_POSITION_NAME, shard.getKey());
             final String base64EncodedEncryptedShard = base64Encoder.encodeToString(shard.getValue().getEncryptedShardValue());
+            EncryptedShard encryptedShard = shard.getValue();
             jsonGenerator.writeStringField(ENCRYPTED_SHARD_NAME, base64EncodedEncryptedShard);
-            final SymmetricEncryptionAlgorithm symmetricEncryptionAlgorithm = shard.getValue().getSymmetricEncryptionAlgorithm();
+            final SymmetricEncryptionAlgorithm symmetricEncryptionAlgorithm = encryptedShard.getSymmetricEncryptionAlgorithm();
             if (symmetricEncryptionAlgorithm != null) {
                 jsonGenerator.writeStringField(SYMMETRIC_ENCRYPTION_NAME, symmetricEncryptionAlgorithm.name());
             }
@@ -136,13 +143,13 @@ class JsonUtil {
         private void serializeGroupPublicKeys(@NotNull KeyShardSet.KeyShardGroup value, @NotNull JsonGenerator jsonGenerator) throws IOException {
             for (@NotNull PublicKey publicKey : value.getKeys()) {
                 jsonGenerator.writeStartObject();
-                final String encodedPublicKey = Base64.getEncoder().encodeToString(publicKey.getEncoded());
+                final String encodedPublicKey = publicKeyToBase64String(publicKey);
                 jsonGenerator.writeStringField(PUBLIC_KEY_NAME, encodedPublicKey);
                 jsonGenerator.writeArrayFieldStart(SHARDS_NAME);
                 @NotNull final Map<Integer, EncryptedShard> shards = value.getEncryptedShardsForKey(publicKey);
                 Base64.Encoder base64Encoder = Base64.getEncoder();
                 for (@NotNull Map.Entry<Integer, EncryptedShard> shard : shards.entrySet()) {
-                    serializeEncryptedShard(jsonGenerator, base64Encoder, shard);
+                    serializeShard(jsonGenerator, base64Encoder, shard);
                 }
                 jsonGenerator.writeEndArray();
                 jsonGenerator.writeEndObject();
@@ -150,7 +157,11 @@ class JsonUtil {
         }
     }
 
-    public static class KeyShardSetDeserializer extends StdDeserializer<KeyShardSet> {
+    private static String publicKeyToBase64String(@NotNull PublicKey publicKey) {
+        return Base64.getEncoder().encodeToString(publicKey.getEncoded());
+    }
+
+    static class KeyShardSetDeserializer extends StdDeserializer<KeyShardSet> {
         KeyShardSetDeserializer() {
             this(null);
         }
@@ -331,6 +342,86 @@ class JsonUtil {
                                                     + " must either be both specified or both not specified " + shard.toString();
                 throw new RuntimeException(msg);
             }
+        }
+    }
+
+
+    /**
+     * Convert a {@link MultiEncryption} to a JSON object.
+     *
+     * @param multiEncryption the {@code MultiEncryption} to be converted to JSON
+     * @return a JSON object that represents the given {@link MultiEncryption}
+     */
+    static JsonNode multiEncryptionJson(final MultiEncryption multiEncryption) {
+        return objectMapper.valueToTree(multiEncryption);
+    }
+
+    /**
+     * Create a {@link MultiEncryption} that matches the given JSON.
+     *
+     * @param jsonNode The JSON to use for building the {@link MultiEncryption}.
+     * @return the new {@link MultiEncryption}
+     * @throws JsonProcessingException If there is a problem processing the JSON.
+     */
+    static MultiEncryption jsonToMultiEncryption(@NotNull final JsonNode jsonNode) throws JsonProcessingException {
+        return objectMapper.treeToValue(jsonNode, MultiEncryption.class);
+    }
+
+    private static class MultiEncryptionSerializer extends StdSerializer<MultiEncryption> {
+        MultiEncryptionSerializer() {
+            this(null);
+        }
+
+        MultiEncryptionSerializer(Class<MultiEncryption> t) {
+            super(t);
+        }
+
+        @Override
+        public void serialize(MultiEncryption multiEncryption, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField(ENCRYPTION_ALGORITHM_NAME, multiEncryption.getEncryptionAlgorithm().name());
+            jsonGenerator.writeObjectFieldStart(ENCRYPTIONS_NAME);
+            Base64.Encoder base64Encoder = Base64.getEncoder();
+            for (Map.Entry<PublicKey, EncryptedShard> entry: multiEncryption.getEncryptions().entrySet()) {
+                jsonGenerator.writeFieldName(publicKeyToBase64String(entry.getKey()));
+                serializeEncryptedShard(jsonGenerator, base64Encoder, entry.getValue());
+            }
+            jsonGenerator.writeEndObject();
+            jsonGenerator.writeEndObject();
+        }
+
+        private static void serializeEncryptedShard(@NotNull JsonGenerator jsonGenerator,
+                                                    @NotNull Base64.Encoder base64Encoder,
+                                                    @NotNull EncryptedShard encryptedShard) throws IOException {
+            jsonGenerator.writeStartObject();
+            final String base64EncodedEncryptedShard = base64Encoder.encodeToString(encryptedShard.getEncryptedShardValue());
+            jsonGenerator.writeStringField(ENCRYPTED_SHARD_NAME, base64EncodedEncryptedShard);
+            final SymmetricEncryptionAlgorithm symmetricEncryptionAlgorithm = encryptedShard.getSymmetricEncryptionAlgorithm();
+            if (symmetricEncryptionAlgorithm != null) {
+                jsonGenerator.writeStringField(SYMMETRIC_ENCRYPTION_NAME, symmetricEncryptionAlgorithm.name());
+            }
+            final byte[] encryptedSymmetricKey = encryptedShard.getEncryptedSymmetricKey();
+            if (encryptedSymmetricKey != null) {
+                final String base64EncryptedKey = base64Encoder.encodeToString(encryptedSymmetricKey);
+                jsonGenerator.writeStringField(ENCRYPTED_SYMMETRIC_KEY_NAME, base64EncryptedKey);
+            }
+            jsonGenerator.writeEndObject();
+        }
+    }
+
+    public static class MultiEncryptionDeserializer extends StdDeserializer<MultiEncryption> {
+        MultiEncryptionDeserializer() {
+            this(null);
+        }
+
+        MultiEncryptionDeserializer(Class<?> vc) {
+            super(vc);
+        }
+
+        @NotNull
+        @Override
+        public MultiEncryption deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+            return null;
         }
     }
 
