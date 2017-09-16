@@ -132,7 +132,7 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         final KeyPair keyPair = generateKeyPair();
         final PublicKey publicKey = keyPair.getPublic();
         final byte[] encodedPublicKey = publicKey.getEncoded();
-        final PublicKey reconstruction = JsonUtil.KeyShardSetDeserializer.bytesToPublicKey(encodedPublicKey);
+        final PublicKey reconstruction = JsonUtil.bytesToPublicKey(encodedPublicKey);
         assertEquals(publicKey, reconstruction);
         assertEquals(publicKey.hashCode(), reconstruction.hashCode());
     }
