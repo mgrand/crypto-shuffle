@@ -26,7 +26,7 @@ import java.util.Optional;
  * @author Mark Grand
  */
 public class MultiEncryption {
-    private final Map<PublicKey, EncryptedShard> encryptions = new HashMap<>();
+    private Map<PublicKey, EncryptedShard> encryptions = new HashMap<>();
     private final AsymmetricEncryptionAlgorithm encryptionAlgorithm;
 
     /**
@@ -36,10 +36,24 @@ public class MultiEncryption {
      * @param keys      The keys to use to encrypt the plain text.
      */
     public MultiEncryption(@NotNull final byte[] plainText, @NotNull final Collection<PublicKey> keys) {
-        this.encryptionAlgorithm = AsymmetricEncryptionAlgorithm.RSA;
+        this(AsymmetricEncryptionAlgorithm.RSA,
+                encryptWithKeys(plainText, keys, AsymmetricEncryptionAlgorithm.RSA));
+    }
+
+    private static Map<PublicKey, EncryptedShard> encryptWithKeys(@NotNull final byte[] plainText,
+                                                                  @NotNull final Collection<PublicKey> keys,
+                                                                  @NotNull final AsymmetricEncryptionAlgorithm algorithm) {
+        final Map<PublicKey, EncryptedShard> encryptionsMap = new HashMap<>();
         for (PublicKey key : keys) {
-            encryptions.put(key, encryptionAlgorithm.encrypt(key, plainText));
+            encryptionsMap.put(key, algorithm.encrypt(key, plainText));
         }
+        return encryptionsMap;
+    }
+
+    MultiEncryption(@NotNull final AsymmetricEncryptionAlgorithm algorithm,
+                    @NotNull final Map<PublicKey, EncryptedShard> encryptions) {
+        encryptionAlgorithm = algorithm;
+        this.encryptions = encryptions;
     }
 
     /**
