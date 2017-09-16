@@ -104,4 +104,14 @@ public class EncryptedShard {
         result = 31 * result + Arrays.hashCode(encryptedSymmetricKey);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "EncryptedShard{" +
+                "encodedPublicKey=" + Arrays.toString(encodedPublicKey) +
+                ", encryptedShardValue=" + Arrays.toString(encryptedShardValue) +
+                ", symmetricEncryptionAlgorithm=" + symmetricEncryptionAlgorithm +
+                ", encryptedSymmetricKey=" + Arrays.toString(encryptedSymmetricKey) +
+                '}';
+    }
 }
