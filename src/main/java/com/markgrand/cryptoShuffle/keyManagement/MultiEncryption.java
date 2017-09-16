@@ -98,4 +98,21 @@ public class MultiEncryption {
     public Map<PublicKey, EncryptedShard> getEncryptions() {
         return encryptions;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MultiEncryption)) return false;
+
+        MultiEncryption that = (MultiEncryption) o;
+
+        return encryptions.equals(that.encryptions) && encryptionAlgorithm == that.encryptionAlgorithm;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = encryptions.hashCode();
+        result = 31 * result + encryptionAlgorithm.hashCode();
+        return result;
+    }
 }
