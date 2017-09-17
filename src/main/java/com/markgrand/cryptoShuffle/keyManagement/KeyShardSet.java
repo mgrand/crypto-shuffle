@@ -3,6 +3,7 @@ package com.markgrand.cryptoShuffle.keyManagement;
 import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithm;
 import org.jetbrains.annotations.NotNull;
 
+import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.*;
@@ -143,6 +144,15 @@ public class KeyShardSet {
         result = 31 * result + groups.hashCode();
         result = 31 * result + uuid.hashCode();
         return result;
+    }
+
+    /**
+     * Using the given private key, decrypt any shards in this key set that are associated with the given public key.
+     *
+     * @param keyPair decrypt shards associated with this pair's public key using the pair's private key.
+     */
+    public void decryptShardsForPublicKey(@NotNull final KeyPair keyPair) {
+        decryptShardsForPublicKey(keyPair.getPublic(), keyPair.getPrivate());
     }
 
     /**

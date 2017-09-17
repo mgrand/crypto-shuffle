@@ -1,5 +1,7 @@
 package com.markgrand.cryptoShuffle.keyManagement;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.KeyPair;
@@ -83,6 +85,7 @@ public class MultiEncryption {
 
     /**
      * Return the encryption algorithm that was used to produce the encrypted text in this object.
+     *
      * @return the encrption algorithm.
      */
     @NotNull
@@ -93,10 +96,31 @@ public class MultiEncryption {
     /**
      * Return the map whose keys are the public keys in this object havings values that are the associated encrypted
      * text.
+     *
      * @return the map.
      */
     public Map<PublicKey, EncryptedShard> getEncryptions() {
         return encryptions;
+    }
+
+    /**
+     * Create a JSON representation of this object.
+     *
+     * @return a JSON representation of this object.
+     */
+    public JsonNode toJson() {
+        return JsonUtil.multiEncryptionToJson(this);
+    }
+
+    /**
+     * Create a {@code MultiEncryption} object from the given JSON
+     *
+     * @param jsonNode the JSON representation of a MultiEncryption
+     * @return the created {@code MultiEncryption} object
+     * @throws JsonProcessingException If there is a problem with the JSON.
+     */
+    public static MultiEncryption fromJson(@NotNull final JsonNode jsonNode) throws JsonProcessingException {
+        return JsonUtil.jsonToMultiEncryption(jsonNode);
     }
 
     @Override

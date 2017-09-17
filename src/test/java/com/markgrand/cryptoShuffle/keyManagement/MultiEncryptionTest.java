@@ -5,9 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,12 +37,14 @@ public class MultiEncryptionTest extends AbstractTest {
             Optional<byte[]> plainText = multiEncryption.decrypt(keyPair);
             assertTrue(plainText.isPresent());
             assertArrayEquals(plainKey, plainText.get());
+            //noinspection ConstantConditions
+            assertArrayEquals(plainKey, multiEncryption.decrypt(keyPair.getPublic(), keyPair.getPrivate()).get());
         }
     }
 
     @Test
     public void getEncryptionsTest() {
-        Set<KeyPair> keyPairs = generateKeyPairs(4);
+        final Set<KeyPair> keyPairs = generateKeyPairs(4);
         final MultiEncryption multiEncryption = createMultiEncryption(key24, keyPairs);
         assertEquals(4, multiEncryption.getEncryptions().size());
     }
@@ -54,5 +53,13 @@ public class MultiEncryptionTest extends AbstractTest {
     private MultiEncryption createMultiEncryption(@NotNull final byte[] plainKey,
                                                   @NotNull final Set<KeyPair> keyPairs) {
         return new MultiEncryption(plainKey, keyPairs.stream().map(KeyPair::getPublic).collect(Collectors.toList()));
+    }
+
+    @Test
+    public void toStringTest() {
+        final Set<KeyPair> keyPairs = generateKeyPairs(4);
+        final MultiEncryption multiEncryption = createMultiEncryption(key24, keyPairs);
+        final String string = multiEncryption.toString();
+        assertTrue(string.contains("MultiEncryption"));
     }
 }
