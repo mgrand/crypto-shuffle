@@ -84,28 +84,6 @@ public class EncryptedShard {
     }
 
     @Override
-    public boolean equals(@Nullable Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        @Nullable EncryptedShard that = (EncryptedShard) o;
-
-        return Arrays.equals(encodedPublicKey, that.encodedPublicKey)
-                       && Arrays.equals(encryptedShardValue, that.encryptedShardValue)
-                       && symmetricEncryptionAlgorithm == that.symmetricEncryptionAlgorithm
-                       && Arrays.equals(encryptedSymmetricKey, that.encryptedSymmetricKey);
-    }
-
-    @Override
-    public int hashCode() {
-        int result = Arrays.hashCode(encodedPublicKey);
-        result = 31 * result + Arrays.hashCode(encryptedShardValue);
-        result = 31 * result + (symmetricEncryptionAlgorithm != null ? symmetricEncryptionAlgorithm.hashCode() : 0);
-        result = 31 * result + Arrays.hashCode(encryptedSymmetricKey);
-        return result;
-    }
-
-    @Override
     public String toString() {
         return "EncryptedShard{" +
                 "encodedPublicKey=" + Arrays.toString(encodedPublicKey) +
