@@ -177,4 +177,16 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         final ObjectNode keysObject = (ObjectNode) jsonObject.get(JsonUtil.ENCRYPTIONS_NAME);
         assertEquals(3, keysObject.size());
     }
+
+    @Test
+    public void multiEncryptionRoundTripTest() throws Exception {
+        Set<KeyPair> keyPairs = generateKeyPairs(3);
+        final MultiEncryption multiEncryption
+                = new MultiEncryption(key24, keyPairs.stream().map(KeyPair::getPublic).collect(Collectors.toList()));
+        final ObjectNode jsonObject = (ObjectNode) JsonUtil.multiEncryptionToJson(multiEncryption);
+        final MultiEncryption reconstructedMultiEncryption = JsonUtil.jsonToMultiEncryption(jsonObject);
+        final Optional<byte[]> reconstructedKey24 = reconstructedMultiEncryption.decrypt(keyPairs.iterator().next());
+        assertTrue(reconstructedKey24.isPresent());
+        assertArrayEquals(key24, reconstructedKey24.get());
+    }
 }
