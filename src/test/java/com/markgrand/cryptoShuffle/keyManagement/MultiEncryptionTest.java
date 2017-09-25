@@ -1,5 +1,6 @@
 package com.markgrand.cryptoShuffle.keyManagement;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.markgrand.cryptoShuffle.AbstractTest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
@@ -61,5 +62,17 @@ public class MultiEncryptionTest extends AbstractTest {
         final MultiEncryption multiEncryption = createMultiEncryption(key24, keyPairs);
         final String string = multiEncryption.toString();
         assertTrue(string.contains("MultiEncryption"));
+    }
+
+    @Test
+    public void jsonRoundTripTest() throws Exception {
+        Set<KeyPair> keyPairs = generateKeyPairs(3);
+        final MultiEncryption multiEncryption
+                = new MultiEncryption(key24, keyPairs.stream().map(KeyPair::getPublic).collect(Collectors.toList()));
+        final ObjectNode jsonObject = (ObjectNode) multiEncryption.toJson();
+        final MultiEncryption reconstructedMultiEncryption = MultiEncryption.fromJson(jsonObject);
+        final Optional<byte[]> reconstructedKey24 = reconstructedMultiEncryption.decrypt(keyPairs.iterator().next());
+        assertTrue(reconstructedKey24.isPresent());
+        assertArrayEquals(key24, reconstructedKey24.get());
     }
 }
