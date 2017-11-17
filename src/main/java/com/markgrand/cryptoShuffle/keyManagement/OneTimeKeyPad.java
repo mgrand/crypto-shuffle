@@ -118,8 +118,8 @@ public interface OneTimeKeyPad {
     void autoGenerateKeys(int count, int minKeyLength, int maxKeyLength, Consumer<Map<UUID, byte[]>> transmitter);
 
     /**
-     * This undoes the effect of previous calls to {@link #autoGenerateKeys}. After this method is called,
-     * {@link #getUnusedKey()} will return an empty result if it is called when there are no unused keys in the pad.
+     * This undoes the effect of previous calls to {@link #autoGenerateKeys}. After this method is called, {@link
+     * #getUnusedKey()} will return an empty result if it is called when there are no unused keys in the pad.
      */
     void clearAutoGenerateKeys();
 
@@ -131,4 +131,11 @@ public interface OneTimeKeyPad {
      * in the pad that is associated with the given {@code UUID}
      */
     Optional<byte[]> lookupKey(UUID uuid);
+
+    /**
+     * Get the number of unused keys in this pad.
+     *
+     * @return the number of unused keys in this pad.
+     */
+    int getUnusedKeyCount();
 }
