@@ -109,7 +109,7 @@ public class InMemoryOneTimeKeyPadTest {
     }
 
     @Test
-    public void getNextUnusedKey() throws Exception {
+    public void getNextUnusedKeyFixed() throws Exception {
         assertEquals(0, pad.getUsedKeyCount());
         assertFalse(pad.getUnusedKey().isPresent());
         final boolean[] wasCalled = new boolean[1];
@@ -119,6 +119,23 @@ public class InMemoryOneTimeKeyPadTest {
         });
         assertTrue(pad.getUnusedKey().isPresent());
         pad.autoGenerateKeys(2, 88, uuidMap -> fail("auto-generate logic should not be called here."));
+        assertTrue(pad.getUnusedKey().isPresent());
+        assertTrue(wasCalled[0]);
+        pad.clearAutoGenerateKeys();
+        assertFalse(pad.getUnusedKey().isPresent());
+    }
+
+    @Test
+    public void getNextUnusedKeyVariable() throws Exception {
+        assertEquals(0, pad.getUsedKeyCount());
+        assertFalse(pad.getUnusedKey().isPresent());
+        final boolean[] wasCalled = new boolean[1];
+        pad.autoGenerateKeys(2, 88, 111, uuidMap -> {
+            assertEquals(2, uuidMap.size());
+            wasCalled[0] = true;
+        });
+        assertTrue(pad.getUnusedKey().isPresent());
+        pad.autoGenerateKeys(2, 88, 111, uuidMap -> fail("auto-generate logic should not be called here."));
         assertTrue(pad.getUnusedKey().isPresent());
         assertTrue(wasCalled[0]);
         pad.clearAutoGenerateKeys();

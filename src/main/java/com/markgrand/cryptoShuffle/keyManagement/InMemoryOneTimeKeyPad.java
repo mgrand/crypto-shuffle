@@ -8,7 +8,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * This is an implementation of {@link OneTimeKeyPad} that runs entirely in memory without a backing store. It is not
  * intended for production use as it will eventually outgrow memory. This is intended primarily as a reference
  * implementation that can be used as the basis for other implementation that do use external storage.
- * @implNote This implementation is thread-safe.
+ * <p>
+ * <b>Note:</b> This implementation is thread-safe.
  *
  * @author Mark Grand
  */

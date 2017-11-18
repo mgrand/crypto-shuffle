@@ -85,12 +85,13 @@ public abstract class AbstractOneTimeKeyPad implements OneTimeKeyPad {
 
     /**
      * Return the next unused encryption key in this pad and its UUID.
+     * <p>
+     * <b>Note: </b> This is called by {@link #getUnusedKey()} after the strategy to {@link #autoGenerateKeys} keys has
+     * been run.
      *
      * @return an {@link Optional} object that contains a {@link java.util.Map.Entry} whose value is the encryption key
      * and whose key is the encryption key's UUID, if there are any unused keys in the pad. If there are no unused keys,
      * returns an empty {@code Optional} object.
-     * @implNote This is called by {@link #getUnusedKey()} after the strategy to {@link #autoGenerateKeys} keys has been
-     * run.
      */
     protected abstract Optional<Map.Entry<UUID, byte[]>> doGetUnusedKey();
 
