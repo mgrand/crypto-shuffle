@@ -45,13 +45,13 @@ public class InMemoryOneTimeKeyPad extends AbstractOneTimeKeyPad implements Seri
         return Optional.ofNullable(usedKeys.get(uuid));
     }
 
-    /**
-     * Get the number of unused keys in this pad.
-     *
-     * @return the number of unused keys in this pad.
-     */
     @Override
     public int getUnusedKeyCount() {
         return newKeys.size();
+    }
+
+    @Override
+    public int getUsedKeyCount() {
+        return usedKeys.size();
     }
 }

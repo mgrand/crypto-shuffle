@@ -34,7 +34,7 @@ public interface OneTimeKeyPad {
     /**
      * Generate and add the given number of new encryption keys to this pad as unused keys.
      *
-     * @param count     The number of new encryption keys to generate.
+     * @param count     The number of new encryption keys to generate. Must be greater than zero.
      * @param keyLength The length in bytes of the encryption keys to be generated. Values less then 8 will be treated
      *                  as 8.
      * @return a {@link Map} object whose keys are the UUID of the generated encryption keyse and whose values are the
@@ -45,7 +45,7 @@ public interface OneTimeKeyPad {
     /**
      * Generate and add the given number of new encryption keys to this pad as unused keys.
      *
-     * @param count        The number of new encryption keys to generate.
+     * @param count        The number of new encryption keys to generate. Must be greater than zero.
      * @param minKeyLength The minimum length in bytes of the encryption keys to be generated. Values less then 8 will
      *                     be treated as 8.
      * @param maxKeyLength The maximum length in bytes of the encryption keys to be generated.
@@ -140,4 +140,11 @@ public interface OneTimeKeyPad {
      * @return the number of unused keys in this pad.
      */
     int getUnusedKeyCount();
+
+    /**
+     * Get the number of used keys in this pad.
+     *
+     * @return the number of used keys in this pad.
+     */
+    int getUsedKeyCount();
 }

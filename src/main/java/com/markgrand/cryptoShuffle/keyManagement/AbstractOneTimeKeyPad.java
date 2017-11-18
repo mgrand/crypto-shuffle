@@ -58,6 +58,7 @@ public abstract class AbstractOneTimeKeyPad implements OneTimeKeyPad {
 
     @Override
     public void autoGenerateKeys(int count, int keyLength, Consumer<Map<UUID, byte[]>> transmitter) {
+        ensureCountIsPositive(count);
         autogenerationStrategy = () -> {
             final Map<UUID, byte[]> keys = generateKeys(count, keyLength);
             transmitter.accept(keys);
@@ -66,6 +67,7 @@ public abstract class AbstractOneTimeKeyPad implements OneTimeKeyPad {
 
     @Override
     public void autoGenerateKeys(int count, int minKeyLength, int maxKeyLength, Consumer<Map<UUID, byte[]>> transmitter) {
+        ensureCountIsPositive(count);
         autogenerationStrategy = () -> {
             final Map<UUID, byte[]> keys = generateKeys(count, minKeyLength, maxKeyLength);
             transmitter.accept(keys);
