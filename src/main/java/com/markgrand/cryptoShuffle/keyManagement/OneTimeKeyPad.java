@@ -27,6 +27,8 @@ import java.util.function.Consumer;
  * When you encrypt content in a blockchain transaction, you also include its UUID as plaintext in the blockchain
  * transaction. You and others have the pad that still contains all of the used encryption keys, so you can look up the
  * key to decrypt by its UUID.
+ *
+ * @author Mark Grand
  */
 public interface OneTimeKeyPad {
     /**
@@ -124,7 +126,7 @@ public interface OneTimeKeyPad {
     void clearAutoGenerateKeys();
 
     /**
-     * Get the encryption key that is associated in the pad with the given {@link UUID}.
+     * Get the used encryption key that is associated in the pad with the given {@link UUID}.
      *
      * @param uuid the UUID to look for.
      * @return an {@link Optional} object that contains the key or an empty {@code Optional} object if there is no key
