@@ -8,12 +8,12 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
-public class InMemoryOneTimeKeyPadTest {
+public class BasicOneTimeKeyPadTest {
     private OneTimeKeyPad pad;
 
     @Before
     public void setUp() throws Exception {
-        pad = new InMemoryOneTimeKeyPad();
+        pad = new BasicOneTimeKeyPad();
     }
 
     @Test

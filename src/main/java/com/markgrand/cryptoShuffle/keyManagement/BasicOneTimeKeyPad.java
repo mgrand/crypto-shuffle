@@ -5,16 +5,13 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * This is an implementation of {@link OneTimeKeyPad} that runs entirely in memory without a backing store. It is not
- * intended for production use as it will eventually outgrow memory. This is intended primarily as a reference
- * implementation that can be used as the basis for other implementation that do use external storage.
- * <p>
- * <b>Note:</b> This implementation is thread-safe.
+ * This is a basic implementation of the {@link OneTimeKeyPad} interface.  It can work as an in-memory one time pad.
+ *
  *
  * @author Mark Grand
  */
-public class InMemoryOneTimeKeyPad extends AbstractOneTimeKeyPad implements Serializable {
-    private final Map<UUID, byte[]> usedKeys = new ConcurrentHashMap<>();
+public class BasicOneTimeKeyPad extends AbstractOneTimeKeyPad implements Serializable {
+    private final UsedKeyMap usedKeys = new UsedKeyMapMapAdapter(new ConcurrentHashMap<>());
     private final Map<UUID, byte[]> newKeys = new ConcurrentHashMap<>();
     private final Set<Map.Entry<UUID, byte[]>> newEntrySet = newKeys.entrySet();
 
