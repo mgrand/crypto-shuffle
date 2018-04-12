@@ -1,0 +1,145 @@
+openapi: 3.0.0
+info:
+  title: Cyrpto-Shuffle Key Exchange API
+  description: This defines an API for sharing keys and key fragments.
+  version: 0.1.0
+  contact:
+    name: Mark Grand
+    email: mark.grand@hcl.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: https://{hostname}:{port}/v1
+    variables:
+      hostname:
+        default: example.com
+        description: The name of a host for this API.
+      port:
+        enum:
+          - '443'
+          - '8443'
+        default: '443'
+paths:
+  /offer:
+    post:
+      summary: Offer to exchange a key or parts of a key for another key or parts of a key.
+      description: This is an offer to exchange a key or parts of a key for another key or parts of a key. The requestor sends a public key that should already be known to the server. This serves to identify the requestor.
+        
+        
+        The offer consists of an identiying string that identifies a context that contains an encrypted text. If the offer is to trade parts of a crypto-shuffle key, it will also include the part numbers. If there are no part numbers, then the requestor is offering the entire key.
+        
+        
+        The response will identify what key or key parts the server is willing to trade for what has been offered. The response also serves to confirm the server's identity.
+      parameters: 
+        - in: header
+          name: X-Requestor-Public-Key
+          schema:
+            type: string
+            format: binary
+          description: The public key of the requestor.
+      responses:
+        200:
+          description: A description of the result.
+          content: 
+            'application/json':
+              schema: 
+                #$ref: '#/components/schemas/OfferResponse'
+                type: object
+                properties:
+                  requestorPublicKey:
+                    type: string
+                    format: binary
+                    description: The public key of the requestor. This public key is expected to be used for two purposes. 
+components:
+  schemas:
+    OfferResponse:
+      type: object
+#$schema: 'http://json-schema.org/draft-04/schema#'
+definitions: {}
+id: 'https://github.com/mgrand/crypto-shuffle/keyShardSet'
+properties:
+  encryptionAlgorithm:
+    pattern: ^RSA$
+  decryptedShards:
+    id: /properties/decryptedShards
+    items:
+      description: Values of shards that have been decrypted.
+      id: /properti   es/decryptedShards/items
+      type: string
+    type: array
+  groups:
+    id: /properties/groups
+    items:
+      id: /properties/groups/items
+      properties:
+        keyMap:
+          id: /properties/groups/items/properties/keyMap
+          items:
+            id: /properties/groups/items/properties/keyMap/items
+            properties:
+              publicKey:
+                id: >-
+                  /properties/groups/items/properties/keyMap/items/properties/publicKey
+                description: base-64 encoded public key
+                type: string
+              shards:
+                items:
+                  id: >-
+                    /properties/groups/items/properties/keyMap/items/properties/shards/items
+                  properties:
+                    encryptedShard:
+                      id: >-
+                        /properties/groups/items/properties/keyMap/items/properties/shards/items/properties/encryptedShard
+                      minLength: 1
+                      type: string
+                      description: base64 encoded encrypted shard
+                    shardPosition:
+                      id: >-
+                        /properties/groups/items/properties/keyMap/items/properties/shards/items/properties/shardPosition
+                      minimum: 0
+                      type: integer
+                  required:
+                    - shardPosition
+                    - encryptedShard
+                  type: object
+                type: array
+                minItems: 1
+            required:
+              - publicKey
+              - shards
+            type: object
+          minItems: 1
+          type: array
+        quorumSize:
+          default: 1
+          id: /properties/groups/items/properties/quorumSize
+          minimum: 1
+          type: integer
+      required:
+        - quorumSize
+        - keyMap
+      type: object
+    type: array
+    minItems: 1
+    uniqueItems: true
+  shardCount:
+    id: /properties/shardCount
+    minimum: 1
+    type: integer
+  uuid:
+    id: /properties/uuid
+    type: string
+    minLength: 6
+  version:
+    pattern: '1.0'
+    description: The schema version that is conformed to.
+    id: /properties/version
+    type: string
+required:
+  - version
+  - encryptionAlgorithm
+  - groups
+  - shardCount
+  - uuid
+type: object
