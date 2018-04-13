@@ -32,12 +32,23 @@ paths:
         
         The response will identify what key or key parts the server is willing to trade for what has been offered. The response also serves to confirm the server's identity.
       parameters: 
-        - in: header
-          name: X-Requestor-Public-Key
-          schema:
-            type: string
-            format: binary
-          description: The public key of the requestor.
+        - $ref: '#/components/parameters/requestorPublicKey'
+        - $ref: '#/components/parameters/encryptionAlgorithm'
+        - $ref: '#/components/parameters/serverPublicKey'
+        - $ref: '#/components/parameters/randomValue'
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                offer:
+                    $ref: '#/components/schemas/KeyInfo'
+                request:
+                    $ref: '#/components/schemas/KeyInfo'
+        description: This describes what keys or key parts the requestor is offering in trade for what keys or key parts from the server.
+        
       responses:
         200:
           description: A description of the result.
@@ -46,100 +57,57 @@ paths:
               schema: 
                 #$ref: '#/components/schemas/OfferResponse'
                 type: object
-                properties:
-                  requestorPublicKey:
-                    type: string
-                    format: binary
-                    description: The public key of the requestor. This public key is expected to be used for two purposes. 
+        499:
+          description: The server does not support the specified encryption algorithm.
 components:
+  parameters:
+    requestorPublicKey:
+      in: header
+      name: X-Requestor-Public-Key
+      schema:
+        $ref: '#/components/schemas/PublicKey'
+      required: true
+      description: A public key. This public key is expected to be used both to identify and authenticate the requestor.
+    encryptionAlgorithm:
+      in: header
+      name: X-Encryption-Algorithm
+      schema:
+        type: string
+        default: RSA
+      description: The encryption algorithm that the requestor public key is for.
+    serverPublicKey:
+      in: header
+      name: X-Server-Public-Key
+      required: true
+      schema:
+        $ref: '#/components/schemas/PublicKey'
+      description: A public key for which the server is expected to have the matching private key.
+    randomValue:
+      in: header
+      name: X-Random-Value
+      required: true
+      schema:
+        type: string
+        format: binary
+        minLength: 15
+        maxLength: 25
+      description: A random value.
   schemas:
-    OfferResponse:
-      type: object
-#$schema: 'http://json-schema.org/draft-04/schema#'
-definitions: {}
-id: 'https://github.com/mgrand/crypto-shuffle/keyShardSet'
-properties:
-  encryptionAlgorithm:
-    pattern: ^RSA$
-  decryptedShards:
-    id: /properties/decryptedShards
-    items:
-      description: Values of shards that have been decrypted.
-      id: /properti   es/decryptedShards/items
+    PublicKey:
       type: string
-    type: array
-  groups:
-    id: /properties/groups
-    items:
-      id: /properties/groups/items
-      properties:
-        keyMap:
-          id: /properties/groups/items/properties/keyMap
-          items:
-            id: /properties/groups/items/properties/keyMap/items
-            properties:
-              publicKey:
-                id: >-
-                  /properties/groups/items/properties/keyMap/items/properties/publicKey
-                description: base-64 encoded public key
-                type: string
-              shards:
-                items:
-                  id: >-
-                    /properties/groups/items/properties/keyMap/items/properties/shards/items
-                  properties:
-                    encryptedShard:
-                      id: >-
-                        /properties/groups/items/properties/keyMap/items/properties/shards/items/properties/encryptedShard
-                      minLength: 1
-                      type: string
-                      description: base64 encoded encrypted shard
-                    shardPosition:
-                      id: >-
-                        /properties/groups/items/properties/keyMap/items/properties/shards/items/properties/shardPosition
-                      minimum: 0
-                      type: integer
-                  required:
-                    - shardPosition
-                    - encryptedShard
-                  type: object
-                type: array
-                minItems: 1
-            required:
-              - publicKey
-              - shards
-            type: object
-          minItems: 1
-          type: array
-        quorumSize:
-          default: 1
-          id: /properties/groups/items/properties/quorumSize
-          minimum: 1
-          type: integer
-      required:
-        - quorumSize
-        - keyMap
+      format: binary
+    KeyInfo:
       type: object
-    type: array
-    minItems: 1
-    uniqueItems: true
-  shardCount:
-    id: /properties/shardCount
-    minimum: 1
-    type: integer
-  uuid:
-    id: /properties/uuid
-    type: string
-    minLength: 6
-  version:
-    pattern: '1.0'
-    description: The schema version that is conformed to.
-    id: /properties/version
-    type: string
-required:
-  - version
-  - encryptionAlgorithm
-  - groups
-  - shardCount
-  - uuid
-type: object
+      properties:
+        messageContext:
+          type: string
+          description: The value of this identifies a context in which the encrypted text that the key is for exists. It may be a blockchain transaction ID, record id or an other appropriate identifier. This information is needed to identify a key that is of interest.
+        messageSubcontext:
+          type: string
+          description: The value of this identifies a sub-context such as a field in which the encrypted text that the key is for exists. It may be a field name, column name or an other appropriate identifier of something that is present in the given message context.
+        shardNumber:
+          type: array
+          items:
+            type: integer
+      required:
+        - messageContext
