@@ -44,14 +44,28 @@ paths:
               type: object
               properties:
                 offer:
+                  type: array
+                  items:
                     $ref: '#/components/schemas/KeyInfo'
                 request:
+                  type: array
+                  items:
                     $ref: '#/components/schemas/KeyInfo'
         description: This describes what keys or key parts the requestor is offering in trade for what keys or key parts from the server.
         
       responses:
         200:
-          description: A description of the result.
+          description: A description of the sucessful result.
+          headers:
+            "X-Encrypted-Random-Value":
+              schema:
+                type: string
+                format: binary
+              description: This is the random value that was sent in the X-Random-Value header, encrypted using the private key that matches the public key sent in the X-Server-Public-Key header. The requestor is expected to decrypt this with the public key that was in the X-Server-Public-Key header. If the decrypted random value is identical to what was sent in the X-Random-Value header of the request, then the server is consider to be authenticated since it know the private key it is expected to know.
+            "X-Encrypted-Security-Token":
+              schema:
+                type: string
+                format: binary
           content: 
             'application/json':
               schema: 
