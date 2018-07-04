@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.0.1
 info:
   title: Cyrpto-Shuffle Key Exchange API
   description: This defines an API for sharing keys and key shards.
@@ -71,6 +71,7 @@ paths:
         - $ref: '#/components/parameters/randomValue'
       requestBody:
         required: true
+        description: This describes which keys or key shards the requestor is offering to trade for and which keys or key shards it is requesting from the server.
         content:
           "application/json":
             schema:
@@ -84,23 +85,19 @@ paths:
                   type: array
                   items:
                     $ref: '#/components/schemas/KeyDescription'
-#          example:
-#            offer:
-#              value:
-#                messageContext: "string"
-#                messageSubcontext: "string"
-#                    shardNumber:
-#                        - 1
-#                        - 3
-#                request:
-#                  - messageContext: "string"
-#                    messageSubcontext: "string"
-#                    shardNumber:
-#                      - 2
-#                      - 5
-
-        description: This describes which keys or key shards the requestor is offering to trade for and which keys or key shards it is requesting from the server.
-
+            example:
+              offer:
+                - messageContext: "1530648979-1089025422"
+                  messageSubcontext: "org"
+                  shardNumber:
+                  - 1
+                  - 3
+              request:
+                - messageContext: "string"
+                  messageSubcontext: "string"
+                  shardNumber:
+                    - 2
+                    - 5
 
       responses:
         200:
@@ -119,7 +116,15 @@ paths:
               schema:
                 type: string
                 format: byte
-              description: This is a security token encrypted with the public key in the requestor's X.509 certificate.  The requestor is expected to use its private key to decrypt this security token. The decrypted security token can be used authorize and authenticate the requestor in one trade operation.
+              description: This is a security token encrypted with the public key in the requestor's X.509 certificate.  The requestor is expected to use its private key to decrypt this security token. The decrypted security token can be used to authorize and authenticate the requestor in one trade operation.
+            "X-Security-Token-TTL":
+              schema:
+                type: integer
+              description: The security token's time to live in milliseconds. This security token and the offered trade will be honored only for the specified amount of time.
+            "X-timestamp":
+              schema:
+                type: string
+
           content:
             'application/json':
               schema:
