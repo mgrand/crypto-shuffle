@@ -136,7 +136,7 @@ paths:
 
                   If the requestor considers this response satisfactory, then the the server should immediately perform a trade operation to consumate the proposed trade. If the response is unsatisfactory, then the requestor does not need to do anything further.
         400:
-          description: Incorrectly formmed request.
+          description: Incorrectly formed request.
           content:
             'text/plain':
               schema:
@@ -149,6 +149,11 @@ paths:
           description: The server does not support the specified encryption algorithm.
   /trade:
     post:
+      summary: Carry out a trade that was previously offered through the offer operation.
+      description: This operation is performed to carry out a trade that was previous offered by the GET /offer operation. The value of the X-Security-Token header serves to authenticate the requestor and identify the offer.
+
+
+        The body of this request should contain the information previously offered by the requestor in the offer operation. If the server is satisfied with the information in the body, it will include the information it offered in the response to this request.
       operationId: doTrade
       parameters:
         - $ref: '#/components/parameters/securityToken'
@@ -160,7 +165,16 @@ paths:
       responses:
         200:
           description: Success
-
+        400:
+          description: Incorrectly formed request.
+          content:
+            'text/plain':
+              schema:
+                type: string
+                description: A descripiton of the problem.
+                example: 'No X-Security-Token header is specified.'
+        401:
+          description: The provided security token is invalid or expired.
 
 components:
   parameters:
@@ -188,7 +202,7 @@ components:
         type: string
         format: byte
       required: true
-      description: A security token provided by the server.
+      description: A security token provided by the server. The value is encrypted using the public key previously provided by server and then base64 encoded.
   schemas:
     Base64EncodedCertifcate:
       type: string
