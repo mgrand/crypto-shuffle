@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Cyrpto-Shuffle Key Exchange API
-  description: This defines an API for sharing keys and key fragments.
+  description: This defines an API for sharing keys and key shards.
   version: 0.1.0
   contact:
     name: Mark Grand
@@ -23,18 +23,51 @@ servers:
 paths:
   /offer:
     post:
-      summary: Offer to exchange a key or parts of a key for another key or parts of a key.
-      description: This is an offer to exchange a key or parts of a key for another key or parts of a key. The requestor sends a public key that should already be known to the server. This serves to identify the requestor.
-        
-        
-        The offer consists of an identiying string that identifies a context that contains an encrypted text. If the offer is to trade parts of a crypto-shuffle key, it will also include the part numbers. If there are no part numbers, then the requestor is offering the entire key.
-        
-        
-        The response will identify what key or key parts the server is willing to trade for what has been offered. The response also serves to confirm the server's identity.
-      parameters: 
-        - $ref: '#/components/parameters/requestorPublicKey'
-        - $ref: '#/components/parameters/encryptionAlgorithm'
-        - $ref: '#/components/parameters/serverPublicKey'
+      summary: Offer to trade keys or key shards for other keys or key shards.
+      description: This is an offer to trade keys or key shards for other keys or key shards.
+
+
+        The request identifies the keys or key shards that are offered for the trade by providing these pieces of information&colon;
+
+
+        * A string that identifies a context that contains an encrypted text. This might be the UUID of a blockchain transaction, a record number or some similar type of identifier.
+
+
+        * If the context contains multiple encrypted texts, then an additional sub-context identifier is encluded to identify the specific encrypted text. This might be a field name, a column name or similar type of identifier.
+
+
+        * If the offer is to trade shards of a crypto-shuffle key, the request will also include shard numbers to identify the specific shards of interest. If no shard numbers are specified, then the requestor is offering the entire key.
+
+
+        The request identifies the keys or key shards that it wants to trade for by providing similar information identifying them.
+
+
+        In addition to including the terms of the trade, the request also contains an X.509 certificate that identifies the requestor. The requestor's identity is authenticated in a later step.
+
+
+        The request also contains a random value. This random value is used later to authenticate the server
+
+
+        The response identifies what key or key shards the server is willing to trade for what has been offered. This may be different than what is requested in the request. The response also serves to authenticate the server's identity.
+
+
+        The response contains an X.509 certificate that asserts the server's identity. The response also contains a version of the random value in the request, encrypted by the private key that matches the public key in the server's certificate.
+
+
+        The requestor uses the public key in the server's certificate to decrypt the encrypted random value. If the result of the decryption is the original random value, that is considered proof that the server has the corresponding private key and is therefore the authentic server.
+
+
+        The response also contains a security token encrypted using the public key in the X.509 certificate that the requestor supplied. The requestor is expected to decrypt this using its private key.
+
+
+        The requestor can then include the decrypted security token in a subsequent trade request. The presence of the decrypted security token serves to authenticate the requestor.
+
+
+        It is perfectly legal for the requestor to offer zero keys or key shards. It is also perfectly legal for the server to offer zero keys in response.
+
+      operationId: offerTrade
+      parameters:
+        - $ref: '#/components/parameters/requestorCertificate'
         - $ref: '#/components/parameters/randomValue'
       requestBody:
         required: true
@@ -46,71 +79,117 @@ paths:
                 offer:
                   type: array
                   items:
-                    $ref: '#/components/schemas/KeyInfo'
+                    $ref: '#/components/schemas/KeyDescription'
                 request:
                   type: array
                   items:
-                    $ref: '#/components/schemas/KeyInfo'
-        description: This describes what keys or key parts the requestor is offering in trade for what keys or key parts from the server.
-        
+                    $ref: '#/components/schemas/KeyDescription'
+#          example:
+#            offer:
+#              value:
+#                messageContext: "string"
+#                messageSubcontext: "string"
+#                    shardNumber:
+#                        - 1
+#                        - 3
+#                request:
+#                  - messageContext: "string"
+#                    messageSubcontext: "string"
+#                    shardNumber:
+#                      - 2
+#                      - 5
+
+        description: This describes which keys or key shards the requestor is offering to trade for and which keys or key shards it is requesting from the server.
+
+
       responses:
         200:
-          description: A description of the sucessful result.
+          description: A sucessful result that facilitates the mutual authentication of the server and client. It also tells the client what the server is actually willing to trade for the offered keys or key shards.
           headers:
             "X-Encrypted-Random-Value":
               schema:
                 type: string
-                format: binary
-              description: This is the random value that was sent in the X-Random-Value header, encrypted using the private key that matches the public key sent in the X-Server-Public-Key header. The requestor is expected to decrypt this with the public key that was in the X-Server-Public-Key header. If the decrypted random value is identical to what was sent in the X-Random-Value header of the request, then the server is consider to be authenticated since it know the private key it is expected to know.
+                format: byte
+              description: This is the random value that was sent in the X-Random-Value header, encrypted using the private key that matches the public key sent in the X-Server-Public-Key header. The requestor is expected to decrypt this with the public key that was in the X-Server-Public-Key header. If the decrypted random value is identical to what was sent in the X-Random-Value header of the request, then the server is consider to be authenticated since it knows the private key it is expected to know.
+            "X-Server-Certificate":
+              schema:
+                $ref: '#/components/schemas/Base64EncodedCertifcate'
+              description: A base64 encoded X.509 certificate that asserts the server's identity.
             "X-Encrypted-Security-Token":
               schema:
                 type: string
-                format: binary
-          content: 
+                format: byte
+              description: This is a security token encrypted with the public key in the requestor's X.509 certificate.  The requestor is expected to use its private key to decrypt this security token. The decrypted security token can be used authorize and authenticate the requestor in one trade operation.
+          content:
             'application/json':
-              schema: 
-                #$ref: '#/components/schemas/OfferResponse'
-                type: object
+              schema:
+                type: array
+                items:
+                    $ref: '#/components/schemas/KeyDescription'
+                description: This is the keys or key shards that the server is willing to trade for the keys or key shards that the requestor is offering.This might be different than what the requestor is asking for.
+
+
+                  If the requestor considers this response satisfactory, then the the server should immediately perform a trade operation to consumate the proposed trade. If the response is unsatisfactory, then the requestor does not need to do anything further.
+        400:
+          description: Incorrectly formmed request.
+          content:
+            'text/plain':
+              schema:
+                type: string
+                description: A descripiton of the problem.
+                example: 'No X-Encrypted-Random-Value header is specified.'
+        403:
+          description: The X.509 certificate in the request's X-Requestor-Certificate header is not trusted by the server.
         499:
           description: The server does not support the specified encryption algorithm.
+  /trade:
+    post:
+      operationId: doTrade
+      parameters:
+        - $ref: '#/components/parameters/securityToken'
+      requestBody:
+        content:
+          'application/json':
+            schema:
+              type: string
+      responses:
+        200:
+          description: Success
+
+
 components:
   parameters:
-    requestorPublicKey:
+    requestorCertificate:
       in: header
-      name: X-Requestor-Public-Key
+      name: X-Requestor-Certificate
       schema:
-        $ref: '#/components/schemas/PublicKey'
+        $ref: '#/components/schemas/Base64EncodedCertifcate'
       required: true
-      description: A public key. This public key is expected to be used both to identify and authenticate the requestor.
-    encryptionAlgorithm:
-      in: header
-      name: X-Encryption-Algorithm
-      schema:
-        type: string
-        default: RSA
-      description: The encryption algorithm that the requestor public key is for.
-    serverPublicKey:
-      in: header
-      name: X-Server-Public-Key
-      required: true
-      schema:
-        $ref: '#/components/schemas/PublicKey'
-      description: A public key for which the server is expected to have the matching private key.
+      description: The requestor's X.509 certificate. This is asserts the requestor's identify and is later used to authenticate the requestor.
     randomValue:
       in: header
       name: X-Random-Value
       required: true
       schema:
         type: string
-        format: binary
+        format: byte
         minLength: 15
-        maxLength: 25
-      description: A random value.
+        maxLength: 45
+      description: A base64 encoded random value.
+    securityToken:
+      in: header
+      name: X-Security-Token
+      schema:
+        type: string
+        format: byte
+      required: true
+      description: A security token provided by the server.
   schemas:
-    PublicKey:
+    Base64EncodedCertifcate:
       type: string
-      format: binary
-    KeyInfo:
+      format: byte
+      description: A base64 encoded X.509 certificate.
+    KeyDescription:
       type: object
       properties:
         messageContext:
@@ -125,3 +204,12 @@ components:
             type: integer
       required:
         - messageContext
+    KeyPayload:
+      type: object
+#      properties:
+#        keyDescription:
+#          type: object
+#          schema:
+#            $ref: #/components/schemas/KeyDescription
+#      required:
+#      - keyDescription
