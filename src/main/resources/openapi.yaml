@@ -144,13 +144,13 @@ paths:
                 description: A descripiton of the problem.
                 example: 'No X-Encrypted-Random-Value header is specified.'
         403:
-          description: The X.509 certificate in the request's X-Requestor-Certificate header is not trusted by the server.
+          description: The X.509 certificate in the request's `X-Requestor-Certificate` header is not trusted by the server.
         499:
           description: The server does not support the specified encryption algorithm.
   /trade:
     post:
       summary: Carry out a trade that was previously offered through the offer operation.
-      description: This operation is performed to carry out a trade that was previous offered by the GET /offer operation. The value of the X-Security-Token header serves to authenticate the requestor and identify the offer.
+      description: This operation is performed to carry out a trade that was previous offered by the GET `/offer` operation. The value of the `X-Security-Token` header serves to authenticate the requestor and identify the offer.
 
 
         The body of this request should contain the information previously offered by the requestor in the offer operation. If the server is satisfied with the information in the body, it will include the information it offered in the response to this request.
@@ -161,7 +161,7 @@ paths:
         content:
           'application/json':
             schema:
-              type: string
+              $ref: '#/components/schemas/KeyPayload'
       responses:
         200:
           description: Success
@@ -226,7 +226,9 @@ components:
     KeyPayload:
       type: object
       properties:
-        keyDescription:
-          $ref: '#/components/schemas/KeyDescription'
+        keyDescriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/KeyDescription'
       required:
-        - keyDescription
+        - keyDescriptions
