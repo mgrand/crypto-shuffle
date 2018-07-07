@@ -108,9 +108,11 @@ random keys.
 
 The most secure way to share the key to decrypt a message is to keep it
 somewhere different than the encrypted message. However this creates the
-challenge of creating a mechanism to manage al of the random key and
+challenge of creating a mechanism to manage all of the random key and
 keeping track of which key goes with which encrypted text. The
 inconvenience of having to do this may be unacceptable.
+
+### Sharing Keys on the Blockchain
 
 If the encrypted message is stored on a blockchain, it may be considered
 convenient to store the crypto-shuffle key on the same blockchain.  In
@@ -132,6 +134,17 @@ and its corresponding private key to the `MultiEncryption` object’s
 `decrypt` method. If the `MultiEncryption` object contains an encrypted
 crypto-shuffle key that was encrypted with the given public key, it uses
 the corresponding private key to decrypt the crypto-shuffle key.
+
+You can generate a JSON representation of a `MultiEncryption` object by
+calling its `toJson` method. Provide JSON version of the
+`MultiEncryption` object as a field value in the same transaction as
+you have encrypted values. If someone wants to convert the JSON into a
+`MultiEncryption` object, they can pass the JSON to the static method
+`MultiEncryption.fromJson`.
+
+### Sharing Keys Outside the Blockchain
+Sharing keys through a means outside of the blockchain is the most secure
+way to share keys.
 
 ## Key Sharding
 
