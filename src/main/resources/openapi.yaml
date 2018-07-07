@@ -225,10 +225,8 @@ components:
         - messageContext
     KeyPayload:
       type: object
-#      properties:
-#        keyDescription:
-#          type: object
-#          schema:
-#            $ref: #/components/schemas/KeyDescription
-#      required:
-#      - keyDescription
+      properties:
+        keyDescription:
+          $ref: '#/components/schemas/KeyDescription'
+      required:
+        - keyDescription
