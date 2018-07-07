@@ -158,6 +158,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/securityToken'
       requestBody:
+        description: This is an array that contains the keys or key shards that were promised by the `offer` operation that created the value in the `X-Security-Token` header.
         content:
           'application/json':
             schema:
@@ -175,6 +176,8 @@ paths:
                 example: 'No X-Security-Token header is specified.'
         401:
           description: The provided security token is invalid or expired.
+        422:
+          description: The keys / key shards in the request body did not satisfy the offer.
 
 components:
   parameters:
@@ -227,8 +230,16 @@ components:
       type: object
       properties:
         keyDescriptions:
+          description: This is a an array of keys / key shards.
           type: array
           items:
-            $ref: '#/components/schemas/KeyDescription'
+            type: object
+            properties:
+              keyDescription:
+                $ref: '#/components/schemas/KeyDescription'
+              data:
+                description: This is the base64 encoded key or key shard.
+                type: string
+                format: byte
       required:
         - keyDescriptions
