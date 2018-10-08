@@ -14,15 +14,12 @@ import org.junit.Test;
 import java.io.File;
 import java.security.KeyPair;
 import java.security.PublicKey;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * <p>Unit tests for JsonUtil.</p>
@@ -134,7 +131,7 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
     }
 
     @Test
-    public void publicKeyTest() throws Exception {
+    public void publicKeyTest() {
         final KeyPair keyPair = generateKeyPair();
         final PublicKey publicKey = keyPair.getPublic();
         final byte[] encodedPublicKey = publicKey.getEncoded();
@@ -152,7 +149,7 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         assertEquals(keyShardSet.getShardCount(), reconstructedKeyShardSet.getShardCount());
         assertEquals(keyShardSet.getUuid(), reconstructedKeyShardSet.getUuid());
         assertEquals(keyShardSet.getEncryptionAlgorithm(), reconstructedKeyShardSet.getEncryptionAlgorithm());
-        final Collection<KeyShardSet.KeyShardGroup> reconstructedGroups = reconstructedKeyShardSet.getGroups();
+//        final Collection<KeyShardSet.KeyShardGroup> reconstructedGroups = reconstructedKeyShardSet.getGroups();
         final Iterator<KeyPair> iterator5 = keyPairs5.iterator();
         keyShardSet.decryptShardsForPublicKey(iterator5.next());
         keyShardSet.decryptShardsForPublicKey(iterator5.next());

@@ -23,7 +23,7 @@ public class AsymmetricEncryptionAlgorithmsTest extends AbstractTest {
     }
 
     @Test
-    public void shortRoundTripTest() throws Exception {
+    public void shortRoundTripTest() {
         byte[] plainText = new byte[8];
         byte[] reconstructedText = rsaRoundTrip(plainText);
         assertArrayEquals(plainText, reconstructedText);
@@ -36,13 +36,13 @@ public class AsymmetricEncryptionAlgorithmsTest extends AbstractTest {
     }
 
     @Test
-    public void roundTripTest4800() throws Exception {
+    public void roundTripTest4800() {
         byte[] reconstructedText = rsaRoundTrip(key4800);
         assertArrayEquals(key4800, reconstructedText);
     }
 
     @Test
-    public void roundTripTest24() throws Exception {
+    public void roundTripTest24() {
         byte[] reconstructedText = rsaRoundTrip(key24);
         assertArrayEquals(key24, reconstructedText);
     }

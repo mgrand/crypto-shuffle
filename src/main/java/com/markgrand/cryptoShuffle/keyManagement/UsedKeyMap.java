@@ -6,6 +6,7 @@ import java.util.UUID;
 /**
  * This interface is implemented by objects that the {@link BasicOneTimeKeyPad} class uses to store used keys
  */
+@SuppressWarnings("WeakerAccess")
 public interface UsedKeyMap {
     /**
      * Add the given UUID an cryptoshuffle key to this object.

@@ -30,6 +30,7 @@ import java.util.function.Consumer;
  *
  * @author Mark Grand
  */
+@SuppressWarnings("WeakerAccess")
 public interface OneTimeKeyPad {
     /**
      * Generate and add the given number of new encryption keys to this pad as unused keys.

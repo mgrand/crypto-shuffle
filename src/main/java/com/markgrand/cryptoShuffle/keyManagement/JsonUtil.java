@@ -27,21 +27,21 @@ import java.util.*;
  * Created by mark.grand on 7/5/2017.
  */
 class JsonUtil {
-    static final String ENCRYPTED_SHARD_NAME = "encryptedShard";
-    static final String ENCRYPTED_SYMMETRIC_KEY_NAME = "encryptedSymmetricKey";
+    private static final String ENCRYPTED_SHARD_NAME = "encryptedShard";
+    private static final String ENCRYPTED_SYMMETRIC_KEY_NAME = "encryptedSymmetricKey";
     static final String ENCRYPTION_ALGORITHM_NAME = "encryptionAlgorithm";
     static final String ENCRYPTIONS_NAME = "encryptions";
     static final String GROUPS_NAME = "groups";
-    static final String KEY_MAP_NAME = "keyMap";
-    static final String PUBLIC_KEY_NAME = "publicKey";
-    static final String QUORUM_SIZE_NAME = "quorumSize";
+    private static final String KEY_MAP_NAME = "keyMap";
+    private static final String PUBLIC_KEY_NAME = "publicKey";
+    private static final String QUORUM_SIZE_NAME = "quorumSize";
     static final String SHARD_COUNT_NAME = "shardCount";
-    static final String SHARD_POSITION_NAME = "shardPosition";
-    static final String SYMMETRIC_ENCRYPTION_NAME = "symmetricEncryption";
-    static final String UUID_NAME = "uuid";
+    private static final String SHARD_POSITION_NAME = "shardPosition";
+    private static final String SYMMETRIC_ENCRYPTION_NAME = "symmetricEncryption";
+    private static final String UUID_NAME = "uuid";
     static final String VERSION1_0 = "1.0";
     static final String VERSION_NAME = "version";
-    static final String SHARDS_NAME = "shards";
+    private static final String SHARDS_NAME = "shards";
     private final static ObjectMapper objectMapper = new ObjectMapper();
 
     static {
@@ -86,7 +86,8 @@ class JsonUtil {
         return requireStringValue(node, VERSION_NAME);
     }
 
-    private static ObjectNode requireObjectValue(@NotNull final JsonNode node, final String fieldName) {
+    private static ObjectNode requireObjectValue(@NotNull final JsonNode node,
+                                                 @SuppressWarnings("SameParameterValue") final String fieldName) {
         final JsonNode valueNode = requireValue(node, fieldName);
         ensureType(valueNode, JsonNodeType.OBJECT, fieldName);
         return (ObjectNode) valueNode;
@@ -149,6 +150,7 @@ class JsonUtil {
             this(null);
         }
 
+        @SuppressWarnings("SameParameterValue")
         KeyShardSetSerializer(Class<KeyShardSet> t) {
             super(t);
         }
@@ -174,6 +176,7 @@ class JsonUtil {
             this(null);
         }
 
+        @SuppressWarnings("SameParameterValue")
         KeyShardGroupSerializer(Class<KeyShardSet.KeyShardGroup> t) {
             super(t);
         }
@@ -229,7 +232,7 @@ class JsonUtil {
             this(null);
         }
 
-        KeyShardSetDeserializer(Class<?> vc) {
+        KeyShardSetDeserializer(@SuppressWarnings("SameParameterValue") Class<?> vc) {
             super(vc);
         }
 
@@ -334,6 +337,7 @@ class JsonUtil {
         }
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static class MultiEncryptionSerializer extends StdSerializer<MultiEncryption> {
         MultiEncryptionSerializer() {
             this(null);
@@ -382,6 +386,7 @@ class JsonUtil {
             this(null);
         }
 
+        @SuppressWarnings("SameParameterValue")
         MultiEncryptionDeserializer(Class<?> vc) {
             super(vc);
         }

@@ -12,12 +12,12 @@ public class BasicOneTimeKeyPadTest {
     private OneTimeKeyPad pad;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         pad = new BasicOneTimeKeyPad();
     }
 
     @Test
-    public void getUnusedKeyCount() throws Exception {
+    public void getUnusedKeyCount() {
         assertEquals(0, pad.getUnusedKeyCount());
         pad.generateKeys(50, 80);
         assertEquals(50, pad.getUnusedKeyCount());
@@ -26,21 +26,21 @@ public class BasicOneTimeKeyPadTest {
     }
 
     @Test
-    public void lookupKey() throws Exception {
+    public void lookupKey() {
         assertEquals(Optional.empty(), pad.lookupKey(UUID.randomUUID()));
         UUID uuid = UUID.randomUUID();
         byte[] key = RandomKeyGenerator.getThreadLocalInstance().generateKey(88);
         Map<UUID, byte[]> map = new HashMap<>();
         map.put(uuid, key);
         pad.addSharedKeys(map);
-        //noinspection ConstantConditions
+        //noinspection ConstantConditions,OptionalGetWithoutIsPresent
         assertArrayEquals(key, pad.lookupKey(uuid).get());
         assertEquals(Optional.empty(), pad.lookupKey(UUID.randomUUID()));
     }
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    public void addSharedKeys() throws Exception {
+    public void addSharedKeys() {
         assertEquals(0, pad.getUsedKeyCount());
         Map<UUID, byte[]> map = new HashMap<>();
         RandomKeyGenerator generator = RandomKeyGenerator.getThreadLocalInstance();
@@ -55,23 +55,26 @@ public class BasicOneTimeKeyPadTest {
         map.put(uuid3, key3);
         pad.addSharedKeys(map);
         assertEquals(3, pad.getUsedKeyCount());
+        //noinspection OptionalGetWithoutIsPresent
         assertArrayEquals(key1, pad.lookupKey(uuid1).get());
+        //noinspection OptionalGetWithoutIsPresent
         assertArrayEquals(key2, pad.lookupKey(uuid2).get());
+        //noinspection OptionalGetWithoutIsPresent
         assertArrayEquals(key3, pad.lookupKey(uuid3).get());
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void generateNegativeKeys() throws Exception {
+    public void generateNegativeKeys() {
         pad.generateKeys(-1, 99);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void generateZeroKeys() throws Exception {
+    public void generateZeroKeys() {
         pad.generateKeys(0, 99);
     }
 
     @Test
-    public void generateKeys() throws Exception {
+    public void generateKeys() {
         assertEquals(0, pad.getUsedKeyCount());
         Map<UUID, byte[]> map = pad.generateKeys(5, 99);
         assertEquals(5, pad.getUnusedKeyCount());
@@ -89,7 +92,7 @@ public class BasicOneTimeKeyPadTest {
     }
 
     @Test
-    public void generateKeys1() throws Exception {
+    public void generateKeys1() {
         assertEquals(0, pad.getUsedKeyCount());
         final int count = 50;
         final Map<UUID, byte[]> map = pad.generateKeys(count, 95, 104);
@@ -109,7 +112,7 @@ public class BasicOneTimeKeyPadTest {
     }
 
     @Test
-    public void getNextUnusedKeyFixed() throws Exception {
+    public void getNextUnusedKeyFixed() {
         assertEquals(0, pad.getUsedKeyCount());
         assertFalse(pad.getUnusedKey().isPresent());
         final boolean[] wasCalled = new boolean[1];
@@ -126,7 +129,7 @@ public class BasicOneTimeKeyPadTest {
     }
 
     @Test
-    public void getNextUnusedKeyVariable() throws Exception {
+    public void getNextUnusedKeyVariable() {
         assertEquals(0, pad.getUsedKeyCount());
         assertFalse(pad.getUnusedKey().isPresent());
         final boolean[] wasCalled = new boolean[1];
@@ -143,12 +146,12 @@ public class BasicOneTimeKeyPadTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void autoGenerateKeys() throws Exception {
+    public void autoGenerateKeys() {
         pad.autoGenerateKeys(0, 99, uuidMap -> {});
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void autoGenerateKeys1() throws Exception {
+    public void autoGenerateKeys1() {
         pad.autoGenerateKeys(0, 99, 109, uuidMap -> {});
     }
 }

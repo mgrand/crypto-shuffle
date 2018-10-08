@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Mark Grand
  */
+@SuppressWarnings("WeakerAccess")
 public class BasicOneTimeKeyPad extends AbstractOneTimeKeyPad implements Serializable {
     private final UsedKeyMap usedKeys;
     private final Map<UUID, byte[]> newKeys = new ConcurrentHashMap<>();

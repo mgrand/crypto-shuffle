@@ -194,6 +194,7 @@ public class KeyShardSet {
      * @return An {@link Optional} object that contains the length of the decrypted key if all of the shards have been
      * decrypted; otherwise an empty {@link Optional} object.
      */
+    @SuppressWarnings("WeakerAccess")
     public Optional<Integer> computeDecryptedKeyLength() {
         int length = 0;
         for (byte[] decryptedShard : decryptedShards) {

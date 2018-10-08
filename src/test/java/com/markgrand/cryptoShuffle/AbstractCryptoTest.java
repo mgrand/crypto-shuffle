@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Superclass to provide common data and logic for unit tests.
  */
+@SuppressWarnings("WeakerAccess")
 public class AbstractCryptoTest {
     @NotNull
     static final byte[] key = {0x39, (byte) 0xe4, 0x32, (byte) 0xa3, (byte) 0x89, 0x00, 0x24, (byte) 0x97, (byte) 0xf1};

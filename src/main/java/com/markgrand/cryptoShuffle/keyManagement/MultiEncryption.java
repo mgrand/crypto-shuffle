@@ -28,7 +28,7 @@ import java.util.Optional;
  * @author Mark Grand
  */
 public class MultiEncryption {
-    private Map<PublicKey, EncryptedShard> encryptions = new HashMap<>();
+    private final Map<PublicKey, EncryptedShard> encryptions;
     private final AsymmetricEncryptionAlgorithm encryptionAlgorithm;
 
     /**
@@ -44,7 +44,7 @@ public class MultiEncryption {
 
     private static Map<PublicKey, EncryptedShard> encryptWithKeys(@NotNull final byte[] plainText,
                                                                   @NotNull final Collection<PublicKey> keys,
-                                                                  @NotNull final AsymmetricEncryptionAlgorithm algorithm) {
+                                                                  @SuppressWarnings("SameParameterValue") @NotNull final AsymmetricEncryptionAlgorithm algorithm) {
         final Map<PublicKey, EncryptedShard> encryptionsMap = new HashMap<>();
         for (PublicKey key : keys) {
             encryptionsMap.put(key, algorithm.encrypt(key, plainText));
@@ -88,6 +88,7 @@ public class MultiEncryption {
      *
      * @return the encrption algorithm.
      */
+    @SuppressWarnings("WeakerAccess")
     @NotNull
     public AsymmetricEncryptionAlgorithm getEncryptionAlgorithm() {
         return encryptionAlgorithm;
@@ -99,6 +100,7 @@ public class MultiEncryption {
      *
      * @return the map.
      */
+    @SuppressWarnings("WeakerAccess")
     public Map<PublicKey, EncryptedShard> getEncryptions() {
         return encryptions;
     }
@@ -108,6 +110,7 @@ public class MultiEncryption {
      *
      * @return a JSON representation of this object.
      */
+    @SuppressWarnings("WeakerAccess")
     public JsonNode toJson() {
         return JsonUtil.multiEncryptionToJson(this);
     }
@@ -119,6 +122,7 @@ public class MultiEncryption {
      * @return the created {@code MultiEncryption} object
      * @throws JsonProcessingException If there is a problem with the JSON.
      */
+    @SuppressWarnings("WeakerAccess")
     public static MultiEncryption fromJson(@NotNull final JsonNode jsonNode) throws JsonProcessingException {
         return JsonUtil.jsonToMultiEncryption(jsonNode);
     }

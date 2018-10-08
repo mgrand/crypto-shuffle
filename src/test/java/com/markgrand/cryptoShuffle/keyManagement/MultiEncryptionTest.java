@@ -38,7 +38,7 @@ public class MultiEncryptionTest extends AbstractTest {
             Optional<byte[]> plainText = multiEncryption.decrypt(keyPair);
             assertTrue(plainText.isPresent());
             assertArrayEquals(plainKey, plainText.get());
-            //noinspection ConstantConditions
+            //noinspection ConstantConditions,OptionalGetWithoutIsPresent
             assertArrayEquals(plainKey, multiEncryption.decrypt(keyPair.getPublic(), keyPair.getPrivate()).get());
         }
     }

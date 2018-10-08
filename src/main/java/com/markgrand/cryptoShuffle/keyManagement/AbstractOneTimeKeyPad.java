@@ -19,6 +19,7 @@ public abstract class AbstractOneTimeKeyPad implements OneTimeKeyPad {
 
     private Subroutine autogenerationStrategy = NULL_AUTOGENERATE_STRATEGY;
 
+    @SuppressWarnings("WeakerAccess")
     @Override
     public Map<UUID, byte[]> generateKeys(int count, int keyLength) {
         ensureCountIsPositive(count);
@@ -31,6 +32,7 @@ public abstract class AbstractOneTimeKeyPad implements OneTimeKeyPad {
         return newKeyMap;
     }
 
+    @SuppressWarnings("WeakerAccess")
     @Override
     public Map<UUID, byte[]> generateKeys(int count, int minKeyLength, int maxKeyLength) {
         ensureCountIsPositive(count);

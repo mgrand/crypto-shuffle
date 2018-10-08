@@ -2,7 +2,6 @@ package com.markgrand.cryptoShuffle.keyManagement;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.crypto.*;
 import java.security.InvalidKeyException;
@@ -23,7 +22,9 @@ public enum AsymmetricEncryptionAlgorithm {
     private final EncryptionFunction encryptionFunction;
     private final DecryptionFunction decryptionFunction;
 
-    AsymmetricEncryptionAlgorithm(EncryptionFunction encryptionFunction, DecryptionFunction decryptionFunction) {
+    @SuppressWarnings("SameParameterValue")
+    AsymmetricEncryptionAlgorithm(@NotNull EncryptionFunction encryptionFunction,
+                                  @NotNull DecryptionFunction decryptionFunction) {
         this.encryptionFunction = encryptionFunction;
         this.decryptionFunction = decryptionFunction;
     }
@@ -55,7 +56,6 @@ interface DecryptionFunction extends BiFunction<Key, EncryptedShard, byte[]> {
  * Named encryption and decryption functions to be used by enum of algorithms.
  */
 class AsymmetricEncryptionFunctions {
-    @Nullable
     static final DecryptionFunction RSA_DECRYPTION = (key, encryptedShard) -> {
         final SymmetricEncryptionAlgorithm symmetricEncryptionAlgorithm = encryptedShard.getSymmetricEncryptionAlgorithm();
         try {
