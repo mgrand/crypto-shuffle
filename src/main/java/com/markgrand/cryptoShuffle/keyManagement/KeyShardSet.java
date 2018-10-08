@@ -1,6 +1,5 @@
 package com.markgrand.cryptoShuffle.keyManagement;
 
-import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithm;
 import org.jetbrains.annotations.NotNull;
 
 import java.security.KeyPair;
@@ -16,7 +15,7 @@ import java.util.*;
  * A key shard set consists of a long cryptoshuffle key that has been broken into two or more pieces called shards and
  * some public keys. One or more of the key shards is associated with each of the public keys. The key shards that are
  * associated with a public key are encrypted using that public key. If a key shard is associated with more than one
- * public key, a different copy of the shard will be associated with each public can and encrypted with that public
+ * public key, a different copy of the shard will be associated with each public key and encrypted with that public
  * key.
  * <p>
  * Key shards have two distinct uses. They can be used to as a form of information escrow, to require the cooperation
@@ -36,9 +35,10 @@ import java.util.*;
  * Created by Mark Grand on 6/1/2017.
  */
 public class KeyShardSet {
-    private static final int MINIMUM_QUORUM_SIZE = 2;
+    private static final int MINIMUM_QUORUM_SIZE = 1;
     private static final int MINIMUM_SHARD_SIZE = 8;
 
+    @NotNull
     private final byte[][] decryptedShards;
 
     @NotNull
@@ -67,9 +67,10 @@ public class KeyShardSet {
      * @param encryptionAlgorithm The algorithm that will be used to encrypt the key shards.
      * @return the new builder.
      */
+    @SuppressWarnings("WeakerAccess")
     @NotNull
-    public static KeyShardingSetBuilder newBuilder(@NotNull final AsymmetricEncryptionAlgorithm encryptionAlgorithm) {
-        return new KeyShardingSetBuilder(encryptionAlgorithm);
+    public static KeyShardSet.KeyShardSetBuilder newBuilder(@NotNull final AsymmetricEncryptionAlgorithm encryptionAlgorithm) {
+        return new KeyShardSetBuilder(encryptionAlgorithm);
     }
 
     @NotNull
@@ -97,25 +98,40 @@ public class KeyShardSet {
      *
      * @return the keyShardGroups
      */
+    @SuppressWarnings("WeakerAccess")
     @NotNull
     public Collection<KeyShardGroup> getGroups() {
         return groups;
     }
 
+    /**
+     * When this object was created it broke a key into a number of shards that are encapsulated in this object.
+     * @return the number of shards that the key was broken into.
+     */
+    @SuppressWarnings("WeakerAccess")
     public int getShardCount() {
         return decryptedShards.length;
     }
 
     /**
-     * Return the UUID of this {@code @link KeyShardSet}
+     * Get the UUID of this {@code @link KeyShardSet}
      *
      * @return the UUID.
      */
+    @SuppressWarnings("WeakerAccess")
     @NotNull
     public UUID getUuid() {
         return uuid;
     }
 
+    /**
+     * The copies of key shards in this object are associated with a public key. Each shard copy is encrypted with the
+     * public key it is associated with. The encryption is done using the same encryption algorithm for each shard. This
+     * gets the algorithm used by this object.
+     *
+     * @return the asymmetric encryption algorithm used by this object.
+     */
+    @SuppressWarnings("WeakerAccess")
     @NotNull
     public AsymmetricEncryptionAlgorithm getEncryptionAlgorithm() {
         return encryptionAlgorithm;
@@ -147,20 +163,23 @@ public class KeyShardSet {
     }
 
     /**
-     * Using the given private key, decrypt any shards in this key set that are associated with the given public key.
+     * Using the given key pair, use its private key to decrypt any shards in this object that are associated with the
+     * given public key.
      *
      * @param keyPair decrypt shards associated with this pair's public key using the pair's private key.
      */
+    @SuppressWarnings("WeakerAccess")
     public void decryptShardsForPublicKey(@NotNull final KeyPair keyPair) {
         decryptShardsForPublicKey(keyPair.getPublic(), keyPair.getPrivate());
     }
 
     /**
-     * Using the given private key, decrypt any shards in this key set that are associated with the given public key.
+     * Using the given private key, decrypt any shards in this object that are associated with the given public key.
      *
      * @param publicKey decrypt shards associated with this public key
      * @param privateKey use the private key to decrypt.
      */
+    @SuppressWarnings("WeakerAccess")
     public void decryptShardsForPublicKey(@NotNull final PublicKey publicKey, @NotNull final PrivateKey privateKey) {
         for (KeyShardGroup group : groups) {
             //noinspection CodeBlock2Expr
@@ -176,6 +195,7 @@ public class KeyShardSet {
      * @return an {@link Optional} object that contains the decrypted key if all of the shards have been decrypted;
      * otherwise an empty {@link Optional} object.
      */
+    @SuppressWarnings("WeakerAccess")
     @NotNull
     public Optional<byte[]> getDecryptedKey() {
         return computeDecryptedKeyLength().flatMap( length -> {
@@ -210,7 +230,7 @@ public class KeyShardSet {
      * Description of a group of keys that enumerates a set of public keys and the how many private keys will be needed
      * to reconstitute the original cryptoshuffle key.
      */
-    public static class KeyShardGroup {
+    static class KeyShardGroup {
         private final int quorumSize;
 
         // Map public keys to
@@ -260,6 +280,7 @@ public class KeyShardSet {
          *
          * @return the minimum number of private keys that will be needed to reconstitute the full cryptoshuffle key.
          */
+        @SuppressWarnings("WeakerAccess")
         public int getQuorumSize() {
             return quorumSize;
         }
@@ -292,6 +313,7 @@ public class KeyShardSet {
          * @param key The public key to get shards for.
          * @return A map of positions to corresponding shards associated with the given public key.
          */
+        @SuppressWarnings("WeakerAccess")
         @NotNull
         public Map<Integer, EncryptedShard> getEncryptedShardsForKey(@NotNull PublicKey key) {
             //noinspection unchecked
@@ -316,7 +338,8 @@ public class KeyShardSet {
         }
     }
 
-    public static class KeyShardingSetBuilder {
+    @SuppressWarnings("WeakerAccess")
+    public static class KeyShardSetBuilder {
         @NotNull
         private final ArrayList<KeyShardGroup> groups = new ArrayList<>();
 
@@ -334,7 +357,7 @@ public class KeyShardSet {
          *                            be a public key. The second parameter should be the plain text to be encrypted.
          *                            The return value should be the encrypted text.
          */
-        private KeyShardingSetBuilder(@NotNull final AsymmetricEncryptionAlgorithm encryptionAlgorithm) {
+        private KeyShardSetBuilder(@NotNull final AsymmetricEncryptionAlgorithm encryptionAlgorithm) {
             this.encryptionAlgorithm = encryptionAlgorithm;
         }
 
@@ -349,7 +372,7 @@ public class KeyShardSet {
          *                                  the number of keys in the group.
          */
         @NotNull
-        public KeyShardingSetBuilder addKeyGroup(final int quorumSize, @NotNull final Set<PublicKey> keys) {
+        public KeyShardSet.KeyShardSetBuilder addPublicKeys(final int quorumSize, @NotNull final Set<PublicKey> keys) {
             groups.add(new KeyShardGroup(quorumSize, keys));
             return this;
         }
@@ -363,6 +386,7 @@ public class KeyShardSet {
          * @throws IllegalStateException if dividing the given key into the required number of shards would results in
          *                               shards smaller than {@value MINIMUM_SHARD_SIZE}.
          */
+        @SuppressWarnings("WeakerAccess")
         @NotNull
         public KeyShardSet build(@NotNull final byte[] cryptoshuffleKey) {
             final int requiredNumberOfShards = computeRequiredNumberOfShards();

@@ -54,10 +54,10 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         try {
             keyPairs5 = generateKeyPairs(5);
             keyPairs3 = generateKeyPairs(3);
-            final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithm.RSA);
+            final KeyShardSet.KeyShardSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithm.RSA);
             final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
             final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
-            keyShardSet = builder.addKeyGroup(2,  publicKeys5).addKeyGroup(3,  publicKeys3).build(key4800);
+            keyShardSet = builder.addPublicKeys(2,  publicKeys5).addPublicKeys(3,  publicKeys3).build(key4800);
         } catch (Throwable e) {
             System.err.println("Before");
             e.printStackTrace();

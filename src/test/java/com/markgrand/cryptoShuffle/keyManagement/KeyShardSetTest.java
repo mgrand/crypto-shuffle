@@ -1,9 +1,6 @@
 package com.markgrand.cryptoShuffle.keyManagement;
 
 import com.markgrand.cryptoShuffle.AbstractTest;
-import com.markgrand.cryptoShuffle.keyManagement.AsymmetricEncryptionAlgorithm;
-import com.markgrand.cryptoShuffle.keyManagement.EncryptedShard;
-import com.markgrand.cryptoShuffle.keyManagement.KeyShardSet;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -73,11 +70,11 @@ public class KeyShardSetTest extends AbstractTest {
     public void buildTest() {
         final Set<KeyPair> keyPairs5 = generateKeyPairs(5);
         final Set<KeyPair> keyPairs3 = generateKeyPairs(3);
-        final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithm.RSA);
+        final KeyShardSet.KeyShardSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithm.RSA);
         final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
         final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
-        final KeyShardSet keyShardSet = builder.addKeyGroup(2,  publicKeys5)
-                .addKeyGroup(3,  publicKeys3)
+        final KeyShardSet keyShardSet = builder.addPublicKeys(2,  publicKeys5)
+                .addPublicKeys(3,  publicKeys3)
                 .build(key4800);
         assertNotNull(keyShardSet.getUuid());
         assertEquals(8, keyShardSet.getShardCount());
@@ -141,11 +138,11 @@ public class KeyShardSetTest extends AbstractTest {
     public void roundTripTest4800() {
         final Set<KeyPair> keyPairs5 = generateKeyPairs(5);
         final Set<KeyPair> keyPairs3 = generateKeyPairs(3);
-        final KeyShardSet.KeyShardingSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithm.RSA);
+        final KeyShardSet.KeyShardSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithm.RSA);
         final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
         final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
-        final KeyShardSet keyShardSet = builder.addKeyGroup(2,  publicKeys5)
-                                                .addKeyGroup(3,  publicKeys3)
+        final KeyShardSet keyShardSet = builder.addPublicKeys(2,  publicKeys5)
+                                                .addPublicKeys(3,  publicKeys3)
                                                 .build(key4800);
         assertFalse(keyShardSet.getDecryptedKey().isPresent());
         decryptKeyPairs(keyShardSet, keyPairs5);
