@@ -7,7 +7,7 @@ import java.util.Random;
 /**
  * <p>This is a symmetric encryption algorithm for use in applications like
  * protecting the secrecy of blockchain contents where the encryption needs
- * to be very strong. The algorithm should has these properties:</p>
+ * to be very strong. The algorithm should have these properties:</p>
  * <ul>
  * <li>Longer encrypted texts require more effort to crack than shorter texts.</li>
  * <li>It is necessary to decrypt the entire text at once, rather than decrypt in pieces as with a block cypher.</li>
