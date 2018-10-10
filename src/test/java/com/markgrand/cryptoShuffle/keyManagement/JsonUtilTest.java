@@ -57,7 +57,7 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
             final KeyShardSet.KeyShardSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithm.RSA);
             final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
             final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
-            keyShardSet = builder.addPublicKeys(2,  publicKeys5).addPublicKeys(3,  publicKeys3).build(key4800);
+            keyShardSet = builder.addKeyShardGroup(2,  publicKeys5).addKeyShardGroup(3,  publicKeys3).build(key4800);
         } catch (Throwable e) {
             System.err.println("Before");
             e.printStackTrace();
@@ -146,9 +146,9 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         final ObjectNode jsonObject = (ObjectNode) JsonUtil.keyShardSetToJson(keyShardSet);
         System.out.println("JSON node: " + jsonObject);
         final KeyShardSet reconstructedKeyShardSet = JsonUtil.jsonToKeyShardSet(jsonObject);
-        assertEquals(keyShardSet.getShardCount(), reconstructedKeyShardSet.getShardCount());
-        assertEquals(keyShardSet.getUuid(), reconstructedKeyShardSet.getUuid());
-        assertEquals(keyShardSet.getEncryptionAlgorithm(), reconstructedKeyShardSet.getEncryptionAlgorithm());
+        assertEquals("shard count", keyShardSet.getShardCount(), reconstructedKeyShardSet.getShardCount());
+        assertEquals("uuid", keyShardSet.getUuid(), reconstructedKeyShardSet.getUuid());
+        assertEquals("algorithm", keyShardSet.getEncryptionAlgorithm(), reconstructedKeyShardSet.getEncryptionAlgorithm());
 //        final Collection<KeyShardSet.KeyShardGroup> reconstructedGroups = reconstructedKeyShardSet.getGroups();
         final Iterator<KeyPair> iterator5 = keyPairs5.iterator();
         keyShardSet.decryptShardsForPublicKey(iterator5.next());
@@ -158,8 +158,8 @@ public class JsonUtilTest extends AbstractTest implements JsonSchemaConstants {
         keyShardSet.decryptShardsForPublicKey(iterator3.next());
         keyShardSet.decryptShardsForPublicKey(iterator3.next());
         final Optional<byte[]> decrypted = keyShardSet.getDecryptedKey();
-        assertTrue(decrypted.isPresent());
-        assertArrayEquals(key4800, decrypted.get());
+        assertTrue("decrypt completes", decrypted.isPresent());
+        assertArrayEquals("decrypt correct", key4800, decrypted.get());
     }
 
     @Test

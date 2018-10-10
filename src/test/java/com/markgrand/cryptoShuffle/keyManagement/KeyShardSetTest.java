@@ -73,8 +73,8 @@ public class KeyShardSetTest extends AbstractTest {
         final KeyShardSet.KeyShardSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithm.RSA);
         final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
         final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
-        final KeyShardSet keyShardSet = builder.addPublicKeys(2,  publicKeys5)
-                .addPublicKeys(3,  publicKeys3)
+        final KeyShardSet keyShardSet = builder.addKeyShardGroup(2,  publicKeys5)
+                .addKeyShardGroup(3,  publicKeys3)
                 .build(key4800);
         assertNotNull(keyShardSet.getUuid());
         assertEquals(8, keyShardSet.getShardCount());
@@ -141,8 +141,8 @@ public class KeyShardSetTest extends AbstractTest {
         final KeyShardSet.KeyShardSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithm.RSA);
         final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
         final Set<PublicKey> publicKeys3 = keyPairs3.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
-        final KeyShardSet keyShardSet = builder.addPublicKeys(2,  publicKeys5)
-                                                .addPublicKeys(3,  publicKeys3)
+        final KeyShardSet keyShardSet = builder.addKeyShardGroup(2,  publicKeys5)
+                                                .addKeyShardGroup(3,  publicKeys3)
                                                 .build(key4800);
         assertFalse(keyShardSet.getDecryptedKey().isPresent());
         decryptKeyPairs(keyShardSet, keyPairs5);

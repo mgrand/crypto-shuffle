@@ -32,6 +32,8 @@ import java.util.*;
  * private key then split the cryptoshuffle key into two encrypted shards and someone will need to know two private keys
  * to recover the original cryptoshuffle key.
  * <p>
+ *
+ * <p>
  * Created by Mark Grand on 6/1/2017.
  */
 public class KeyShardSet {
@@ -372,7 +374,7 @@ public class KeyShardSet {
          *                                  the number of keys in the group.
          */
         @NotNull
-        public KeyShardSet.KeyShardSetBuilder addPublicKeys(final int quorumSize, @NotNull final Set<PublicKey> keys) {
+        public KeyShardSet.KeyShardSetBuilder addKeyShardGroup(final int quorumSize, @NotNull final Set<PublicKey> keys) {
             groups.add(new KeyShardGroup(quorumSize, keys));
             return this;
         }
