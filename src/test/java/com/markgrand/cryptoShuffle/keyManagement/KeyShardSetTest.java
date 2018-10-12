@@ -1,7 +1,6 @@
 package com.markgrand.cryptoShuffle.keyManagement;
 
 import com.markgrand.cryptoShuffle.AbstractTest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.security.KeyPair;
@@ -133,7 +132,6 @@ public class KeyShardSetTest extends AbstractTest {
         group.getKeys().forEach(key -> assertEquals(expectedSize, group.getEncryptedShardsForKey(key).size()));
     }
 
-    @Ignore
     @Test
     public void roundTripTest4800() {
         final Set<KeyPair> keyPairs5 = generateKeyPairs(5);
@@ -144,6 +142,13 @@ public class KeyShardSetTest extends AbstractTest {
         final KeyShardSet keyShardSet = builder.addKeyShardGroup(2,  publicKeys5)
                                                 .addKeyShardGroup(3,  publicKeys3)
                                                 .build(key4800);
+        assertEquals("Shard Count",8, keyShardSet.getShardCount());
+        Collection<KeyShardSet.KeyShardGroup> groupCollection = keyShardSet.getGroups();
+        for (KeyShardSet.KeyShardGroup group: groupCollection) {
+            for (PublicKey publicKey: group.getKeys()) {
+                Map<Integer, EncryptedShard> shardMap = group.getEncryptedShardsForKey(publicKey);
+            }
+        }
         assertFalse(keyShardSet.getDecryptedKey().isPresent());
         decryptKeyPairs(keyShardSet, keyPairs5);
         assertFalse(keyShardSet.getDecryptedKey().isPresent());
