@@ -69,6 +69,17 @@ public class CryptoShuffleTest extends AbstractCryptoTest {
         assertArrayEquals(plaintext16, computedPlaintext);
     }
 
+    /**
+     * Test that decrypt throws an {@link IllegalArgumentException} when asked to decrypt something with an unsupported
+     * version number.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void decryptionWrongVersionTest() {
+        @NotNull byte[] encrypted = CryptoShuffle.encrypt(plaintext16, key);
+        encrypted[0]=(byte)0x7f;
+        CryptoShuffle.decrypt(encrypted, key);
+    }
+
     @Test
     public void test2() {
         @NotNull byte[] plainCopy = Arrays.copyOf(plaintext2, plaintext2.length);
