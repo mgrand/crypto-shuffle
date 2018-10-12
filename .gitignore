@@ -2,6 +2,7 @@
 .idea
 tmp
 coverage-report
+coverage-failure.txt
 target
 # Mobile Tools for Java (J2ME)
 # Package Files #
