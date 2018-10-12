@@ -8,6 +8,11 @@ import org.jetbrains.annotations.NotNull;
  * @author Mark Grand
  */
 class ByteUtil {
+    /**
+     * Private constructor to prevent instantiation.
+     */
+    private ByteUtil() {}
+
     @NotNull
     private static final int[] ones = {
             0, // 0x00

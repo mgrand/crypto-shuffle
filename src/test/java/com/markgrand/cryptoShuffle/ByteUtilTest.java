@@ -18,7 +18,8 @@ public class ByteUtilTest {
 
     @Test
     public void countOnesArrayTest() {
-        @NotNull byte[] b = {0x33, (byte) 0xf0, 0x01};
-        assertEquals(9, ByteUtil.countOnes(b, 0, 3));
+        @NotNull byte[] b = {0x33, (byte) 0xf0, 0x01, 0x70};
+        assertEquals(12, ByteUtil.countOnes(b, 0, 4));
+        assertEquals(0, ByteUtil.countOnes(b, 0, 0));
     }
 }
