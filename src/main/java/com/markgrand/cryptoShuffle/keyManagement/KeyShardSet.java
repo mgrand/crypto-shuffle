@@ -1,6 +1,7 @@
 package com.markgrand.cryptoShuffle.keyManagement;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.security.KeyPair;
 import java.security.PrivateKey;
@@ -108,6 +109,7 @@ public class KeyShardSet {
 
     /**
      * When this object was created it broke a key into a number of shards that are encapsulated in this object.
+     *
      * @return the number of shards that the key was broken into.
      */
     @SuppressWarnings("WeakerAccess")
@@ -178,14 +180,14 @@ public class KeyShardSet {
     /**
      * Using the given private key, decrypt any shards in this object that are associated with the given public key.
      *
-     * @param publicKey decrypt shards associated with this public key
+     * @param publicKey  decrypt shards associated with this public key
      * @param privateKey use the private key to decrypt.
      */
     @SuppressWarnings("WeakerAccess")
     public void decryptShardsForPublicKey(@NotNull final PublicKey publicKey, @NotNull final PrivateKey privateKey) {
         for (KeyShardGroup group : groups) {
             //noinspection CodeBlock2Expr
-            group.getEncryptedShardsForKey(publicKey).forEach((position, encryptedShard) ->{
+            group.getEncryptedShardsForKey(publicKey).forEach((position, encryptedShard) -> {
                 decryptedShards[position] = encryptionAlgorithm.decrypt(privateKey, encryptedShard);
             });
         }
@@ -200,7 +202,7 @@ public class KeyShardSet {
     @SuppressWarnings("WeakerAccess")
     @NotNull
     public Optional<byte[]> getDecryptedKey() {
-        return computeDecryptedKeyLength().flatMap( length -> {
+        return computeDecryptedKeyLength().flatMap(length -> {
             final byte[] decryptedKey = new byte[length];
             int offset = 0;
             for (byte[] decryptedShard : decryptedShards) {
@@ -256,7 +258,7 @@ public class KeyShardSet {
             if (quorumSize > keyMap.size()) {
                 @NotNull final String
                         msg = "The quorum size for a group of public keys cannot be greater than the number of keys"
-                                      + " which is " + keyMap.size();
+                        + " which is " + keyMap.size();
                 throw new IllegalArgumentException(msg);
             }
             if (quorumSize < MINIMUM_QUORUM_SIZE) {
@@ -352,6 +354,9 @@ public class KeyShardSet {
         @NotNull
         private final Optional<UUID> uuid = Optional.empty();
 
+        @Nullable
+        private List<Integer> shardLengths = null;
+
         /**
          * Constructor is private to prevent instantiation with {@code new}.
          *
@@ -376,6 +381,28 @@ public class KeyShardSet {
         @NotNull
         public KeyShardSet.KeyShardSetBuilder addKeyShardGroup(final int quorumSize, @NotNull final Set<PublicKey> keys) {
             groups.add(new KeyShardGroup(quorumSize, keys));
+            return this;
+        }
+
+        /**
+         * Set a {@code List} object that will be populated with the lengths of the shards that are created when the
+         * KeyShardSet is built.  This is provided primarily to aid in unit testing.
+         * <p></p>
+         * This information is not included in the KeyShardSet object as that would weaken the protection provided by
+         * the encryption.
+         *
+         * @param shardLengths This should be a List object that is mutable and supports the clear() operation.
+         * @return this builder.
+         * @throws IllegalArgumentException if the list object is not mutable or it does not support the clear operation.
+         */
+        public KeyShardSet.KeyShardSetBuilder setShardLengthList(List<Integer> shardLengths) {
+            try {
+                shardLengths.add(0);
+                shardLengths.clear();
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Shard length list must be a mutable List object that supports the clear method.", e);
+            }
+            this.shardLengths = shardLengths;
             return this;
         }
 
@@ -424,9 +451,9 @@ public class KeyShardSet {
         private void checkForMinimumShardSize(@NotNull byte[] cryptoshuffleKey, int requiredNumberOfShards, int shardSize) {
             if (shardSize < MINIMUM_SHARD_SIZE) {
                 @NotNull final String msg = "This key set would contain " + requiredNumberOfShards + " shards."
-                                                    + " The length of the key to be sharded is " + cryptoshuffleKey.length
-                                                    + ". This would result in shards of length " + shardSize
-                                                    + " which is less than the minimum shard size of " + MINIMUM_SHARD_SIZE;
+                        + " The length of the key to be sharded is " + cryptoshuffleKey.length
+                        + ". This would result in shards of length " + shardSize
+                        + " which is less than the minimum shard size of " + MINIMUM_SHARD_SIZE;
                 throw new IllegalStateException(msg);
             }
         }
