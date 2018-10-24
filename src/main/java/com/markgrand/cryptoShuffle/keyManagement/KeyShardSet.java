@@ -422,8 +422,18 @@ public class KeyShardSet {
             final int shardSize = cryptoshuffleKey.length / requiredNumberOfShards;
             checkForMinimumShardSize(cryptoshuffleKey, requiredNumberOfShards, shardSize);
             @NotNull final byte[][] shards = makeShards(cryptoshuffleKey, requiredNumberOfShards, shardSize);
+            populateShardLengths(shards);
             populateGroups(shards);
             return new KeyShardSet(groups, requiredNumberOfShards, uuid.orElseGet(UUID::randomUUID), encryptionAlgorithm);
+        }
+
+        private void populateShardLengths(byte[][] shards) {
+            if (shardLengths != null) {
+                shardLengths.clear();
+                for (byte[] shard: shards) {
+                    shardLengths.add(shard.length);
+                }
+            }
         }
 
         private void populateGroups(@NotNull byte[][] shards) {
