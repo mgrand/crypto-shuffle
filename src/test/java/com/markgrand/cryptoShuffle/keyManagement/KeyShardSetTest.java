@@ -1,5 +1,6 @@
 package com.markgrand.cryptoShuffle.keyManagement;
 
+import com.google.common.collect.ImmutableSet;
 import com.markgrand.cryptoShuffle.AbstractTest;
 import org.junit.Test;
 
@@ -133,6 +134,20 @@ public class KeyShardSetTest extends AbstractTest {
     }
 
     @Test
+    public void shardLengthTest() {
+        List<Integer> shardLengths = new ArrayList<>();
+        final Set<KeyPair> keyPairs5 = generateKeyPairs(5);
+        final KeyShardSet.KeyShardSetBuilder builder = KeyShardSet.newBuilder(AsymmetricEncryptionAlgorithm.RSA);
+        final Set<PublicKey> publicKeys5 = keyPairs5.stream().map(KeyPair::getPublic).collect(Collectors.toSet());
+        builder.addKeyShardGroup(2,  publicKeys5).setShardLengthList(shardLengths).build(key4800);
+        assertEquals(5, shardLengths.size());
+        assertEquals(shardLengths.get(0), shardLengths.get(1));
+        assertEquals(shardLengths.get(0), shardLengths.get(2));
+        assertEquals(shardLengths.get(0), shardLengths.get(3));
+        assertEquals(shardLengths.get(0), shardLengths.get(4));
+    }
+
+    @Test
     public void roundTripTest4800() {
         final Set<KeyPair> keyPairs5 = generateKeyPairs(5);
         final Set<KeyPair> keyPairs3 = generateKeyPairs(3);
@@ -144,11 +159,16 @@ public class KeyShardSetTest extends AbstractTest {
                                                 .build(key4800);
         assertEquals("Shard Count",8, keyShardSet.getShardCount());
         Collection<KeyShardSet.KeyShardGroup> groupCollection = keyShardSet.getGroups();
+        assertEquals(2, groupCollection.size());
+
+        Set<Integer> shardNumberSet = new HashSet<>();
         for (KeyShardSet.KeyShardGroup group: groupCollection) {
             for (PublicKey publicKey: group.getKeys()) {
                 Map<Integer, EncryptedShard> shardMap = group.getEncryptedShardsForKey(publicKey);
+                shardNumberSet.addAll(shardMap.keySet());
             }
         }
+        assertEquals(ImmutableSet.of(0,1,2,3,4,5,6,7), shardNumberSet);
         assertFalse(keyShardSet.getDecryptedKey().isPresent());
         decryptKeyPairs(keyShardSet, keyPairs5);
         assertFalse(keyShardSet.getDecryptedKey().isPresent());
