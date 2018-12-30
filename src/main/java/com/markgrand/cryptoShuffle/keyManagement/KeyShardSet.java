@@ -231,6 +231,19 @@ public class KeyShardSet {
     }
 
     /**
+     * Return a {@code Map} whose keys are the shard positions that are not yet decrypted.
+     * <p></p>
+     * This method serves two purposes. Firstly it can be used to find out which shards still remain to be decrypted and
+     * the public keys that were used to encrypt each shard. If you are able to associate the public keys with the party
+     * that has the corresponding private key, then you will know who has the
+     * @return
+     */
+    public Map<Integer, List<PublicKey>> missingPublicKeys() {
+        //TODO finish this
+        throw new UnsupportedOperationException();
+    }
+
+    /**
      * Description of a group of keys that enumerates a set of public keys and the how many private keys will be needed
      * to reconstitute the original cryptoshuffle key.
      */
