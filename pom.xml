@@ -76,12 +76,12 @@
         == The jmockit dependency MUST come before the junit dependency ==
         == so that jmockit will be first in the classpath              ==
         ==================================================================-->
-    <dependency>
-      <groupId>org.jmockit</groupId>
-      <artifactId>jmockit</artifactId>
-      <version>${jmockit.version}</version>
-      <scope>test</scope>
-    </dependency>
+    <!--<dependency>-->
+      <!--<groupId>org.jmockit</groupId>-->
+      <!--<artifactId>jmockit</artifactId>-->
+      <!--<version>${jmockit.version}</version>-->
+      <!--<scope>test</scope>-->
+    <!--</dependency>-->
 
     <!-- https://mvnrepository.com/artifact/junit/junit -->
     <dependency>

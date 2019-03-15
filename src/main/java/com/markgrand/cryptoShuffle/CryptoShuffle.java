@@ -57,9 +57,11 @@ public class CryptoShuffle {
 
     /**
      * Decrypt the given encrypted bytes with the given key.
-     * @param encrypted
-     * @param key
-     * @return
+     * @param encrypted An array of encrypted bytes.
+     * @param key The key to use.
+     * @return An array containing the decrypted bytes.
+     * @throws IllegalArgumentException if the encrypted array was encrypted with an incompatible version of
+     *         cryptoshuffle or the key is not usable.
      */
     @NotNull
     public static byte[] decrypt(@NotNull final byte[] encrypted, @NotNull final byte[] key) {
