@@ -11,17 +11,10 @@ import java.security.SecureRandom;
  */
 public class RandomKeyGenerator {
     @NotNull
-    static private final ThreadLocal<RandomKeyGenerator> localRandom = ThreadLocal.withInitial(RandomKeyGenerator::new);
+    private static final ThreadLocal<RandomKeyGenerator> localRandom = ThreadLocal.withInitial(RandomKeyGenerator::new);
 
     @NotNull
     private final SecureRandom random = new SecureRandom();
-
-    /**
-     * Constructor.
-     */
-    @SuppressWarnings("WeakerAccess")
-    public RandomKeyGenerator() {
-    }
 
     /**
      * This class's {@link #generateKey(int)} method is synchronized. To avoid having calls from multiple threads on the

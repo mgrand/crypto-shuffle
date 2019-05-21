@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
  * @author Mark Grand
  */
 @SuppressWarnings("unused")
-public class CryptoShuffleTest extends AbstractCryptoTest {
+public class CryptoShuffleTest extends AbstractCryptoTestcase {
     @Test
     public void encryptionDecryptionTest() {
         @NotNull byte[] encrypted = CryptoShuffle.encrypt(plaintext16, key16);

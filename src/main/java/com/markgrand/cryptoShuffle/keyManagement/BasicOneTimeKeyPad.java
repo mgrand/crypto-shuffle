@@ -12,8 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings("WeakerAccess")
 public class BasicOneTimeKeyPad extends AbstractOneTimeKeyPad implements Serializable {
     private final UsedKeyMap usedKeys;
-    private final Map<UUID, byte[]> newKeys = new ConcurrentHashMap<>();
-    private final Set<Map.Entry<UUID, byte[]>> newEntrySet = newKeys.entrySet();
+    private final ConcurrentHashMap<UUID, byte[]> newKeys = new ConcurrentHashMap<>();
 
     /**
      * Construct a {@link OneTimeKeyPad} that uses a {@link ConcurrentHashMap} to keep used keys in memory.
@@ -39,7 +38,7 @@ public class BasicOneTimeKeyPad extends AbstractOneTimeKeyPad implements Seriali
     @Override
     protected Optional<Map.Entry<UUID, byte[]>> doGetUnusedKey() {
         try {
-            Iterator<Map.Entry<UUID, byte[]>> iterator = newEntrySet.iterator();
+            Iterator<Map.Entry<UUID, byte[]>> iterator = newKeys.entrySet().iterator();
             Map.Entry<UUID, byte[]> nextUnused = iterator.next();
             iterator.remove();
             usedKeys.put(nextUnused.getKey(), nextUnused.getValue());

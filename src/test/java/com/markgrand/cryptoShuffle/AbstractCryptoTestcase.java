@@ -4,7 +4,7 @@ package com.markgrand.cryptoShuffle;
  * Superclass to provide common data and logic for unit tests.
  */
 @SuppressWarnings("WeakerAccess")
-public class AbstractCryptoTest {
+public class AbstractCryptoTestcase {
     static final byte[] key16 = {0x39, (byte) 0xe4, 0x32, (byte) 0xa3, (byte) 0x89, 0x00, 0x24, (byte) 0x97, (byte) 0xf1, 0x73, (byte) 0x89, 0x00, 0x24, (byte) 0x97, (byte) 0xf1, 0x73};
 
     static final byte[] plaintext16 = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,

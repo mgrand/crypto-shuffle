@@ -1,6 +1,7 @@
 package com.markgrand.cryptoShuffle;
 
 import static com.markgrand.cryptoShuffle.Constants.*;
+
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -27,6 +28,10 @@ import org.jetbrains.annotations.NotNull;
  */
 @SuppressWarnings({"unused", "WeakerAccess"})
 public class CryptoShuffle {
+    // Private constructor to prevent instantiation.
+    private CryptoShuffle() {
+    }
+
     /**
      * Encrypt the given plaintext using the given key.
      *
@@ -41,8 +46,8 @@ public class CryptoShuffle {
         final byte[] encrypted = new byte[key.length + 1];
         encrypted[0] = VERSION;
         System.arraycopy(plaintext, 0, encrypted, 1, key.length);
-        for (int i=0; i<key.length; i++) {
-            encrypted[i+1] ^= key[i];
+        for (int i = 0; i < key.length; i++) {
+            encrypted[i + 1] ^= key[i];
         }
         return encrypted;
     }
@@ -57,17 +62,17 @@ public class CryptoShuffle {
 
     /**
      * Decrypt the given encrypted bytes with the given key.
+     *
      * @param encrypted An array of encrypted bytes.
-     * @param key The key to use.
+     * @param key       The key to use.
      * @return An array containing the decrypted bytes.
      * @throws IllegalArgumentException if the encrypted array was encrypted with an incompatible version of
-     *         cryptoshuffle or the key is not usable.
+     *                                  cryptoshuffle or the key is not usable.
      */
     @NotNull
     public static byte[] decrypt(@NotNull final byte[] encrypted, @NotNull final byte[] key) {
-        switch (encrypted[0]) {
-            case VERSION_THREE:
-                return decryptV3(encrypted, key);
+        if (VERSION_THREE == encrypted[0]) {
+            return decryptV3(encrypted, key);
         }
         @NotNull String msg = "Encrypted bytes were encrypted with an unsupported version of cyrptoshuffle:";
         throw new IllegalArgumentException(msg + (int) encrypted[0]);
@@ -80,7 +85,7 @@ public class CryptoShuffle {
         }
         byte[] decrypted = new byte[key.length];
         for (int i = 0; i < key.length; i++) {
-            decrypted[i] = (byte)(encrypted[i+1] ^ key[i]);
+            decrypted[i] = (byte) (encrypted[i + 1] ^ key[i]);
         }
         return decrypted;
     }

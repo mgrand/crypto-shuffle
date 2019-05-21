@@ -1,5 +1,6 @@
 package com.markgrand.cryptoShuffle.keyManagement;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.UUID;
 
@@ -7,7 +8,7 @@ import java.util.UUID;
  * This interface is implemented by objects that the {@link BasicOneTimeKeyPad} class uses to store used keys
  */
 @SuppressWarnings("WeakerAccess")
-public interface UsedKeyMap {
+public interface UsedKeyMap extends Serializable {
     /**
      * Add the given UUID an cryptoshuffle key to this object.
      *
